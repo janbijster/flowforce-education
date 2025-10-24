@@ -124,6 +124,54 @@ poetry run python manage.py runserver
 
 Visit http://localhost:8000 to see your application running.
 
+## Management Commands
+
+### Creating Dummy Data
+
+The project includes management commands to create sample data for development and testing.
+
+#### BHV Certification Dummy Data
+
+To create comprehensive dummy content for a Dutch BHV (Bedrijfshulpverlening) certification company:
+
+```bash
+poetry run python manage.py create_bhv_dummy_data
+```
+
+This command creates:
+- **Organization**: BHV instituut
+- **3 Courses**: Basisopleiding BHV, Herhalingscursus BHV, Specialistische BHV
+- **4 Modules**: Levensreddende Eerste Hulp, Brandbestrijding en Ontruiming, etc.
+- **4 Lessons**: Bewustzijn en Reanimatie, Brand herkennen en bestrijden, etc.
+- **8 Topics**: Bewustzijn controleren, Reanimatie toepassen, etc.
+- **16 Learning Objectives**: Comprehensive BHV competencies
+
+The command is idempotent (safe to run multiple times) and uses transactions to ensure data integrity.
+
+#### Default Organization
+
+To create a basic default organization:
+
+```bash
+poetry run python manage.py create_default_org
+```
+
+### Django Admin
+
+After creating dummy data, you can view and manage it through the Django admin interface:
+
+1. Create a superuser:
+```bash
+poetry run python manage.py createsuperuser
+```
+
+2. Start the development server:
+```bash
+poetry run python manage.py runserver
+```
+
+3. Visit http://localhost:8000/admin/ to access the admin interface
+
 ## Deployment to Render.com
 
 ### 1. Push to Git Repository
