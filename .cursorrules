@@ -1,0 +1,37 @@
+# FlowForce Education - Cursor Rules
+
+## Always Include These Files in Context
+
+When working on this project, always include the following files in your context to understand the project structure and requirements:
+
+1. **agents.md** - Contains detailed project context, business requirements, tech stack details, and agent responsibilities
+2. **README.md** (root) - Project overview and links to component documentation  
+3. **frontend/README.md** - Frontend setup and development instructions
+4. **backend/README.md** - Backend setup and development instructions
+
+## Project Context
+
+This is FlowForce Education, an AI-driven assessment platform that:
+- Measures learner mastery at fine-grained levels (per learning objective)
+- Provides adaptive, personalized assessments
+- Integrates with existing LMS systems via LTI, SCORM, and xAPI
+- Uses Django + React + PostgreSQL architecture
+- Focuses on privacy with pseudonymized data and multi-tenant architecture
+
+## Key Principles
+
+- Everything must be traceable to a learning objective
+- Personalization is per learner
+- Respect privacy by design
+- Prepare for external LMS embedding
+- Optimize for instructor time savings
+- Minimize complexity - prefer built-in functionality over custom logic
+
+## Repository Structure
+
+- `frontend/` - React application (student/teacher UI, quiz interface, dashboards)
+- `backend/` - Django project (Python, Django REST Framework)
+- PostgreSQL database (SQLite can be used for local development)
+- Multi-tenant architecture with data isolation
+
+Always refer to the agents.md file for comprehensive project context and requirements.

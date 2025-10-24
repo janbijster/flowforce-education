@@ -1,4 +1,4 @@
-# Flowforce Education
+# Flowforce Education - backend
 
 ## Tech stack
 

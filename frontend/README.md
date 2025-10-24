@@ -1,10 +1,4 @@
-# Flowforce Education
-
-## About
-
-### Overview
-
-
+# Flowforce Education - frontend
 
 
 ## Stack
