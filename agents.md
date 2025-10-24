@@ -128,27 +128,13 @@ The go-to-market strategy starts in commercial settings because the sales cycle 
 
 When generating or modifying code, follow these principles:
 
-1. **Do not break the integration contract.**  
-   - APIs in the backend must stay predictable for the React frontend.
-   - Keep request/response schemas stable unless explicitly evolving both sides.
+1. **Only create what is asked for**
+   - This one is very important. Do not add extra fields, lines, logic that is not explicitly asked for in the prompt.
 
-2. **Everything is traceable to a learning objective.**  
-   - Any quiz question, any mastery score, any dashboard metric should reference a specific learning objective ID.
+2. **Minimize code and complexity**
+   - Re-use existing functionality whenever possible
+   - Use of-the-shelf solutions when possible
 
-3. **Personalization is per learner.**  
-   - Any “generate quiz” flow should accept a learner context (or pseudonymous learner ID) and return only what that learner should get next.
-
-4. **Respect privacy by design.**  
-   - Never introduce code that stores raw personal data unless required.
-   - Prefer anonymized / pseudonymized identifiers.
-   - Assume data isolation between customers (tenants).
-
-5. **Prepare for external LMS embedding.**  
-   - UIs should be embeddable (iframe-friendly layouts, responsive, minimal nav chrome).
-   - Backend should expose clean LTI and SCORM/xAPI integration points.
-
-6. **Optimize for instructor time savings.**  
-   - Features that auto-generate content, summarize gaps, or highlight who needs help first are high priority.
 
 ---
 
