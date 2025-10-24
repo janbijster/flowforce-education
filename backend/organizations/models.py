@@ -1,15 +1,37 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
-class Organization(models.Model):
+class TimestampedModel(models.Model):
+    """Abstract base model that provides created_at and updated_at timestamps."""
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        abstract = True
+
+
+class OrganizationModel(TimestampedModel):
+    """Abstract base model that provides timestamps and organization foreign key."""
+    
+    organization = models.ForeignKey(
+        'organizations.Organization',
+        on_delete=models.CASCADE,
+        related_name='%(app_label)s_%(class)s_set',
+    )
+    
+    class Meta:
+        abstract = True
+
+
+class Organization(TimestampedModel):
     """Organization model for multi-tenant architecture."""
     
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         ordering = ['name']
@@ -25,7 +47,7 @@ class User(AbstractUser):
         Organization,
         on_delete=models.CASCADE,
         related_name='users',
-        null=False,
+        null=True,
         blank=True
     )
     
