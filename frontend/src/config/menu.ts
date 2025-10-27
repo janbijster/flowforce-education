@@ -20,6 +20,10 @@ export const mainMenu: NavItemWithChildren[] = [
         to: '',
     },
     {
+        title: 'Quizzes',
+        to: '/quizzes',
+    },
+    {
         title: 'Dropdown',
         items: [
             {

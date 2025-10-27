@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Question, Option
+from .models import Quiz, Question, Option
 
 
 class OptionSerializer(serializers.ModelSerializer):
@@ -17,6 +17,7 @@ class OptionSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     """Serializer for Question model."""
     
+    quiz_name = serializers.CharField(source='quiz.name', read_only=True)
     topic_name = serializers.CharField(source='topic.name', read_only=True)
     lesson_name = serializers.CharField(source='topic.lesson.name', read_only=True)
     module_name = serializers.CharField(source='topic.lesson.module.name', read_only=True)
@@ -27,8 +28,8 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = [
-            'id', 'text', 'organization', 'topic', 'learning_objectives',
-            'topic_name', 'lesson_name', 'module_name', 'course_name',
+            'id', 'text', 'organization', 'quiz', 'topic', 'learning_objectives',
+            'quiz_name', 'topic_name', 'lesson_name', 'module_name', 'course_name',
             'options_count', 'learning_objectives_count',
             'created_at', 'updated_at'
         ]
@@ -48,6 +49,35 @@ class QuestionDetailSerializer(QuestionSerializer):
     
     class Meta(QuestionSerializer.Meta):
         fields = QuestionSerializer.Meta.fields + ['options']
+
+
+class QuizSerializer(serializers.ModelSerializer):
+    """Serializer for Quiz model."""
+    
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    module_name = serializers.CharField(source='module.name', read_only=True)
+    questions_count = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Quiz
+        fields = [
+            'id', 'name', 'description', 'organization', 'course', 'module',
+            'lessons', 'topics', 'course_name', 'module_name',
+            'questions_count', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+    
+    def get_questions_count(self, obj):
+        return obj.questions.count()
+
+
+class QuizDetailSerializer(QuizSerializer):
+    """Detailed serializer for Quiz with questions."""
+    
+    questions = QuestionSerializer(many=True, read_only=True)
+    
+    class Meta(QuizSerializer.Meta):
+        fields = QuizSerializer.Meta.fields + ['questions']
 
 
 class OptionDetailSerializer(OptionSerializer):

@@ -148,6 +148,21 @@ This command creates:
 
 The command is idempotent (safe to run multiple times) and uses transactions to ensure data integrity.
 
+#### Populate Quiz Data
+
+To create sample quizzes, questions, and options for BHV content:
+
+```bash
+poetry run python manage.py populate_quizzes
+```
+
+This command creates:
+- **3 Quizzes**: Course-level, module-level, and topic-level quizzes
+- **5 Questions**: Covering BHV awareness and resuscitation topics
+- **20 Options**: Multiple choice options (1 correct per question)
+
+This command requires that BHV content has already been created using `create_bhv_dummy_data`.
+
 ### API Endpoints Summary
 
 Once the server is running, you can access:
@@ -158,6 +173,7 @@ Once the server is running, you can access:
 - **Lessons**: http://localhost:8000/api/courses/lessons/
 - **Topics**: http://localhost:8000/api/courses/topics/
 - **Learning Objectives**: http://localhost:8000/api/courses/learning-objectives/
+- **Quizzes**: http://localhost:8000/api/quizzes/quizzes/
 - **Questions**: http://localhost:8000/api/quizzes/questions/
 - **Options**: http://localhost:8000/api/quizzes/options/
 

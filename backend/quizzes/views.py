@@ -2,11 +2,37 @@ from rest_framework import viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Question, Option
+from .models import Quiz, Question, Option
 from .serializers import (
+    QuizSerializer, QuizDetailSerializer,
     QuestionSerializer, QuestionDetailSerializer,
     OptionSerializer, OptionDetailSerializer
 )
+
+
+class QuizViewSet(viewsets.ModelViewSet):
+    """ViewSet for Quiz model."""
+    
+    queryset = Quiz.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'description']
+    ordering_fields = ['name', 'created_at']
+    ordering = ['created_at']
+    filterset_fields = ['organization', 'course', 'module']
+    
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return QuizDetailSerializer
+        return QuizSerializer
+    
+    @action(detail=True, methods=['get'])
+    def questions(self, request, pk=None):
+        """Get all questions for this quiz."""
+        quiz = self.get_object()
+        questions = Question.objects.filter(quiz=quiz)
+        serializer = QuestionSerializer(questions, many=True)
+        return Response(serializer.data)
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -18,7 +44,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     search_fields = ['text']
     ordering_fields = ['text', 'created_at']
     ordering = ['created_at']
-    filterset_fields = ['organization', 'topic', 'learning_objectives']
+    filterset_fields = ['organization', 'topic', 'learning_objectives', 'quiz']
     
     def get_serializer_class(self):
         if self.action == 'retrieve':

@@ -1,8 +1,9 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import QuestionViewSet, OptionViewSet
+from .views import QuizViewSet, QuestionViewSet, OptionViewSet
 
 router = DefaultRouter()
+router.register(r'quizzes', QuizViewSet)
 router.register(r'questions', QuestionViewSet)
 router.register(r'options', OptionViewSet)
 

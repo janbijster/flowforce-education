@@ -1,5 +1,19 @@
 from django.contrib import admin
-from .models import Question, Option
+from .models import Quiz, Question, Option
+
+
+class QuestionInline(admin.TabularInline):
+    model = Question
+    extra = 3
+
+
+@admin.register(Quiz)
+class QuizAdmin(admin.ModelAdmin):
+    list_display = ['name', 'course', 'module', 'organization', 'created_at']
+    list_filter = ['organization', 'created_at']
+    search_fields = ['name', 'description']
+    filter_horizontal = ['lessons', 'topics']
+    inlines = [QuestionInline]
 
 
 class OptionInline(admin.TabularInline):
