@@ -45,6 +45,9 @@ class QuestionDetailSerializer(QuestionSerializer):
     """Detailed serializer for Question with options."""
     
     options = OptionSerializer(many=True, read_only=True)
+    
+    class Meta(QuestionSerializer.Meta):
+        fields = QuestionSerializer.Meta.fields + ['options']
 
 
 class OptionDetailSerializer(OptionSerializer):
@@ -53,3 +56,6 @@ class OptionDetailSerializer(OptionSerializer):
     question_text = serializers.CharField(source='question.text', read_only=True)
     topic_name = serializers.CharField(source='question.topic.name', read_only=True)
     course_name = serializers.CharField(source='question.topic.lesson.module.course.name', read_only=True)
+    
+    class Meta(OptionSerializer.Meta):
+        fields = OptionSerializer.Meta.fields + ['question_text', 'topic_name', 'course_name']

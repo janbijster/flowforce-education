@@ -148,6 +148,21 @@ This command creates:
 
 The command is idempotent (safe to run multiple times) and uses transactions to ensure data integrity.
 
+### API Endpoints Summary
+
+Once the server is running, you can access:
+
+- **Organizations**: http://localhost:8000/api/organizations/organizations/
+- **Courses**: http://localhost:8000/api/courses/courses/
+- **Modules**: http://localhost:8000/api/courses/modules/
+- **Lessons**: http://localhost:8000/api/courses/lessons/
+- **Topics**: http://localhost:8000/api/courses/topics/
+- **Learning Objectives**: http://localhost:8000/api/courses/learning-objectives/
+- **Questions**: http://localhost:8000/api/quizzes/questions/
+- **Options**: http://localhost:8000/api/quizzes/options/
+
+All endpoints support filtering, search, and pagination.
+
 #### Default Organization
 
 To create a basic default organization:
@@ -171,6 +186,30 @@ poetry run python manage.py runserver
 ```
 
 3. Visit http://localhost:8000/admin/ to access the admin interface
+
+## API Documentation
+
+The API is fully documented using OpenAPI 3.0 (Swagger). Access the interactive documentation at:
+
+- **Swagger UI**: http://localhost:8000/api/schema/swagger-ui/
+- **ReDoc**: http://localhost:8000/api/schema/redoc/
+- **OpenAPI Schema**: http://localhost:8000/api/schema/
+
+### Generating the OpenAPI Schema
+
+To generate a static OpenAPI YAML file for your API:
+
+```bash
+poetry run python manage.py spectacular --file openapi.yaml
+```
+
+This generates a comprehensive OpenAPI specification file that can be:
+- Imported into API clients (Postman, Insomnia, etc.)
+- Used by AI agents and code generators
+- Referenced in your documentation
+- Shared with frontend developers
+
+The generated `openapi.yaml` file contains complete schemas for all endpoints, request/response models, authentication methods, and filtering options.
 
 ## Deployment to Render.com
 
