@@ -72,6 +72,33 @@ export interface Module {
   updated_at: string;
 }
 
+export interface Lesson {
+  id: number;
+  name: string;
+  description: string | null;
+  organization: number;
+  module: number;
+  module_name: string;
+  course_name: string;
+  topics_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Topic {
+  id: number;
+  name: string;
+  description: string | null;
+  organization: number;
+  lesson: number;
+  lesson_name: string;
+  module_name: string;
+  course_name: string;
+  learning_objectives_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 function getCsrfToken(): string | null {
   if (typeof document === 'undefined') return null;
   const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
@@ -226,6 +253,32 @@ export async function fetchModules(courseId?: number): Promise<Module[]> {
   });
   if (!response.ok) {
     throw new Error('Failed to fetch modules');
+  }
+  const data = await response.json();
+  return data.results || data;
+}
+
+export async function fetchLessons(moduleId?: number): Promise<Lesson[]> {
+  const qs = new URLSearchParams();
+  if (moduleId) qs.set('module', String(moduleId));
+  const response = await fetch(`${API_BASE_URL}/courses/lessons/?${qs.toString()}`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch lessons');
+  }
+  const data = await response.json();
+  return data.results || data;
+}
+
+export async function fetchTopics(lessonId?: number): Promise<Topic[]> {
+  const qs = new URLSearchParams();
+  if (lessonId) qs.set('lesson', String(lessonId));
+  const response = await fetch(`${API_BASE_URL}/courses/topics/?${qs.toString()}`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch topics');
   }
   const data = await response.json();
   return data.results || data;

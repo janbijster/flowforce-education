@@ -112,6 +112,7 @@ export default function Questions() {
     <>
       <PageHeader>
         <PageHeaderHeading>Questions</PageHeaderHeading>
+        <Button onClick={() => navigate("/questions/new")}>New Question</Button>
       </PageHeader>
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
