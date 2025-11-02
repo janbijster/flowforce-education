@@ -99,6 +99,58 @@ export interface Topic {
   updated_at: string;
 }
 
+export interface StudentGroup {
+  id: number;
+  name: string;
+  organization: number;
+  course: number;
+  module: number | null;
+  year: number;
+  course_name: string;
+  module_name: string | null;
+  students_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StudentGroupDetail extends StudentGroup {
+  students: Student[];
+}
+
+export interface Student {
+  id: number;
+  user: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  organization: number;
+  student_groups: number[];
+  student_groups_names: string[];
+  full_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StudentDetail extends Student {
+  question_answers_count: number;
+}
+
+export interface StudentQuestionAnswer {
+  id: number;
+  student: number;
+  question: number;
+  quiz: number;
+  answer: number;
+  student_name: string;
+  question_text: string;
+  quiz_name: string;
+  answer_text: string;
+  correct: boolean;
+  organization: number;
+  created_at: string;
+  updated_at: string;
+}
+
 function getCsrfToken(): string | null {
   if (typeof document === 'undefined') return null;
   const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
@@ -248,7 +300,9 @@ export async function fetchCourses(): Promise<Course[]> {
 export async function fetchModules(courseId?: number): Promise<Module[]> {
   const qs = new URLSearchParams();
   if (courseId) qs.set('course', String(courseId));
-  const response = await fetch(`${API_BASE_URL}/courses/modules/?${qs.toString()}`, {
+  const queryString = qs.toString();
+  const url = `${API_BASE_URL}/courses/modules/${queryString ? `?${queryString}` : ''}`;
+  const response = await fetch(url, {
     credentials: 'include',
   });
   if (!response.ok) {
@@ -261,7 +315,9 @@ export async function fetchModules(courseId?: number): Promise<Module[]> {
 export async function fetchLessons(moduleId?: number): Promise<Lesson[]> {
   const qs = new URLSearchParams();
   if (moduleId) qs.set('module', String(moduleId));
-  const response = await fetch(`${API_BASE_URL}/courses/lessons/?${qs.toString()}`, {
+  const queryString = qs.toString();
+  const url = `${API_BASE_URL}/courses/lessons/${queryString ? `?${queryString}` : ''}`;
+  const response = await fetch(url, {
     credentials: 'include',
   });
   if (!response.ok) {
@@ -274,7 +330,9 @@ export async function fetchLessons(moduleId?: number): Promise<Lesson[]> {
 export async function fetchTopics(lessonId?: number): Promise<Topic[]> {
   const qs = new URLSearchParams();
   if (lessonId) qs.set('lesson', String(lessonId));
-  const response = await fetch(`${API_BASE_URL}/courses/topics/?${qs.toString()}`, {
+  const queryString = qs.toString();
+  const url = `${API_BASE_URL}/courses/topics/${queryString ? `?${queryString}` : ''}`;
+  const response = await fetch(url, {
     credentials: 'include',
   });
   if (!response.ok) {
@@ -371,3 +429,127 @@ export async function deleteOption(id: number): Promise<void> {
   }
 }
 
+// Student Groups API
+export async function fetchStudentGroups(courseId?: number, moduleId?: number): Promise<StudentGroup[]> {
+  const qs = new URLSearchParams();
+  if (courseId) qs.set('course', String(courseId));
+  if (moduleId) qs.set('module', String(moduleId));
+  const queryString = qs.toString();
+  const url = `${API_BASE_URL}/students/student-groups/${queryString ? `?${queryString}` : ''}`;
+  const response = await fetch(url, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch student groups');
+  }
+  const data = await response.json();
+  return data.results || data;
+}
+
+export async function fetchStudentGroup(id: number): Promise<StudentGroupDetail> {
+  const response = await fetch(`${API_BASE_URL}/students/student-groups/${id}/`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch student group');
+  }
+  return await response.json();
+}
+
+export async function createStudentGroup(payload: Partial<StudentGroup>): Promise<StudentGroup> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/students/student-groups/`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create student group');
+  }
+  return await response.json();
+}
+
+export async function updateStudentGroup(id: number, payload: Partial<StudentGroup>): Promise<StudentGroup> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/students/student-groups/${id}/`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update student group');
+  }
+  return await response.json();
+}
+
+// Students API
+export async function fetchStudents(studentGroupId?: number): Promise<Student[]> {
+  const qs = new URLSearchParams();
+  if (studentGroupId) qs.set('student_groups', String(studentGroupId));
+  const queryString = qs.toString();
+  const url = `${API_BASE_URL}/students/students/${queryString ? `?${queryString}` : ''}`;
+  const response = await fetch(url, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch students');
+  }
+  const data = await response.json();
+  return data.results || data;
+}
+
+export async function fetchStudent(id: number): Promise<StudentDetail> {
+  const response = await fetch(`${API_BASE_URL}/students/students/${id}/`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch student');
+  }
+  return await response.json();
+}
+
+export async function createStudent(payload: Partial<Student>): Promise<Student> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/students/students/`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create student');
+  }
+  return await response.json();
+}
+
+export async function updateStudent(id: number, payload: Partial<Student>): Promise<Student> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/students/students/${id}/`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update student');
+  }
+  return await response.json();
+}

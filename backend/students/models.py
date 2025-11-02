@@ -31,21 +31,31 @@ class StudentGroup(OrganizationModel):
 class Student(OrganizationModel):
     """Student model representing a learner in the system."""
     
+    user = models.OneToOneField(
+        'organizations.User',
+        on_delete=models.CASCADE,
+        related_name='student_profile',
+        null=True,
+        blank=True
+    )
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     email = models.EmailField(blank=True)
-    student_group = models.ForeignKey(
+    student_groups = models.ManyToManyField(
         StudentGroup,
-        on_delete=models.CASCADE,
-        related_name='students'
+        related_name='students',
+        blank=True
     )
     
     class Meta:
         ordering = ['last_name', 'first_name']
-        unique_together = ['organization', 'student_group', 'first_name', 'last_name', 'email']
+        unique_together = ['organization', 'user']
     
     def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.student_group.name})"
+        groups = ', '.join([g.name for g in self.student_groups.all()[:2]])
+        if self.student_groups.count() > 2:
+            groups += '...'
+        return f"{self.first_name} {self.last_name}" + (f" ({groups})" if groups else "")
 
 
 class StudentQuestionAnswer(OrganizationModel):

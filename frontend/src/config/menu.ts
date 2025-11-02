@@ -28,6 +28,14 @@ export const mainMenu: NavItemWithChildren[] = [
         to: '/questions',
     },
     {
+        title: 'Student Groups',
+        to: '/student-groups',
+    },
+    {
+        title: 'Students',
+        to: '/students',
+    },
+    {
         title: 'Dropdown',
         items: [
             {
