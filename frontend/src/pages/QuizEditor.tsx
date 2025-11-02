@@ -460,7 +460,7 @@ export default function QuizEditor() {
                 <TableRow>
                   <TableHead>Question</TableHead>
                   <TableHead>Topic</TableHead>
-                  <TableHead className="w-24">Action</TableHead>
+                  <TableHead className="w-32">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -469,7 +469,10 @@ export default function QuizEditor() {
                     <TableCell className="max-w-[360px] truncate">{q.text}</TableCell>
                     <TableCell>{q.topic_name}</TableCell>
                     <TableCell>
-                      <Button size="sm" variant="outline" onClick={() => handleAdd(q)} disabled={!quiz}>Add</Button>
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" onClick={() => handleAdd(q)} disabled={!quiz}>Add</Button>
+                        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate(`/questions/${q.id}/edit`); }}>Edit</Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -488,7 +491,7 @@ export default function QuizEditor() {
                   <TableHead className="w-10">#</TableHead>
                   <TableHead>Question</TableHead>
                   <TableHead>Topic</TableHead>
-                  <TableHead className="w-24">Action</TableHead>
+                  <TableHead className="w-32">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -505,7 +508,10 @@ export default function QuizEditor() {
                     <TableCell className="max-w-[360px] truncate">{q.text}</TableCell>
                     <TableCell>{q.topic_name}</TableCell>
                     <TableCell>
-                      <Button size="sm" variant="outline" onClick={() => handleRemove(q)}>Remove</Button>
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate(`/questions/${q.id}/edit`); }}>Edit</Button>
+                        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleRemove(q); }}>Remove</Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

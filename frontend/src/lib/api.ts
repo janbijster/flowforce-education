@@ -231,3 +231,90 @@ export async function fetchModules(courseId?: number): Promise<Module[]> {
   return data.results || data;
 }
 
+export async function createQuestion(payload: Partial<Question>): Promise<Question> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/questions/`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create question');
+  }
+  return await response.json();
+}
+
+export async function updateQuestion(id: number, payload: Partial<Question>): Promise<Question> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/questions/${id}/`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update question');
+  }
+  return await response.json();
+}
+
+export async function createOption(payload: Partial<Option>): Promise<Option> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/options/`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create option');
+  }
+  return await response.json();
+}
+
+export async function updateOption(id: number, payload: Partial<Option>): Promise<Option> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/options/${id}/`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update option');
+  }
+  return await response.json();
+}
+
+export async function deleteOption(id: number): Promise<void> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/options/${id}/`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete option');
+  }
+}
+
