@@ -28,7 +28,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
         fields = [
-            'id', 'text', 'organization', 'quiz', 'topic', 'learning_objectives',
+            'id', 'text', 'order', 'organization', 'quiz', 'topic', 'learning_objectives',
             'quiz_name', 'topic_name', 'lesson_name', 'module_name', 'course_name',
             'options_count', 'learning_objectives_count',
             'created_at', 'updated_at'

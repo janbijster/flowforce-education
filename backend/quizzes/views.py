@@ -34,6 +34,28 @@ class QuizViewSet(viewsets.ModelViewSet):
         serializer = QuestionSerializer(questions, many=True)
         return Response(serializer.data)
 
+    @action(detail=True, methods=['post'])
+    def reorder(self, request, pk=None):
+        """Reorder questions within this quiz.
+
+        Expects JSON body: { "ordered_ids": [q1, q2, ...] }
+        """
+        quiz = self.get_object()
+        ordered_ids = request.data.get('ordered_ids', [])
+        if not isinstance(ordered_ids, list):
+            return Response({"detail": "ordered_ids must be a list"}, status=400)
+        # Assign incremental order based on provided list
+        order_map = {int(qid): index for index, qid in enumerate(ordered_ids)}
+        to_update = []
+        for question in Question.objects.filter(quiz=quiz, id__in=order_map.keys()):
+            new_order = order_map.get(question.id)
+            if new_order is not None and question.order != new_order:
+                question.order = new_order
+                to_update.append(question)
+        if to_update:
+            Question.objects.bulk_update(to_update, ['order'])
+        return Response({"updated": len(to_update)})
+
 
 class QuestionViewSet(viewsets.ModelViewSet):
     """ViewSet for Question model."""
@@ -42,8 +64,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['text']
-    ordering_fields = ['text', 'created_at']
-    ordering = ['created_at']
+    ordering_fields = ['text', 'created_at', 'order']
+    ordering = ['order', 'created_at']
     filterset_fields = ['organization', 'topic', 'learning_objectives', 'quiz']
     
     def get_serializer_class(self):

@@ -10,30 +10,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchQuestion, QuestionDetail } from "@/lib/api";
+import { fetchQuiz, QuizDetail as QuizDetailType } from "@/lib/api";
 
 export default function QuizDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [question, setQuestion] = useState<QuestionDetail | null>(null);
+  const [quiz, setQuiz] = useState<QuizDetailType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
 
-    const loadQuestion = async () => {
+    const loadQuiz = async () => {
       try {
-        const data = await fetchQuestion(Number(id));
-        setQuestion(data);
+        const data = await fetchQuiz(Number(id));
+        setQuiz(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load question");
+        setError(err instanceof Error ? err.message : "Failed to load quiz");
       } finally {
         setLoading(false);
       }
     };
 
-    loadQuestion();
+    loadQuiz();
   }, [id]);
 
   if (loading) {
@@ -49,14 +49,14 @@ export default function QuizDetail() {
     );
   }
 
-  if (error || !question) {
+  if (error || !quiz) {
     return (
       <>
         <PageHeader>
           <PageHeaderHeading>Quiz Detail</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error || "Question not found"}</p>
+          <p className="text-destructive">{error || "Quiz not found"}</p>
         </div>
       </>
     );
@@ -66,30 +66,31 @@ export default function QuizDetail() {
     <>
       <PageHeader>
         <PageHeaderHeading>Quiz Detail</PageHeaderHeading>
-        <Button onClick={() => navigate("/quizzes")} variant="outline">
-          Back to Quizzes
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => navigate(`/quizzes/${quiz.id}/edit`)} variant="outline">
+            Edit
+          </Button>
+          <Button onClick={() => navigate("/quizzes")} variant="outline">
+            Back
+          </Button>
+        </div>
       </PageHeader>
 
       <div className="space-y-6">
         <div className="rounded-md border p-4">
-          <h2 className="text-lg font-semibold mb-2">Question</h2>
-          <p className="text-muted-foreground">{question.text}</p>
-        </div>
-
-        <div className="rounded-md border p-4">
-          <div className="mb-4">
+          <h2 className="text-lg font-semibold mb-1">{quiz.name}</h2>
+          {quiz.description ? (
+            <p className="text-muted-foreground">{quiz.description}</p>
+          ) : null}
+          <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Course:</span> {question.course_name}
+              <span className="font-medium">Course:</span> {quiz.course_name ?? "—"}
             </p>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Module:</span> {question.module_name}
+              <span className="font-medium">Module:</span> {quiz.module_name ?? "—"}
             </p>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Lesson:</span> {question.lesson_name}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Topic:</span> {question.topic_name}
+              <span className="font-medium">Questions:</span> {quiz.questions_count}
             </p>
           </div>
         </div>
@@ -98,21 +99,21 @@ export default function QuizDetail() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Option</TableHead>
-                <TableHead>Correct Answer</TableHead>
+                <TableHead>Question</TableHead>
+                <TableHead>Topic</TableHead>
+                <TableHead>Lesson</TableHead>
+                <TableHead>Module</TableHead>
+                <TableHead>Options</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {question.options.map((option) => (
-                <TableRow key={option.id}>
-                  <TableCell>{option.text}</TableCell>
-                  <TableCell>
-                    {option.is_correct ? (
-                      <span className="text-green-600 font-semibold">✓ Correct</span>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
+              {quiz.questions.map((q) => (
+                <TableRow key={q.id}>
+                  <TableCell className="max-w-[480px] truncate">{q.text}</TableCell>
+                  <TableCell>{q.topic_name}</TableCell>
+                  <TableCell>{q.lesson_name}</TableCell>
+                  <TableCell>{q.module_name}</TableCell>
+                  <TableCell>{q.options_count}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

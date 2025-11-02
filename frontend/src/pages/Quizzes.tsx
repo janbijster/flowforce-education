@@ -9,27 +9,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchQuestions, Question } from "@/lib/api";
+import { fetchQuizzes, Quiz } from "@/lib/api";
 
 export default function Quizzes() {
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loadQuestions = async () => {
+    const loadQuizzes = async () => {
       try {
-        const data = await fetchQuestions();
-        setQuestions(data);
+        const data = await fetchQuizzes();
+        setQuizzes(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load questions");
+        setError(err instanceof Error ? err.message : "Failed to load quizzes");
       } finally {
         setLoading(false);
       }
     };
 
-    loadQuestions();
+    loadQuizzes();
   }, []);
 
   const handleRowClick = (id: number) => {
@@ -71,29 +71,23 @@ export default function Quizzes() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Name</TableHead>
               <TableHead>Course</TableHead>
               <TableHead>Module</TableHead>
-              <TableHead>Lesson</TableHead>
-              <TableHead>Topic</TableHead>
-              <TableHead>Question</TableHead>
-              <TableHead>Options</TableHead>
+              <TableHead>Questions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {questions.map((question) => (
+            {quizzes.map((quiz) => (
               <TableRow
-                key={question.id}
-                onClick={() => handleRowClick(question.id)}
+                key={quiz.id}
+                onClick={() => handleRowClick(quiz.id)}
                 className="cursor-pointer"
               >
-                <TableCell className="font-medium">
-                  {question.course_name}
-                </TableCell>
-                <TableCell>{question.module_name}</TableCell>
-                <TableCell>{question.lesson_name}</TableCell>
-                <TableCell>{question.topic_name}</TableCell>
-                <TableCell>{question.text}</TableCell>
-                <TableCell>{question.options_count}</TableCell>
+                <TableCell className="font-medium">{quiz.name}</TableCell>
+                <TableCell>{quiz.course_name}</TableCell>
+                <TableCell>{quiz.module_name}</TableCell>
+                <TableCell>{quiz.questions_count}</TableCell>
               </TableRow>
             ))}
           </TableBody>

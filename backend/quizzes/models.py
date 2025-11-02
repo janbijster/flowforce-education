@@ -44,6 +44,7 @@ class Question(OrganizationModel):
     """Question model representing quiz questions."""
     
     text = models.TextField()
+    order = models.PositiveIntegerField(default=0, db_index=True)
     quiz = models.ForeignKey(
         Quiz,
         on_delete=models.CASCADE,
@@ -63,7 +64,7 @@ class Question(OrganizationModel):
     )
     
     class Meta:
-        ordering = ['created_at']
+        ordering = ['order', 'created_at']
     
     def __str__(self):
         return f"{self.topic.name} - {self.text[:50]}..."

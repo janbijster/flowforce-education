@@ -8,6 +8,7 @@ import Empty from "./pages/Empty";
 import Sample from "./pages/Sample";
 import Quizzes from "./pages/Quizzes";
 import QuizDetail from "./pages/QuizDetail";
+import QuizEditor from "./pages/QuizEditor";
 
 export const router = createBrowserRouter([
     {
@@ -31,8 +32,16 @@ export const router = createBrowserRouter([
                 element: <Quizzes />,
             },
             {
+                path: "quizzes/new",
+                element: <QuizEditor />,
+            },
+            {
                 path: "quizzes/:id",
                 element: <QuizDetail />,
+            },
+            {
+                path: "quizzes/:id/edit",
+                element: <QuizEditor />,
             },
         ],
     },
