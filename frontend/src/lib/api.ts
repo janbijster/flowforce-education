@@ -50,6 +50,28 @@ export interface QuizDetail extends Quiz {
   questions: Question[];
 }
 
+export interface Course {
+  id: number;
+  name: string;
+  description: string | null;
+  organization: number;
+  modules_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Module {
+  id: number;
+  name: string;
+  description: string | null;
+  organization: number;
+  course: number;
+  course_name: string;
+  lessons_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 function getCsrfToken(): string | null {
   if (typeof document === 'undefined') return null;
   const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
@@ -183,5 +205,29 @@ export async function reorderQuizQuestions(quizId: number, orderedIds: number[])
     throw new Error('Failed to reorder questions');
   }
   return await response.json();
+}
+
+export async function fetchCourses(): Promise<Course[]> {
+  const response = await fetch(`${API_BASE_URL}/courses/courses/`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch courses');
+  }
+  const data = await response.json();
+  return data.results || data;
+}
+
+export async function fetchModules(courseId?: number): Promise<Module[]> {
+  const qs = new URLSearchParams();
+  if (courseId) qs.set('course', String(courseId));
+  const response = await fetch(`${API_BASE_URL}/courses/modules/?${qs.toString()}`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch modules');
+  }
+  const data = await response.json();
+  return data.results || data;
 }
 

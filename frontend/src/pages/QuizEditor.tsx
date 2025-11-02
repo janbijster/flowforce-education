@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { useNavigate, useParams, useBlocker } from "react-router-dom";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,12 +14,16 @@ import {
   Quiz,
   QuizDetail,
   Question,
+  Course,
+  Module,
   fetchQuiz,
   createQuiz,
   updateQuiz,
   searchQuestions,
   assignQuestionToQuiz,
   reorderQuizQuestions,
+  fetchCourses,
+  fetchModules,
 } from "@/lib/api";
 
 export default function QuizEditor() {
@@ -35,16 +39,63 @@ export default function QuizEditor() {
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
+  const [selectedModule, setSelectedModule] = useState<number | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [modules, setModules] = useState<Module[]>([]);
+  
+  // Store initial values for change detection
+  const initialValues = useRef<{
+    name: string;
+    description: string;
+    course: number | null;
+    module: number | null;
+    questionIds: number[];
+  }>({
+    name: "",
+    description: "",
+    course: null,
+    module: null,
+    questionIds: [],
+  });
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     const init = async () => {
       try {
-        if (!isCreate && id) {
-          const q = await fetchQuiz(Number(id));
+        const [q, cs, qs] = await Promise.all([
+          !isCreate && id ? fetchQuiz(Number(id)) : null,
+          fetchCourses(),
+          searchQuestions({ search: "" }),
+        ]);
+        
+        setCourses(cs);
+        setAllQuestions(qs);
+        
+        if (q) {
           setQuiz(q);
-          setInitialQuestionIds(q.questions.map(q => q.id));
-          setName(q.name ?? "");
-          setDescription(q.description ?? "");
+          const qIds = q.questions.map(q => q.id);
+          setInitialQuestionIds(qIds);
+          const initName = q.name ?? "";
+          const initDesc = q.description ?? "";
+          const initCourse = q.course;
+          const initModule = q.module;
+          setName(initName);
+          setDescription(initDesc);
+          setSelectedCourse(initCourse);
+          setSelectedModule(initModule);
+          // Store initial values
+          initialValues.current = {
+            name: initName,
+            description: initDesc ?? "",
+            course: initCourse,
+            module: initModule,
+            questionIds: qIds,
+          };
+          if (q.course) {
+            const mods = await fetchModules(q.course);
+            setModules(mods);
+          }
         } else {
           // initialize empty quiz state for create flow
           setQuiz({
@@ -64,15 +115,75 @@ export default function QuizEditor() {
             questions: [],
           });
           setInitialQuestionIds([]);
+          initialValues.current = {
+            name: "",
+            description: "",
+            course: null,
+            module: null,
+            questionIds: [],
+          };
         }
-        const qs = await searchQuestions({ search: "" });
-        setAllQuestions(qs);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to load quiz data");
       }
     };
     init();
   }, [id, isCreate]);
+
+  // Fetch modules when course changes
+  useEffect(() => {
+    const loadModules = async () => {
+      if (selectedCourse) {
+        try {
+          const mods = await fetchModules(selectedCourse);
+          setModules(mods);
+          // Reset module if it's not in the new list
+          setSelectedModule((current) => {
+            if (current && !mods.some(m => m.id === current)) {
+              return null;
+            }
+            return current;
+          });
+        } catch (e) {
+          setError(e instanceof Error ? e.message : "Failed to load modules");
+        }
+      } else {
+        setModules([]);
+        setSelectedModule(null);
+      }
+    };
+    loadModules();
+  }, [selectedCourse]);
+
+  // Check for unsaved changes
+  useEffect(() => {
+    if (!quiz) return;
+
+    const currentQuestionIds = (quiz.questions || []).map(q => q.id);
+    const initialQuestionIds = initialValues.current.questionIds;
+
+    // Check if question IDs changed (add/remove)
+    const questionIdsChanged = 
+      currentQuestionIds.length !== initialQuestionIds.length ||
+      !currentQuestionIds.every((id, idx) => id === initialQuestionIds[idx]);
+
+    // Check if order changed (same IDs but different order)
+    const orderChanged = 
+      currentQuestionIds.length === initialQuestionIds.length &&
+      currentQuestionIds.length > 0 &&
+      currentQuestionIds.every(id => initialQuestionIds.includes(id)) &&
+      !currentQuestionIds.every((id, idx) => id === initialQuestionIds[idx]);
+
+    const hasChanges = 
+      name.trim() !== initialValues.current.name.trim() ||
+      (description ?? "").trim() !== initialValues.current.description.trim() ||
+      selectedCourse !== initialValues.current.course ||
+      selectedModule !== initialValues.current.module ||
+      questionIdsChanged ||
+      orderChanged;
+
+    setHasUnsavedChanges(hasChanges);
+  }, [name, description, selectedCourse, selectedModule, quiz]);
 
   const filteredLeft = useMemo(() => {
     const s = search.trim().toLowerCase();
@@ -109,16 +220,65 @@ export default function QuizEditor() {
     setDragId(null);
   };
 
+  // Warn before leaving with unsaved changes (browser actions: refresh, close tab, navigate to different site)
+  useEffect(() => {
+    if (hasUnsavedChanges) {
+      window.onbeforeunload = () => {
+        return true;
+      };
+    } else {
+      window.onbeforeunload = null;
+    }
+
+    return () => {
+      window.onbeforeunload = null;
+    };
+  }, [hasUnsavedChanges]);
+
+  // Block React Router navigation when there are unsaved changes
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) =>
+      hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
+  );
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      if (window.confirm("You have unsaved changes. Are you sure you want to leave?")) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker]);
+
+  // Handle Back button click with unsaved changes warning
+  const handleBack = () => {
+    if (hasUnsavedChanges && !window.confirm("You have unsaved changes. Are you sure you want to leave?")) {
+      return;
+    }
+    navigate("/quizzes");
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setError(null);
     try {
       let quizId = quiz?.id ?? 0;
       if (isCreate) {
-        const created: Quiz = await createQuiz({ name, description: description || null });
+        const created: Quiz = await createQuiz({
+          name,
+          description: description || null,
+          course: selectedCourse,
+          module: selectedModule,
+        });
         quizId = created.id;
       } else if (quiz) {
-        await updateQuiz(quiz.id, { name, description: description || null });
+        await updateQuiz(quiz.id, {
+          name,
+          description: description || null,
+          course: selectedCourse,
+          module: selectedModule,
+        });
       }
 
       // Persist add/remove by updating the question.quiz field
@@ -139,6 +299,17 @@ export default function QuizEditor() {
         await reorderQuizQuestions(quizId, orderedIds);
       }
 
+      // Update initial values after successful save
+      initialValues.current = {
+        name,
+        description: description ?? "",
+        course: selectedCourse,
+        module: selectedModule,
+        questionIds: orderedIds,
+      };
+      setInitialQuestionIds(orderedIds);
+      setHasUnsavedChanges(false);
+
       navigate(`/quizzes/${quizId}/edit`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save quiz");
@@ -152,8 +323,14 @@ export default function QuizEditor() {
       <PageHeader>
         <PageHeaderHeading>{isCreate ? "Create Quiz" : "Edit Quiz"}</PageHeaderHeading>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate("/quizzes")}>Back</Button>
-          <Button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save"}</Button>
+          <Button variant="outline" onClick={handleBack}>Back</Button>
+          <Button 
+            onClick={handleSave} 
+            disabled={saving || (!hasUnsavedChanges && !isCreate)}
+            variant={!hasUnsavedChanges && !isCreate ? "secondary" : "default"}
+          >
+            {saving ? "Saving..." : (hasUnsavedChanges ? "Save" : (isCreate ? "Save" : "Changes saved"))}
+          </Button>
         </div>
       </PageHeader>
 
@@ -179,6 +356,37 @@ export default function QuizEditor() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Optional description"
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Course</label>
+          <select
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
+            value={selectedCourse ?? ""}
+            onChange={(e) => setSelectedCourse(e.target.value ? Number(e.target.value) : null)}
+          >
+            <option value="">— Select Course —</option>
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Module</label>
+          <select
+            className="mt-1 w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
+            value={selectedModule ?? ""}
+            onChange={(e) => setSelectedModule(e.target.value ? Number(e.target.value) : null)}
+            disabled={!selectedCourse || modules.length === 0}
+          >
+            <option value="">— Select Module —</option>
+            {modules.map((module) => (
+              <option key={module.id} value={module.id}>
+                {module.name}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
