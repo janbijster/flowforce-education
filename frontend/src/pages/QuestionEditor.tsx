@@ -32,7 +32,7 @@ import {
 import { QuestionPreview } from "@/components/QuestionPreview";
 
 interface EditableOption extends Omit<Option, 'id' | 'created_at' | 'updated_at'> {
-  id: number | 'new';
+  id: number | string;
   isNew?: boolean;
 }
 
@@ -70,6 +70,7 @@ export default function QuestionEditor() {
   });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isSavingRef = useRef(false);
+  const newOptionCounterRef = useRef(0);
 
   useEffect(() => {
     const init = async () => {
@@ -274,8 +275,9 @@ export default function QuestionEditor() {
 
   const handleAddOption = () => {
     if (!user) return;
+    const uniqueId = `new-${Date.now()}-${newOptionCounterRef.current++}`;
     const newOption: EditableOption = {
-      id: 'new',
+      id: uniqueId,
       text: "",
       is_correct: false,
       organization: user.organization.id,
@@ -285,11 +287,11 @@ export default function QuestionEditor() {
     setOptions([...options, newOption]);
   };
 
-  const handleRemoveOption = (optionId: number | 'new') => {
+  const handleRemoveOption = (optionId: number | string) => {
     setOptions(options.filter(opt => opt.id !== optionId));
   };
 
-  const handleUpdateOption = (optionId: number | 'new', field: 'text' | 'is_correct', value: string | boolean) => {
+  const handleUpdateOption = (optionId: number | string, field: 'text' | 'is_correct', value: string | boolean) => {
     setOptions(options.map(opt =>
       opt.id === optionId ? { ...opt, [field]: value } : opt
     ));
@@ -355,12 +357,14 @@ export default function QuestionEditor() {
           });
         }
 
-        // Reload question to get full data
+        // Reload question to get full data and then reload page to ensure clean state
         const createdQuestion = await fetchQuestion(questionId);
-        setQuestion(createdQuestion);
-        setInitialQuestionData(createdQuestion);
         setHasUnsavedChanges(false);
         navigate(`/questions/${questionId}/edit`, { replace: true });
+        // Small delay to ensure navigation completes, then reload
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
       } else if (question) {
         // Update existing question
         await updateQuestion(question.id, { 
@@ -369,7 +373,7 @@ export default function QuestionEditor() {
         });
 
         // Handle options: create new, update existing, delete removed
-        const currentOptionIds = new Set(options.map(opt => typeof opt.id === 'number' ? opt.id : null).filter(Boolean) as number[]);
+        const currentOptionIds = new Set(options.map(opt => typeof opt.id === 'number' ? opt.id : null).filter((id): id is number => id !== null));
         const initialOptionIds = new Set(initialValues.current.options.map(opt => opt.id).filter((id): id is number => typeof id === 'number'));
 
         // Delete removed options
@@ -380,7 +384,7 @@ export default function QuestionEditor() {
 
         // Create new options and update existing ones
         for (const opt of options) {
-          if (opt.id === 'new' || opt.isNew) {
+          if (typeof opt.id === 'string' || opt.isNew) {
             // Create new option
             await createOption({
               text: opt.text.trim(),
@@ -403,12 +407,14 @@ export default function QuestionEditor() {
           }
         }
 
-        // Reload question to get updated data
+        // Reload question to get updated data and then reload page to ensure clean state
         const updatedQuestion = await fetchQuestion(question.id);
-        setQuestion(updatedQuestion);
-        setInitialQuestionData(updatedQuestion);
         setHasUnsavedChanges(false);
-        navigate(`/questions/${question.id}/edit`);
+        navigate(`/questions/${question.id}/edit`, { replace: true });
+        // Small delay to ensure navigation completes, then reload
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save question");
@@ -421,9 +427,10 @@ export default function QuestionEditor() {
   };
 
   const setInitialQuestionData = (q: QuestionDetail) => {
+    const opts = (q.options || []).map(opt => ({ ...opt }));
+    // Update all state in one go to prevent double rendering
     setText(q.text);
     setSelectedTopic(q.topic);
-    const opts = (q.options || []).map(opt => ({ ...opt }));
     setOptions(opts);
     initialValues.current = {
       text: q.text,
@@ -433,6 +440,7 @@ export default function QuestionEditor() {
   };
 
   // Create a QuestionDetail-like object for preview
+  // Always use the local options state, not question.options, to avoid duplication
   const previewQuestion: QuestionDetail | null = (question || (isCreate && text && selectedTopic)) ? {
     id: question?.id || 0,
     text: text || "",
@@ -447,6 +455,7 @@ export default function QuestionEditor() {
     learning_objectives_count: 0,
     created_at: question?.created_at || "",
     updated_at: question?.updated_at || "",
+    // Always use local options state to avoid showing duplicates
     options: options.map(opt => ({
       id: typeof opt.id === 'number' ? opt.id : 0,
       text: opt.text,
@@ -581,7 +590,7 @@ export default function QuestionEditor() {
                 <TableBody>
                   {options.length > 0 ? (
                     options.map((option) => (
-                      <TableRow key={option.id === 'new' ? `new-${options.indexOf(option)}` : option.id}>
+                      <TableRow key={typeof option.id === 'number' ? option.id : option.id}>
                         <TableCell>
                           <input
                             className="w-full rounded-md border px-2 py-1 text-sm"
