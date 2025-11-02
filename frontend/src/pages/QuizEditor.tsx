@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Quiz,
   QuizDetail,
@@ -29,6 +30,7 @@ import {
 export default function QuizEditor() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const isCreate = id === "new" || !id;
 
   const [quiz, setQuiz] = useState<QuizDetail | null>(null);
@@ -59,6 +61,7 @@ export default function QuizEditor() {
     questionIds: [],
   });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const isSavingRef = useRef(false);
 
   useEffect(() => {
     const init = async () => {
@@ -81,7 +84,7 @@ export default function QuizEditor() {
           const initCourse = q.course;
           const initModule = q.module;
           setName(initName);
-          setDescription(initDesc);
+          setDescription(initDesc || "");
           setSelectedCourse(initCourse);
           setSelectedModule(initModule);
           // Store initial values
@@ -238,7 +241,7 @@ export default function QuizEditor() {
   // Block React Router navigation when there are unsaved changes
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
-      hasUnsavedChanges && currentLocation.pathname !== nextLocation.pathname
+      hasUnsavedChanges && !isSavingRef.current && currentLocation.pathname !== nextLocation.pathname
   );
 
   useEffect(() => {
@@ -261,21 +264,42 @@ export default function QuizEditor() {
 
   const handleSave = async () => {
     setSaving(true);
+    isSavingRef.current = true;
     setError(null);
     try {
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Validate required fields
+      if (!name.trim()) {
+        setError("Name is required");
+        setSaving(false);
+        isSavingRef.current = false;
+        return;
+      }
+      if (!description.trim()) {
+        setError("Description is required");
+        setSaving(false);
+        isSavingRef.current = false;
+        return;
+      }
+
       let quizId = quiz?.id ?? 0;
       if (isCreate) {
         const created: Quiz = await createQuiz({
-          name,
-          description: description || null,
+          name: name.trim(),
+          description: description.trim(),
+          organization: user.organization.id,
           course: selectedCourse,
           module: selectedModule,
         });
         quizId = created.id;
       } else if (quiz) {
         await updateQuiz(quiz.id, {
-          name,
-          description: description || null,
+          name: name.trim(),
+          description: description.trim(),
+          organization: user.organization.id,
           course: selectedCourse,
           module: selectedModule,
         });
@@ -299,22 +323,44 @@ export default function QuizEditor() {
         await reorderQuizQuestions(quizId, orderedIds);
       }
 
-      // Update initial values after successful save
-      initialValues.current = {
-        name,
-        description: description ?? "",
-        course: selectedCourse,
-        module: selectedModule,
-        questionIds: orderedIds,
-      };
-      setInitialQuestionIds(orderedIds);
-      setHasUnsavedChanges(false);
-
-      navigate(`/quizzes/${quizId}/edit`);
+      // After creation, fetch the full quiz to update state properly
+      if (isCreate) {
+        const createdQuiz = await fetchQuiz(quizId);
+        setQuiz(createdQuiz);
+        setInitialQuestionIds(createdQuiz.questions.map(q => q.id));
+        initialValues.current = {
+          name: createdQuiz.name ?? "",
+          description: createdQuiz.description ?? "",
+          course: createdQuiz.course,
+          module: createdQuiz.module,
+          questionIds: createdQuiz.questions.map(q => q.id),
+        };
+        // Mark as saved BEFORE navigation to prevent blocker
+        setHasUnsavedChanges(false);
+        // Update URL to edit mode
+        navigate(`/quizzes/${quizId}/edit`, { replace: true });
+      } else {
+        // Update initial values after successful save (edit mode)
+        initialValues.current = {
+          name,
+          description: description ?? "",
+          course: selectedCourse,
+          module: selectedModule,
+          questionIds: orderedIds,
+        };
+        setInitialQuestionIds(orderedIds);
+        // Mark as saved BEFORE navigation to prevent blocker
+        setHasUnsavedChanges(false);
+        navigate(`/quizzes/${quizId}/edit`);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to save quiz");
     } finally {
       setSaving(false);
+      // Reset the saving ref after a small delay to allow navigation to complete
+      setTimeout(() => {
+        isSavingRef.current = false;
+      }, 100);
     }
   };
 
@@ -340,21 +386,27 @@ export default function QuizEditor() {
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium">Name</label>
+          <label className="block text-sm font-medium">
+            Name <span className="text-destructive">*</span>
+          </label>
           <input
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Quiz name"
+            required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Description</label>
+          <label className="block text-sm font-medium">
+            Description <span className="text-destructive">*</span>
+          </label>
           <input
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Optional description"
+            placeholder="Quiz description"
+            required
           />
         </div>
         <div>

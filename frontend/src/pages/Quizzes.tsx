@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -66,6 +67,7 @@ export default function Quizzes() {
     <>
       <PageHeader>
         <PageHeaderHeading>Quizzes</PageHeaderHeading>
+        <Button onClick={() => navigate("/quizzes/new")}>New Quiz</Button>
       </PageHeader>
       <div className="rounded-md border">
         <Table>
