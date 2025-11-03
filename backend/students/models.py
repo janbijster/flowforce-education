@@ -11,11 +11,9 @@ class StudentGroup(OrganizationModel):
         on_delete=models.CASCADE,
         related_name='student_groups'
     )
-    module = models.ForeignKey(
+    modules = models.ManyToManyField(
         'courses.Module',
-        on_delete=models.CASCADE,
         related_name='student_groups',
-        null=True,
         blank=True
     )
     year = models.IntegerField()

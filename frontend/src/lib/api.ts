@@ -104,17 +104,23 @@ export interface StudentGroup {
   name: string;
   organization: number;
   course: number;
-  module: number | null;
+  modules: number[];
   year: number;
   course_name: string;
-  module_name: string | null;
+  modules_names: string[];
   students_count: number;
   created_at: string;
   updated_at: string;
 }
 
+export interface StudentProgress {
+  mastered_topics: number;
+  total_topics: number;
+  percentage: number;
+}
+
 export interface StudentGroupDetail extends StudentGroup {
-  students: Student[];
+  students: StudentWithProgress[];
 }
 
 export interface Student {
@@ -129,6 +135,10 @@ export interface Student {
   full_name: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface StudentWithProgress extends Student {
+  progress?: StudentProgress;
 }
 
 export interface StudentDetail extends Student {
@@ -433,7 +443,7 @@ export async function deleteOption(id: number): Promise<void> {
 export async function fetchStudentGroups(courseId?: number, moduleId?: number): Promise<StudentGroup[]> {
   const qs = new URLSearchParams();
   if (courseId) qs.set('course', String(courseId));
-  if (moduleId) qs.set('module', String(moduleId));
+  if (moduleId) qs.set('modules', String(moduleId));
   const queryString = qs.toString();
   const url = `${API_BASE_URL}/students/student-groups/${queryString ? `?${queryString}` : ''}`;
   const response = await fetch(url, {

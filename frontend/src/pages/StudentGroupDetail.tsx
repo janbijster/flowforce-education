@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetchStudentGroup, StudentGroupDetail as StudentGroupDetailType } from "@/lib/api";
+import { Progress } from "@/components/ui/progress";
 
 export default function StudentGroupDetail() {
   const { id } = useParams<{ id: string }>();
@@ -76,32 +77,34 @@ export default function StudentGroupDetail() {
         </div>
       </PageHeader>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="space-y-6">
-          <div className="rounded-md border p-4">
-            <h2 className="text-lg font-semibold mb-4">Group Information</h2>
-            <div className="space-y-3">
+      <div className="space-y-6">
+        <div className="rounded-md border p-4">
+          <h2 className="text-lg font-semibold mb-4">Group Information</h2>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Name</p>
+              <p className="mt-1">{group.name}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Name</p>
-                <p className="mt-1">{group.name}</p>
+                <p className="text-sm font-medium text-muted-foreground">Course</p>
+                <p className="mt-1">{group.course_name}</p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Course</p>
-                  <p className="mt-1">{group.course_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Module</p>
-                  <p className="mt-1">{group.module_name ?? "—"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Year</p>
-                  <p className="mt-1">{group.year}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Students</p>
-                  <p className="mt-1">{group.students_count}</p>
-                </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Modules</p>
+                <p className="mt-1">
+                  {group.modules_names && group.modules_names.length > 0
+                    ? group.modules_names.join(", ")
+                    : "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Year</p>
+                <p className="mt-1">{group.year}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Students</p>
+                <p className="mt-1">{group.students_count}</p>
               </div>
             </div>
           </div>
@@ -114,6 +117,7 @@ export default function StudentGroupDetail() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>Progress</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -122,11 +126,28 @@ export default function StudentGroupDetail() {
                   <TableRow key={student.id}>
                     <TableCell>{student.full_name}</TableCell>
                     <TableCell>{student.email || "—"}</TableCell>
+                    <TableCell>
+                      {student.progress ? (
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">
+                              {student.progress.mastered_topics}/{student.progress.total_topics} topics mastered
+                            </span>
+                            <span className="text-muted-foreground">
+                              {Math.round(student.progress.percentage)}%
+                            </span>
+                          </div>
+                          <Progress value={student.progress.percentage} className="h-2" />
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={2} className="text-center text-muted-foreground">
+                  <TableCell colSpan={3} className="text-center text-muted-foreground">
                     No students in this group
                   </TableCell>
                 </TableRow>

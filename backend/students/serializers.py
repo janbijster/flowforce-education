@@ -9,15 +9,15 @@ class StudentGroupSerializer(serializers.ModelSerializer):
     """Serializer for StudentGroup model."""
     
     course_name = serializers.CharField(source='course.name', read_only=True)
-    module_name = serializers.CharField(source='module.name', read_only=True)
+    modules_names = serializers.SerializerMethodField()
     students_count = serializers.SerializerMethodField()
     course_name_display = serializers.SerializerMethodField()
     
     class Meta:
         model = StudentGroup
         fields = [
-            'id', 'name', 'organization', 'course', 'module', 'year',
-            'course_name', 'module_name', 'course_name_display', 'students_count',
+            'id', 'name', 'organization', 'course', 'modules', 'year',
+            'course_name', 'modules_names', 'course_name_display', 'students_count',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
@@ -28,6 +28,9 @@ class StudentGroupSerializer(serializers.ModelSerializer):
     def get_course_name_display(self, obj):
         """Return course name for display purposes."""
         return obj.course.name
+    
+    def get_modules_names(self, obj):
+        return [m.name for m in obj.modules.all()]
 
 
 class StudentGroupDetailSerializer(StudentGroupSerializer):
@@ -39,8 +42,50 @@ class StudentGroupDetailSerializer(StudentGroupSerializer):
         fields = StudentGroupSerializer.Meta.fields + ['students']
     
     def get_students(self, obj):
+        from courses.models import Topic
+        
         students = obj.students.all()
-        return StudentSerializer(students, many=True).data
+        
+        # Get all topics from the student group's modules
+        modules = obj.modules.all()
+        topics = Topic.objects.filter(
+            lesson__module__in=modules,
+            organization=obj.organization
+        ).distinct()
+        total_topics = topics.count()
+        
+        # Get all correct answers for students in this group
+        correct_answers = StudentQuestionAnswer.objects.filter(
+            student__in=students,
+            answer__is_correct=True
+        ).select_related('question__topic', 'answer')
+        
+        # Create a map of student -> set of topics with correct answers
+        student_mastered_topics = {}
+        for answer in correct_answers:
+            student_id = answer.student.id
+            topic_id = answer.question.topic.id
+            if student_id not in student_mastered_topics:
+                student_mastered_topics[student_id] = set()
+            student_mastered_topics[student_id].add(topic_id)
+        
+        # Serialize students with progress
+        student_data = []
+        for student in students:
+            serializer = StudentSerializer(student)
+            student_dict = serializer.data
+            
+            # Calculate progress
+            mastered_topics = len(student_mastered_topics.get(student.id, set()))
+            student_dict['progress'] = {
+                'mastered_topics': mastered_topics,
+                'total_topics': total_topics,
+                'percentage': (mastered_topics / total_topics * 100) if total_topics > 0 else 0
+            }
+            
+            student_data.append(student_dict)
+        
+        return student_data
 
 
 class StudentSerializer(serializers.ModelSerializer):

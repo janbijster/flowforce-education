@@ -23,7 +23,7 @@ export default function StudentGroupEditor() {
   const [name, setName] = useState("");
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [course, setCourse] = useState<number | null>(null);
-  const [module, setModule] = useState<number | null>(null);
+  const [selectedModules, setSelectedModules] = useState<number[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
   const [saving, setSaving] = useState(false);
@@ -41,7 +41,7 @@ export default function StudentGroupEditor() {
           setName(group.name);
           setYear(group.year);
           setCourse(group.course);
-          setModule(group.module);
+          setSelectedModules(group.modules || []);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load data");
@@ -58,18 +58,15 @@ export default function StudentGroupEditor() {
         try {
           const mods = await fetchModules(course);
           setModules(mods);
-          setModule((current) => {
-            if (current && !mods.some(m => m.id === current)) {
-              return null;
-            }
-            return current;
+          setSelectedModules((current) => {
+            return current.filter(id => mods.some(m => m.id === id));
           });
         } catch (err) {
           setError(err instanceof Error ? err.message : "Failed to load modules");
         }
       } else {
         setModules([]);
-        setModule(null);
+        setSelectedModules([]);
       }
     };
     loadModules();
@@ -98,7 +95,7 @@ export default function StudentGroupEditor() {
         name: name.trim(),
         year,
         course,
-        module: module || null,
+        modules: selectedModules,
         organization: user.organization.id,
       };
 
@@ -192,20 +189,32 @@ export default function StudentGroupEditor() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Module</label>
+          <label className="block text-sm font-medium mb-1">Modules</label>
           <select
-            className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
-            value={module ?? ""}
-            onChange={(e) => setModule(e.target.value ? Number(e.target.value) : null)}
+            className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50 min-h-[100px]"
+            multiple
+            value={selectedModules.map(String)}
+            onChange={(e) => {
+              const selected = Array.from(e.target.selectedOptions, option => Number(option.value));
+              setSelectedModules(selected);
+            }}
             disabled={!course || modules.length === 0}
+            style={{ minHeight: '120px' }}
           >
-            <option value="">— Select Module —</option>
             {modules.map((m) => (
               <option key={m.id} value={m.id}>
                 {m.name}
               </option>
             ))}
           </select>
+          <p className="text-xs text-muted-foreground mt-1">
+            Hold Ctrl/Cmd to select multiple modules
+          </p>
+          {selectedModules.length > 0 && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Selected: {selectedModules.length} module{selectedModules.length !== 1 ? 's' : ''}
+            </p>
+          )}
         </div>
       </div>
     </>

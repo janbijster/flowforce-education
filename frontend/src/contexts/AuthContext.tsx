@@ -28,10 +28,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: "demo_user",
     email: "demo@example.com",
     organization: {
-      id: 1,
-      name: "Demo Organization",
-      slug: "demo-org",
-      description: "Demo organization for development",
+      id: 2,
+      name: "BHV instituut",
+      slug: "bhv-instituut",
+      description: "Gespecialiseerd instituut voor Bedrijfshulpverlening (BHV) trainingen en certificeringen.",
     },
   };
 

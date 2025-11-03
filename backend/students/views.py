@@ -19,7 +19,7 @@ class StudentGroupViewSet(viewsets.ModelViewSet):
     search_fields = ['name']
     ordering_fields = ['name', 'year', 'created_at']
     ordering = ['year', 'name']
-    filterset_fields = ['organization', 'course', 'module', 'year']
+    filterset_fields = ['organization', 'course', 'modules', 'year']
     
     def get_serializer_class(self):
         if self.action == 'retrieve':

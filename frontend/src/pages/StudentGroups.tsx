@@ -110,7 +110,7 @@ export default function StudentGroups() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Course</TableHead>
-              <TableHead>Module</TableHead>
+              <TableHead>Modules</TableHead>
               <TableHead>Year</TableHead>
               <TableHead>Students</TableHead>
             </TableRow>
@@ -124,7 +124,11 @@ export default function StudentGroups() {
               >
                 <TableCell className="font-medium">{group.name}</TableCell>
                 <TableCell>{group.course_name}</TableCell>
-                <TableCell>{group.module_name ?? "—"}</TableCell>
+                <TableCell>
+                  {group.modules_names && group.modules_names.length > 0
+                    ? group.modules_names.join(", ")
+                    : "—"}
+                </TableCell>
                 <TableCell>{group.year}</TableCell>
                 <TableCell>{group.students_count}</TableCell>
               </TableRow>
