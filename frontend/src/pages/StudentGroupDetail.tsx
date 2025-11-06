@@ -118,6 +118,7 @@ export default function StudentGroupDetail() {
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Progress</TableHead>
+                <TableHead className="w-24">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -143,11 +144,20 @@ export default function StudentGroupDetail() {
                         <span className="text-muted-foreground">—</span>
                       )}
                     </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigate(`/students/${student.id}/groups/${group.id}`)}
+                      >
+                        View
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted-foreground">
+                  <TableCell colSpan={4} className="text-center text-muted-foreground">
                     No students in this group
                   </TableCell>
                 </TableRow>

@@ -2,7 +2,16 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { fetchStudent, StudentDetail as StudentDetailType } from "@/lib/api";
+import { ProgressBar } from "@/components/ProgressBar";
 
 export default function StudentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -68,33 +77,75 @@ export default function StudentDetail() {
         </div>
       </PageHeader>
 
-      <div className="rounded-md border p-4 max-w-2xl">
-        <h2 className="text-lg font-semibold mb-4">Student Information</h2>
-        <div className="space-y-3">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">First Name</p>
-            <p className="mt-1">{student.first_name}</p>
+      <div className="space-y-6">
+        <div className="rounded-md border p-4 max-w-2xl">
+          <h2 className="text-lg font-semibold mb-4">Student Information</h2>
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">First Name</p>
+              <p className="mt-1">{student.first_name}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Last Name</p>
+              <p className="mt-1">{student.last_name}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Email</p>
+              <p className="mt-1">{student.email || "—"}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Question Answers</p>
+              <p className="mt-1">{student.question_answers_count}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Last Name</p>
-            <p className="mt-1">{student.last_name}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Email</p>
-            <p className="mt-1">{student.email || "—"}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Student Groups</p>
-            <p className="mt-1">
-              {student.student_groups_names && student.student_groups_names.length > 0
-                ? student.student_groups_names.join(", ")
-                : "—"}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Question Answers</p>
-            <p className="mt-1">{student.question_answers_count}</p>
-          </div>
+        </div>
+
+        <div className="rounded-md border">
+          <div className="border-b p-3 text-sm font-medium">Student Groups</div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Group Name</TableHead>
+                <TableHead>Course</TableHead>
+                <TableHead>Year</TableHead>
+                <TableHead>Progress</TableHead>
+                <TableHead className="w-24">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {student.student_groups_with_progress && student.student_groups_with_progress.length > 0 ? (
+                student.student_groups_with_progress.map((group) => (
+                  <TableRow key={group.id}>
+                    <TableCell className="font-medium">{group.name}</TableCell>
+                    <TableCell>{group.course_name}</TableCell>
+                    <TableCell>{group.year}</TableCell>
+                    <TableCell>
+                      <ProgressBar
+                        mastered={group.progress.mastered_topics}
+                        total={group.progress.total_topics}
+                        label={`${group.progress.mastered_topics}/${group.progress.total_topics} topics mastered`}
+                      />
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => navigate(`/students/${student.id}/groups/${group.id}`)}
+                      >
+                        View
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    No student groups
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </>

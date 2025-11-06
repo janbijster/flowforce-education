@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { Applayout } from "./components/layouts/AppLayout";
 
@@ -18,6 +18,8 @@ import StudentGroupEditor from "./pages/StudentGroupEditor";
 import Students from "./pages/Students";
 import StudentDetail from "./pages/StudentDetail";
 import StudentEditor from "./pages/StudentEditor";
+import StudentGroupProgress from "./pages/StudentGroupProgress";
+import QuizPreview from "./pages/QuizPreview";
 
 export const router = createBrowserRouter([
     {
@@ -26,7 +28,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: "",
-                element: <Dashboard />,
+                element: <Navigate to="/student-groups" replace />,
             },
             {
                 path: "sample",
@@ -47,6 +49,10 @@ export const router = createBrowserRouter([
             {
                 path: "quizzes/:id",
                 element: <QuizDetail />,
+            },
+            {
+                path: "quizzes/:id/preview",
+                element: <QuizPreview />,
             },
             {
                 path: "quizzes/:id/edit",
@@ -99,6 +105,10 @@ export const router = createBrowserRouter([
             {
                 path: "students/:id/edit",
                 element: <StudentEditor />,
+            },
+            {
+                path: "students/:studentId/groups/:groupId",
+                element: <StudentGroupProgress />,
             },
         ],
     },

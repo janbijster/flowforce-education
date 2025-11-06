@@ -67,6 +67,9 @@ export default function QuizDetail() {
       <PageHeader>
         <PageHeaderHeading>Quiz Detail</PageHeaderHeading>
         <div className="flex gap-2">
+          <Button onClick={() => navigate(`/quizzes/${quiz.id}/preview`)} variant="outline">
+            Preview
+          </Button>
           <Button onClick={() => navigate(`/quizzes/${quiz.id}/edit`)} variant="outline">
             Edit
           </Button>

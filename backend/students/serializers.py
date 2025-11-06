@@ -169,12 +169,69 @@ class StudentDetailSerializer(StudentSerializer):
     """Detailed serializer for Student with question answers."""
     
     question_answers_count = serializers.SerializerMethodField()
+    student_groups_with_progress = serializers.SerializerMethodField()
     
     class Meta(StudentSerializer.Meta):
-        fields = StudentSerializer.Meta.fields + ['question_answers_count']
+        fields = StudentSerializer.Meta.fields + ['question_answers_count', 'student_groups_with_progress']
     
     def get_question_answers_count(self, obj):
         return obj.question_answers.count()
+    
+    def get_student_groups_with_progress(self, obj):
+        """Calculate progress for each student group the student belongs to."""
+        from courses.models import Topic
+        
+        groups_data = []
+        for group in obj.student_groups.all():
+            # Get all topics from the student group's modules
+            modules = group.modules.all()
+            topics = Topic.objects.filter(
+                lesson__module__in=modules,
+                organization=obj.organization
+            ).distinct()
+            total_topics = topics.count()
+            
+            # Get correct answers for this student in topics from this group
+            topic_ids = list(topics.values_list('id', flat=True))
+            correct_answers = StudentQuestionAnswer.objects.filter(
+                student=obj,
+                answer__is_correct=True,
+                question__topic__in=topic_ids
+            ).select_related('question__topic', 'answer')
+            
+            # Count distinct topics with correct answers
+            mastered_topics = len(set(
+                answer.question.topic.id for answer in correct_answers
+            ))
+            
+            groups_data.append({
+                'id': group.id,
+                'name': group.name,
+                'course_name': group.course.name,
+                'year': group.year,
+                'progress': {
+                    'mastered_topics': mastered_topics,
+                    'total_topics': total_topics,
+                    'percentage': (mastered_topics / total_topics * 100) if total_topics > 0 else 0
+                }
+            })
+        
+        return groups_data
+
+
+class TopicProgressSerializer(serializers.Serializer):
+    """Serializer for topic progress in a student group."""
+    
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    description = serializers.CharField(allow_blank=True)
+    lesson_name = serializers.CharField()
+    module_name = serializers.CharField()
+    course_name = serializers.CharField()
+    questions_answered = serializers.IntegerField()
+    questions_correct = serializers.IntegerField()
+    total_questions = serializers.IntegerField()
+    percentage = serializers.FloatField()
 
 
 class StudentQuestionAnswerSerializer(serializers.ModelSerializer):
@@ -201,4 +258,3 @@ class StudentQuestionAnswerSerializer(serializers.ModelSerializer):
     def get_correct(self, obj):
         """Return the correct property from the model."""
         return obj.correct
-

@@ -141,8 +141,30 @@ export interface StudentWithProgress extends Student {
   progress?: StudentProgress;
 }
 
+export interface StudentGroupWithProgress {
+  id: number;
+  name: string;
+  course_name: string;
+  year: number;
+  progress: StudentProgress;
+}
+
 export interface StudentDetail extends Student {
   question_answers_count: number;
+  student_groups_with_progress: StudentGroupWithProgress[];
+}
+
+export interface TopicProgress {
+  id: number;
+  name: string;
+  description: string;
+  lesson_name: string;
+  module_name: string;
+  course_name: string;
+  questions_answered: number;
+  questions_correct: number;
+  total_questions: number;
+  percentage: number;
 }
 
 export interface StudentQuestionAnswer {
@@ -560,6 +582,17 @@ export async function updateStudent(id: number, payload: Partial<Student>): Prom
   });
   if (!response.ok) {
     throw new Error('Failed to update student');
+  }
+  return await response.json();
+}
+
+// Student Group Progress API
+export async function fetchStudentGroupProgress(studentId: number, groupId: number): Promise<TopicProgress[]> {
+  const response = await fetch(`${API_BASE_URL}/students/students/${studentId}/group-progress/${groupId}/`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch student group progress');
   }
   return await response.json();
 }
