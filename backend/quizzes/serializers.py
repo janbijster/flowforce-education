@@ -179,9 +179,9 @@ class QuizSerializer(serializers.ModelSerializer):
     def get_questions_count(self, obj):
         """Get total count of all question types."""
         return (
-            obj.multiplechoicequestion_set.count() +
-            obj.orderquestion_set.count() +
-            obj.connectquestion_set.count()
+            obj.multiplechoicequestion_questions.count() +
+            obj.orderquestion_questions.count() +
+            obj.connectquestion_questions.count()
         )
 
 
@@ -189,13 +189,13 @@ class QuizDetailSerializer(QuizSerializer):
     """Detailed serializer for Quiz with all question types."""
     
     multiple_choice_questions = MultipleChoiceQuestionSerializer(
-        source='multiplechoicequestion_set', many=True, read_only=True
+        source='multiplechoicequestion_questions', many=True, read_only=True
     )
     order_questions = OrderQuestionSerializer(
-        source='orderquestion_set', many=True, read_only=True
+        source='orderquestion_questions', many=True, read_only=True
     )
     connect_questions = ConnectQuestionSerializer(
-        source='connectquestion_set', many=True, read_only=True
+        source='connectquestion_questions', many=True, read_only=True
     )
     
     class Meta(QuizSerializer.Meta):

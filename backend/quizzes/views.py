@@ -45,10 +45,10 @@ class QuizViewSet(viewsets.ModelViewSet):
         """Get all questions for this quiz (all types)."""
         quiz = self.get_object()
         
-        # Get all question types
-        mc_questions = MultipleChoiceQuestion.objects.filter(quiz=quiz)
-        order_questions = OrderQuestion.objects.filter(quiz=quiz)
-        connect_questions = ConnectQuestion.objects.filter(quiz=quiz)
+        # Get all question types using the related_name
+        mc_questions = quiz.multiplechoicequestion_questions.all()
+        order_questions = quiz.orderquestion_questions.all()
+        connect_questions = quiz.connectquestion_questions.all()
         
         # Serialize each type
         mc_data = MultipleChoiceQuestionSerializer(mc_questions, many=True).data
@@ -78,21 +78,21 @@ class QuizViewSet(viewsets.ModelViewSet):
         to_update = []
         
         # Update MultipleChoiceQuestions
-        for question in MultipleChoiceQuestion.objects.filter(quiz=quiz, id__in=order_map.keys()):
+        for question in quiz.multiplechoicequestion_questions.filter(id__in=order_map.keys()):
             new_order = order_map.get(question.id)
             if new_order is not None and question.order != new_order:
                 question.order = new_order
                 to_update.append(question)
         
         # Update OrderQuestions
-        for question in OrderQuestion.objects.filter(quiz=quiz, id__in=order_map.keys()):
+        for question in quiz.orderquestion_questions.filter(id__in=order_map.keys()):
             new_order = order_map.get(question.id)
             if new_order is not None and question.order != new_order:
                 question.order = new_order
                 to_update.append(question)
         
         # Update ConnectQuestions
-        for question in ConnectQuestion.objects.filter(quiz=quiz, id__in=order_map.keys()):
+        for question in quiz.connectquestion_questions.filter(id__in=order_map.keys()):
             new_order = order_map.get(question.id)
             if new_order is not None and question.order != new_order:
                 question.order = new_order

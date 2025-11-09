@@ -35,6 +35,8 @@ class Quiz(OrganizationModel):
     class Meta:
         ordering = ['created_at']
         unique_together = ['organization', 'name']
+        verbose_name = 'Quiz'
+        verbose_name_plural = 'Quizzes'
     
     def __str__(self):
         return self.name
@@ -42,10 +44,10 @@ class Quiz(OrganizationModel):
     def get_all_questions(self):
         """Get all questions of any type for this quiz."""
         questions = []
-        # Use string references to avoid circular imports
-        questions.extend(self.multiplechoicequestion_set.all())
-        questions.extend(self.orderquestion_set.all())
-        questions.extend(self.connectquestion_set.all())
+        # Use the related_name from BaseQuestion: %(class)s_questions
+        questions.extend(self.multiplechoicequestion_questions.all())
+        questions.extend(self.orderquestion_questions.all())
+        questions.extend(self.connectquestion_questions.all())
         return sorted(questions, key=lambda q: (q.order, q.created_at))
 
 

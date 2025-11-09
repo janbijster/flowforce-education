@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as django_filters
 from .models import StudentGroup, Student, StudentQuestionAnswer
 from .serializers import (
     StudentGroupSerializer, StudentGroupDetailSerializer,
@@ -83,41 +84,117 @@ class StudentViewSet(viewsets.ModelViewSet):
             organization=student.organization
         ).distinct().select_related('lesson', 'lesson__module', 'lesson__module__course')
         
-        # Get all questions for these topics
+        # Get all questions for these topics (all question types)
         topic_ids = list(topics.values_list('id', flat=True))
-        from quizzes.models import Question
-        topic_questions = Question.objects.filter(
+        from quizzes.models import MultipleChoiceQuestion, OrderQuestion, ConnectQuestion
+        from django.db.models import Count
+        
+        # Count questions per topic across all question types
+        mcq_per_topic = MultipleChoiceQuestion.objects.filter(
             topic__in=topic_ids,
             organization=student.organization
-        )
+        ).values('topic').annotate(total_count=Count('id'))
         
-        # Count total questions per topic
-        from django.db.models import Count
-        questions_per_topic = topic_questions.values('topic').annotate(
-            total_count=Count('id')
-        )
-        total_questions_map = {item['topic']: item['total_count'] for item in questions_per_topic}
+        order_per_topic = OrderQuestion.objects.filter(
+            topic__in=topic_ids,
+            organization=student.organization
+        ).values('topic').annotate(total_count=Count('id'))
+        
+        connect_per_topic = ConnectQuestion.objects.filter(
+            topic__in=topic_ids,
+            organization=student.organization
+        ).values('topic').annotate(total_count=Count('id'))
+        
+        # Combine counts
+        total_questions_map = {}
+        for item in mcq_per_topic:
+            total_questions_map[item['topic']] = total_questions_map.get(item['topic'], 0) + item['total_count']
+        for item in order_per_topic:
+            total_questions_map[item['topic']] = total_questions_map.get(item['topic'], 0) + item['total_count']
+        for item in connect_per_topic:
+            total_questions_map[item['topic']] = total_questions_map.get(item['topic'], 0) + item['total_count']
         
         # Get all student answers for questions in these topics
+        # Note: We can't filter directly on GenericForeignKey, so we need to get question IDs first
+        from django.contrib.contenttypes.models import ContentType
+        
+        # Get ContentTypes for all question types
+        mcq_ct = ContentType.objects.get_for_model(MultipleChoiceQuestion)
+        order_ct = ContentType.objects.get_for_model(OrderQuestion)
+        connect_ct = ContentType.objects.get_for_model(ConnectQuestion)
+        
+        # Get question IDs from all question types in these topics
+        mcq_ids = MultipleChoiceQuestion.objects.filter(
+            topic__in=topic_ids,
+            organization=student.organization
+        ).values_list('id', flat=True)
+        order_ids = OrderQuestion.objects.filter(
+            topic__in=topic_ids,
+            organization=student.organization
+        ).values_list('id', flat=True)
+        connect_ids = ConnectQuestion.objects.filter(
+            topic__in=topic_ids,
+            organization=student.organization
+        ).values_list('id', flat=True)
+        
+        # Build list of (content_type_id, question_id) tuples
+        question_refs = (
+            [(mcq_ct.id, qid) for qid in mcq_ids] +
+            [(order_ct.id, qid) for qid in order_ids] +
+            [(connect_ct.id, qid) for qid in connect_ids]
+        )
+        
+        # Filter StudentQuestionAnswer by content_type and question_id pairs
+        from django.db.models import Q
+        q_objects = Q()
+        for ct_id, q_id in question_refs:
+            q_objects |= Q(question_content_type_id=ct_id, question_id=q_id)
+        
         student_answers = StudentQuestionAnswer.objects.filter(
-            student=student,
-            question__topic__in=topic_ids
-        ).select_related('question__topic', 'answer')
+            student=student
+        ).filter(q_objects).select_related('answer')
         
         # Count answered questions per topic (total and correct)
         answered_questions_map = {}
         correct_questions_map = {}
         
+        # Build a map of (content_type_id, question_id) -> topic_id for quick lookup
+        question_to_topic = {}
+        
+        # Get all questions in bulk and map to topics
+        if mcq_ids:
+            mcq_questions = MultipleChoiceQuestion.objects.filter(id__in=mcq_ids).values('id', 'topic_id')
+            for q in mcq_questions:
+                question_to_topic[(mcq_ct.id, q['id'])] = q['topic_id']
+        
+        if order_ids:
+            order_questions = OrderQuestion.objects.filter(id__in=order_ids).values('id', 'topic_id')
+            for q in order_questions:
+                question_to_topic[(order_ct.id, q['id'])] = q['topic_id']
+        
+        if connect_ids:
+            connect_questions = ConnectQuestion.objects.filter(id__in=connect_ids).values('id', 'topic_id')
+            for q in connect_questions:
+                question_to_topic[(connect_ct.id, q['id'])] = q['topic_id']
+        
         for answer in student_answers:
-            topic_id = answer.question.topic.id
-            if topic_id not in answered_questions_map:
-                answered_questions_map[topic_id] = set()
-            answered_questions_map[topic_id].add(answer.question.id)
-            
-            if answer.answer.is_correct:
-                if topic_id not in correct_questions_map:
-                    correct_questions_map[topic_id] = set()
-                correct_questions_map[topic_id].add(answer.question.id)
+            key = (answer.question_content_type_id, answer.question_id)
+            topic_id = question_to_topic.get(key)
+            if topic_id:
+                if topic_id not in answered_questions_map:
+                    answered_questions_map[topic_id] = set()
+                answered_questions_map[topic_id].add(answer.question_id)
+                
+                # Check if correct (only for MultipleChoiceQuestion with answer field)
+                if answer.answer and answer.answer.is_correct:
+                    if topic_id not in correct_questions_map:
+                        correct_questions_map[topic_id] = set()
+                    correct_questions_map[topic_id].add(answer.question_id)
+                # For OrderQuestion and ConnectQuestion, use the correct property
+                elif answer.answer is None and answer.correct:
+                    if topic_id not in correct_questions_map:
+                        correct_questions_map[topic_id] = set()
+                    correct_questions_map[topic_id].add(answer.question_id)
         
         # Build topic progress data
         topics_data = []
@@ -143,6 +220,18 @@ class StudentViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
+class StudentQuestionAnswerFilterSet(django_filters.FilterSet):
+    """Custom FilterSet for StudentQuestionAnswer that handles GenericForeignKey."""
+    
+    # Filter by question_id and question_content_type separately
+    question_id = django_filters.NumberFilter(field_name='question_id')
+    question_content_type = django_filters.NumberFilter(field_name='question_content_type')
+    
+    class Meta:
+        model = StudentQuestionAnswer
+        fields = ['organization', 'student', 'quiz', 'answer', 'question_id', 'question_content_type']
+
+
 class StudentQuestionAnswerViewSet(viewsets.ModelViewSet):
     """ViewSet for StudentQuestionAnswer model."""
     
@@ -152,5 +241,5 @@ class StudentQuestionAnswerViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     ordering_fields = ['created_at']
     ordering = ['-created_at']
-    filterset_fields = ['organization', 'student', 'question', 'quiz', 'answer']
+    filterset_class = StudentQuestionAnswerFilterSet
 
