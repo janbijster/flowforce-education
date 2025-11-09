@@ -38,45 +38,81 @@ class Quiz(OrganizationModel):
     
     def __str__(self):
         return self.name
+    
+    def get_all_questions(self):
+        """Get all questions of any type for this quiz."""
+        questions = []
+        # Use string references to avoid circular imports
+        questions.extend(self.multiplechoicequestion_set.all())
+        questions.extend(self.orderquestion_set.all())
+        questions.extend(self.connectquestion_set.all())
+        return sorted(questions, key=lambda q: (q.order, q.created_at))
 
 
-class Question(OrganizationModel):
-    """Question model representing quiz questions."""
+class BaseQuestion(OrganizationModel):
+    """Abstract base model for all question types."""
+    
+    QUESTION_TYPE_CHOICES = [
+        ('multiple_choice', 'Multiple Choice'),
+        ('order', 'Order'),
+        ('connect', 'Connect'),
+    ]
     
     text = models.TextField()
     order = models.PositiveIntegerField(default=0, db_index=True)
+    question_type = models.CharField(
+        max_length=20,
+        choices=QUESTION_TYPE_CHOICES,
+        db_index=True
+    )
+    image = models.ImageField(upload_to='questions/', blank=True, null=True)
+    video = models.FileField(upload_to='questions/videos/', blank=True, null=True)
     quiz = models.ForeignKey(
         Quiz,
         on_delete=models.CASCADE,
-        related_name='questions',
+        related_name='%(class)s_questions',
         null=True,
         blank=True
     )
     topic = models.ForeignKey(
         'courses.Topic',
         on_delete=models.CASCADE,
-        related_name='questions'
+        related_name='%(class)s_questions'
     )
     learning_objectives = models.ManyToManyField(
         'courses.LearningObjective',
-        related_name='questions',
+        related_name='%(class)s_questions',
         blank=True
     )
     
     class Meta:
+        abstract = True
         ordering = ['order', 'created_at']
     
     def __str__(self):
         return f"{self.topic.name} - {self.text[:50]}..."
 
 
+class MultipleChoiceQuestion(BaseQuestion):
+    """Multiple choice question with options."""
+    
+    class Meta(BaseQuestion.Meta):
+        pass
+    
+    def save(self, *args, **kwargs):
+        """Automatically set question_type on save."""
+        self.question_type = 'multiple_choice'
+        super().save(*args, **kwargs)
+
+
 class Option(OrganizationModel):
-    """Option model representing answer choices for questions."""
+    """Option model representing answer choices for multiple choice questions."""
     
     text = models.TextField()
     is_correct = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='options/', blank=True, null=True)
     question = models.ForeignKey(
-        Question,
+        MultipleChoiceQuestion,
         on_delete=models.CASCADE,
         related_name='options'
     )
@@ -86,3 +122,98 @@ class Option(OrganizationModel):
     
     def __str__(self):
         return f"{self.question.text[:30]}... - {self.text[:30]}..."
+
+
+class OrderQuestion(BaseQuestion):
+    """Question where students need to order options correctly."""
+    
+    class Meta(BaseQuestion.Meta):
+        pass
+    
+    def save(self, *args, **kwargs):
+        """Automatically set question_type on save."""
+        self.question_type = 'order'
+        super().save(*args, **kwargs)
+
+
+class OrderOption(OrganizationModel):
+    """Option for order questions with a correct position."""
+    
+    text = models.TextField()
+    image = models.ImageField(upload_to='order_options/', blank=True, null=True)
+    correct_order = models.PositiveIntegerField(
+        help_text="The correct position in the order (1-based)"
+    )
+    question = models.ForeignKey(
+        OrderQuestion,
+        on_delete=models.CASCADE,
+        related_name='order_options'
+    )
+    
+    class Meta:
+        ordering = ['correct_order', 'id']
+    
+    def __str__(self):
+        return f"{self.question.text[:30]}... - {self.text[:30]}... (order: {self.correct_order})"
+
+
+class ConnectQuestion(BaseQuestion):
+    """Question where students need to connect options with lines."""
+    
+    class Meta(BaseQuestion.Meta):
+        pass
+    
+    def save(self, *args, **kwargs):
+        """Automatically set question_type on save."""
+        self.question_type = 'connect'
+        super().save(*args, **kwargs)
+
+
+class ConnectOption(OrganizationModel):
+    """Option for connect questions with fixed position and optional image."""
+    
+    text = models.TextField()
+    image = models.ImageField(upload_to='connect_options/', blank=True, null=True)
+    position_x = models.FloatField(help_text="X position (0.0 to 1.0)")
+    position_y = models.FloatField(help_text="Y position (0.0 to 1.0)")
+    question = models.ForeignKey(
+        ConnectQuestion,
+        on_delete=models.CASCADE,
+        related_name='connect_options'
+    )
+    
+    class Meta:
+        ordering = ['id']
+    
+    def __str__(self):
+        return f"{self.question.text[:30]}... - {self.text[:30]}... ({self.position_x}, {self.position_y})"
+
+
+class ConnectOptionConnection(OrganizationModel):
+    """Defines correct connections between connect options."""
+    
+    question = models.ForeignKey(
+        ConnectQuestion,
+        on_delete=models.CASCADE,
+        related_name='correct_connections'
+    )
+    from_option = models.ForeignKey(
+        ConnectOption,
+        on_delete=models.CASCADE,
+        related_name='connections_from'
+    )
+    to_option = models.ForeignKey(
+        ConnectOption,
+        on_delete=models.CASCADE,
+        related_name='connections_to'
+    )
+    
+    class Meta:
+        unique_together = ['organization', 'question', 'from_option', 'to_option']
+    
+    def __str__(self):
+        return f"{self.question.text[:30]}... - {self.from_option.text[:20]}... → {self.to_option.text[:20]}..."
+
+
+# Backward compatibility alias
+Question = MultipleChoiceQuestion

@@ -238,22 +238,49 @@ class StudentQuestionAnswerSerializer(serializers.ModelSerializer):
     """Serializer for StudentQuestionAnswer model."""
     
     student_name = serializers.SerializerMethodField()
-    question_text = serializers.CharField(source='question.text', read_only=True)
+    question_text = serializers.SerializerMethodField()
+    question_type = serializers.SerializerMethodField()
     quiz_name = serializers.CharField(source='quiz.name', read_only=True)
-    answer_text = serializers.CharField(source='answer.text', read_only=True)
+    answer_text = serializers.SerializerMethodField()
+    answer_data_display = serializers.SerializerMethodField()
     correct = serializers.SerializerMethodField()
     
     class Meta:
         model = StudentQuestionAnswer
         fields = [
-            'id', 'student', 'question', 'quiz', 'answer',
-            'student_name', 'question_text', 'quiz_name', 'answer_text', 'correct',
+            'id', 'student', 'question', 'quiz', 'answer', 'answer_data',
+            'student_name', 'question_text', 'question_type', 'quiz_name',
+            'answer_text', 'answer_data_display', 'correct',
             'organization', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
     
     def get_student_name(self, obj):
         return f"{obj.student.first_name} {obj.student.last_name}"
+    
+    def get_question_text(self, obj):
+        """Get question text from any question type."""
+        if obj.question:
+            return obj.question.text
+        return None
+    
+    def get_question_type(self, obj):
+        """Get question type."""
+        if obj.question:
+            return obj.question.question_type
+        return None
+    
+    def get_answer_text(self, obj):
+        """Get answer text for MultipleChoiceQuestion."""
+        if obj.answer:
+            return obj.answer.text
+        return None
+    
+    def get_answer_data_display(self, obj):
+        """Get formatted answer data for OrderQuestion and ConnectQuestion."""
+        if obj.answer_data:
+            return obj.answer_data
+        return None
     
     def get_correct(self, obj):
         """Return the correct property from the model."""

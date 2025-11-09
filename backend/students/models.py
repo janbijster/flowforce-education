@@ -1,4 +1,7 @@
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.exceptions import ValidationError
 from organizations.models import OrganizationModel
 
 
@@ -57,38 +60,130 @@ class Student(OrganizationModel):
 
 
 class StudentQuestionAnswer(OrganizationModel):
-    """StudentQuestionAnswer model tracking student answers to quiz questions."""
+    """StudentQuestionAnswer model tracking student answers to quiz questions.
+    
+    Supports different question types:
+    - MultipleChoiceQuestion: uses 'answer' ForeignKey to Option
+    - OrderQuestion: uses 'answer_data' JSONField with list of option IDs in order
+    - ConnectQuestion: uses 'answer_data' JSONField with list of connection pairs
+    """
     
     student = models.ForeignKey(
         Student,
         on_delete=models.CASCADE,
         related_name='question_answers'
     )
-    question = models.ForeignKey(
-        'quizzes.Question',
+    # Generic foreign key to support all question types
+    question_content_type = models.ForeignKey(
+        ContentType,
         on_delete=models.CASCADE,
-        related_name='student_answers'
+        limit_choices_to={'model__in': ['multiplechoicequestion', 'orderquestion', 'connectquestion']},
+        null=True,  # Nullable for migration
+        blank=True
     )
+    question_id = models.PositiveIntegerField(null=True, blank=True)  # Nullable for migration
+    question = GenericForeignKey('question_content_type', 'question_id')
     quiz = models.ForeignKey(
         'quizzes.Quiz',
         on_delete=models.CASCADE,
         related_name='student_answers'
     )
+    # For MultipleChoiceQuestion: reference to the selected Option
     answer = models.ForeignKey(
         'quizzes.Option',
         on_delete=models.CASCADE,
-        related_name='student_selections'
+        related_name='student_selections',
+        null=True,
+        blank=True
     )
+    # For OrderQuestion and ConnectQuestion: JSON data
+    # OrderQuestion: [option_id1, option_id2, ...] in the order provided by student
+    # ConnectQuestion: [[from_option_id, to_option_id], ...] list of connection pairs
+    answer_data = models.JSONField(blank=True, null=True)
     
     class Meta:
         ordering = ['-created_at']
-        unique_together = ['organization', 'student', 'question', 'quiz']
+        unique_together = ['organization', 'student', 'question_content_type', 'question_id', 'quiz']
+    
+    def clean(self):
+        """Validate that answer or answer_data is provided based on question type."""
+        if not self.question:
+            return
+        
+        question_type = self.question.question_type
+        
+        if question_type == 'multiple_choice':
+            if not self.answer:
+                raise ValidationError({'answer': 'Answer (Option) is required for multiple choice questions.'})
+            if self.answer_data:
+                raise ValidationError({'answer_data': 'answer_data should not be set for multiple choice questions.'})
+        elif question_type in ['order', 'connect']:
+            if self.answer:
+                raise ValidationError({'answer': f'answer should not be set for {question_type} questions.'})
+            if not self.answer_data:
+                raise ValidationError({'answer_data': f'answer_data is required for {question_type} questions.'})
+    
+    def save(self, *args, **kwargs):
+        """Validate before saving."""
+        self.clean()
+        super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.student} - {self.question.text[:50]}..."
+        question_text = getattr(self.question, 'text', 'Unknown')[:50]
+        return f"{self.student} - {question_text}..."
     
     @property
     def correct(self):
-        """Dynamic property that checks if the answered option was correct."""
-        return self.answer.is_correct
+        """Check if the answer is correct based on question type."""
+        if not self.question:
+            return False
+        
+        question_type = self.question.question_type
+        
+        if question_type == 'multiple_choice':
+            return self.answer.is_correct if self.answer else False
+        
+        elif question_type == 'order':
+            if not self.answer_data or not isinstance(self.answer_data, list):
+                return False
+            
+            # Get correct order from OrderOptions
+            from quizzes.models import OrderOption
+            order_options = OrderOption.objects.filter(
+                question=self.question,
+                organization=self.organization
+            ).order_by('correct_order')
+            
+            correct_order = [opt.id for opt in order_options]
+            
+            # Compare student's order with correct order
+            return self.answer_data == correct_order
+        
+        elif question_type == 'connect':
+            if not self.answer_data or not isinstance(self.answer_data, list):
+                return False
+            
+            # Get correct connections
+            from quizzes.models import ConnectOptionConnection
+            correct_connections = ConnectOptionConnection.objects.filter(
+                question=self.question,
+                organization=self.organization
+            )
+            
+            # Build set of correct connection pairs (bidirectional)
+            correct_pairs = set()
+            for conn in correct_connections:
+                pair = tuple(sorted([conn.from_option_id, conn.to_option_id]))
+                correct_pairs.add(pair)
+            
+            # Build set of student's connection pairs
+            student_pairs = set()
+            for pair in self.answer_data:
+                if isinstance(pair, list) and len(pair) == 2:
+                    student_pairs.add(tuple(sorted(pair)))
+            
+            # Check if student's connections match exactly
+            return student_pairs == correct_pairs
+        
+        return False
 
