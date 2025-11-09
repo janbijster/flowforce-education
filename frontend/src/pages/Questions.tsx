@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetchQuestions, fetchCourses, fetchModules, Question, Course, Module } from "@/lib/api";
+import { QuestionTypeBadge } from "@/components/QuestionTypeBadge";
 
 export default function Questions() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -78,8 +79,13 @@ export default function Questions() {
     });
   }, [questions, selectedCourse, selectedModule, courses, modules]);
 
-  const handleRowClick = (id: number) => {
-    navigate(`/questions/${id}`);
+  const handleRowClick = (question: Question) => {
+    const typePath = question.question_type === 'multiple_choice' 
+      ? 'multiple-choice' 
+      : question.question_type === 'order'
+      ? 'order'
+      : 'connect';
+    navigate(`/questions/${typePath}/${question.id}`);
   };
 
   if (loading) {
@@ -154,6 +160,7 @@ export default function Questions() {
           <TableHeader>
             <TableRow>
               <TableHead>Question</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Course</TableHead>
               <TableHead>Module</TableHead>
               <TableHead>Topic</TableHead>
@@ -165,19 +172,35 @@ export default function Questions() {
             {filteredQuestions.map((question) => (
               <TableRow
                 key={question.id}
-                onClick={() => handleRowClick(question.id)}
+                onClick={() => handleRowClick(question)}
                 className="cursor-pointer"
               >
                 <TableCell className="max-w-[400px] truncate">{question.text}</TableCell>
+                <TableCell>
+                  <QuestionTypeBadge questionType={question.question_type} />
+                </TableCell>
                 <TableCell>{question.course_name ?? "—"}</TableCell>
                 <TableCell>{question.module_name ?? "—"}</TableCell>
                 <TableCell>{question.topic_name ?? "—"}</TableCell>
-                <TableCell>{question.options_count}</TableCell>
+                <TableCell>
+                  {question.question_type === 'multiple_choice' 
+                    ? (question as any).options_count || 0
+                    : question.question_type === 'order'
+                    ? (question as any).order_options_count || 0
+                    : (question as any).connect_options_count || 0}
+                </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => navigate(`/questions/${question.id}`)}
+                    onClick={() => {
+                      const typePath = question.question_type === 'multiple_choice' 
+                        ? 'multiple-choice' 
+                        : question.question_type === 'order'
+                        ? 'order'
+                        : 'connect';
+                      navigate(`/questions/${typePath}/${question.id}`);
+                    }}
                   >
                     View
                   </Button>

@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchQuiz, QuizDetail as QuizDetailType } from "@/lib/api";
+import { fetchQuiz, QuizDetail as QuizDetailType, combineQuestions, Question } from "@/lib/api";
 
 export default function QuizDetail() {
   const { id } = useParams<{ id: string }>();
@@ -110,15 +110,32 @@ export default function QuizDetail() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {quiz.questions.map((q) => (
-                <TableRow key={q.id}>
-                  <TableCell className="max-w-[480px] truncate">{q.text}</TableCell>
-                  <TableCell>{q.topic_name}</TableCell>
-                  <TableCell>{q.lesson_name}</TableCell>
-                  <TableCell>{q.module_name}</TableCell>
-                  <TableCell>{q.options_count}</TableCell>
-                </TableRow>
-              ))}
+              {(() => {
+                // Combine all question types into a unified list
+                const allQuestions = quiz.questions || combineQuestions(quiz);
+                return allQuestions.map((q: Question) => (
+                  <TableRow key={q.id}>
+                    <TableCell className="max-w-[480px] truncate">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
+                          {q.question_type === 'multiple_choice' ? 'MC' : q.question_type === 'order' ? 'Order' : 'Connect'}
+                        </span>
+                        <span>{q.text}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{q.topic_name}</TableCell>
+                    <TableCell>{q.lesson_name}</TableCell>
+                    <TableCell>{q.module_name}</TableCell>
+                    <TableCell>
+                      {q.question_type === 'multiple_choice' 
+                        ? (q as any).options_count || 0
+                        : q.question_type === 'order'
+                        ? (q as any).order_options_count || 0
+                        : (q as any).connect_options_count || 0}
+                    </TableCell>
+                  </TableRow>
+                ));
+              })()}
             </TableBody>
           </Table>
         </div>

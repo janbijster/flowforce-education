@@ -2,15 +2,28 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { fetchQuiz, QuizDetail, fetchQuestion, QuestionDetail } from "@/lib/api";
+import { fetchQuiz, QuizDetail, fetchQuestion, QuestionDetail, combineQuestions, OrderQuestionDetail } from "@/lib/api";
 import { QuestionPreview } from "@/components/QuestionPreview";
+
+// Helper function to shuffle array (Fisher-Yates algorithm)
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 export default function QuizPreview() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState<QuizDetail | null>(null);
   const [questions, setQuestions] = useState<QuestionDetail[]>([]);
-  const [selectedOptions, setSelectedOptions] = useState<Record<number, number | null>>({});
+  // Use composite keys (question_type:id) since IDs can overlap across question types
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, number | null>>({});
+  const [selectedOrders, setSelectedOrders] = useState<Record<string, number[]>>({});
+  const [selectedConnections, setSelectedConnections] = useState<Record<string, Array<[number, number]>>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +36,25 @@ export default function QuizPreview() {
         const quizData = await fetchQuiz(Number(id));
         setQuiz(quizData);
 
-        // Fetch full details for each question (including options)
+        // Combine all question types and fetch full details
+        const allQuestions = quizData.questions || combineQuestions(quizData);
         const questionDetails = await Promise.all(
-          quizData.questions.map((q) => fetchQuestion(q.id))
+          allQuestions.map((q) => fetchQuestion(q.id, q.question_type))
         );
         setQuestions(questionDetails);
+
+        // Initialize randomized order for Order questions
+        const initialOrders: Record<string, number[]> = {};
+        questionDetails.forEach((q) => {
+          if (q.question_type === 'order') {
+            const orderQuestion = q as OrderQuestionDetail;
+            const optionIds = orderQuestion.order_options.map(opt => opt.id);
+            // Randomize the order for the student
+            const key = `${q.question_type}:${q.id}`;
+            initialOrders[key] = shuffleArray(optionIds);
+          }
+        });
+        setSelectedOrders(initialOrders);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load quiz");
       } finally {
@@ -38,11 +65,30 @@ export default function QuizPreview() {
     loadQuiz();
   }, [id]);
 
-  const handleOptionSelect = (questionId: number, optionId: number) => {
-    if (showAnswers) return; // Don't allow selection when showing answers
+  const handleOptionSelect = (question: QuestionDetail, optionId: number) => {
+    if (showAnswers) return;
+    const key = `${question.question_type}:${question.id}`;
     setSelectedOptions((prev) => ({
       ...prev,
-      [questionId]: optionId,
+      [key]: optionId,
+    }));
+  };
+
+  const handleOrderChange = (question: QuestionDetail, optionIds: number[]) => {
+    if (showAnswers) return;
+    const key = `${question.question_type}:${question.id}`;
+    setSelectedOrders((prev) => ({
+      ...prev,
+      [key]: optionIds,
+    }));
+  };
+
+  const handleConnectionChange = (question: QuestionDetail, connections: Array<[number, number]>) => {
+    if (showAnswers) return;
+    const key = `${question.question_type}:${question.id}`;
+    setSelectedConnections((prev) => ({
+      ...prev,
+      [key]: connections,
     }));
   };
 
@@ -99,7 +145,7 @@ export default function QuizPreview() {
         <div className="space-y-6">
           {questions.length > 0 ? (
             questions.map((question, index) => (
-              <div key={question.id} className="rounded-md border p-6">
+              <div key={`${question.question_type}:${question.id}`} className="rounded-md border p-6">
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg font-semibold">
@@ -115,8 +161,12 @@ export default function QuizPreview() {
                 </div>
                 <QuestionPreview
                   question={question}
-                  selectedOption={selectedOptions[question.id] || null}
-                  onOptionSelect={(optionId) => handleOptionSelect(question.id, optionId)}
+                  selectedOption={selectedOptions[`${question.question_type}:${question.id}`] || null}
+                  selectedOrder={selectedOrders[`${question.question_type}:${question.id}`] || null}
+                  selectedConnections={selectedConnections[`${question.question_type}:${question.id}`] || null}
+                  onOptionSelect={(optionId) => handleOptionSelect(question, optionId)}
+                  onOrderChange={(optionIds) => handleOrderChange(question, optionIds)}
+                  onConnectionChange={(connections) => handleConnectionChange(question, connections)}
                   showCorrectAnswer={showAnswers}
                 />
               </div>

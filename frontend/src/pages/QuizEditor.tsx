@@ -20,12 +20,15 @@ import {
   fetchQuiz,
   createQuiz,
   updateQuiz,
+  fetchQuestions,
   searchQuestions,
   assignQuestionToQuiz,
   reorderQuizQuestions,
   fetchCourses,
   fetchModules,
+  combineQuestions,
 } from "@/lib/api";
+import { QuestionTypeBadge } from "@/components/QuestionTypeBadge";
 
 export default function QuizEditor() {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +38,7 @@ export default function QuizEditor() {
 
   const [quiz, setQuiz] = useState<QuizDetail | null>(null);
   const [initialQuestionIds, setInitialQuestionIds] = useState<number[]>([]);
+  const [initialQuestionKeys, setInitialQuestionKeys] = useState<Set<string>>(new Set());
   const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
@@ -69,7 +73,7 @@ export default function QuizEditor() {
         const [q, cs, qs] = await Promise.all([
           !isCreate && id ? fetchQuiz(Number(id)) : null,
           fetchCourses(),
-          searchQuestions({ search: "" }),
+          fetchQuestions(),
         ]);
         
         setCourses(cs);
@@ -77,8 +81,12 @@ export default function QuizEditor() {
         
         if (q) {
           setQuiz(q);
-          const qIds = q.questions.map(q => q.id);
+          // Combine all question types for unified handling
+          const allQuestions = q.questions || combineQuestions(q);
+          const qIds = allQuestions.map(q => q.id);
+          const qKeys = new Set(allQuestions.map(q => `${q.question_type}:${q.id}`));
           setInitialQuestionIds(qIds);
+          setInitialQuestionKeys(qKeys);
           const initName = q.name ?? "";
           const initDesc = q.description ?? "";
           const initCourse = q.course;
@@ -116,8 +124,12 @@ export default function QuizEditor() {
             created_at: "",
             updated_at: "",
             questions: [],
+            multiple_choice_questions: [],
+            order_questions: [],
+            connect_questions: [],
           });
           setInitialQuestionIds([]);
+          setInitialQuestionKeys(new Set());
           initialValues.current = {
             name: "",
             description: "",
@@ -162,7 +174,9 @@ export default function QuizEditor() {
   useEffect(() => {
     if (!quiz) return;
 
-    const currentQuestionIds = (quiz.questions || []).map(q => q.id);
+    // Combine all question types for unified handling
+    const allQuestions = quiz.questions || combineQuestions(quiz);
+    const currentQuestionIds = allQuestions.map(q => q.id);
     const initialQuestionIds = initialValues.current.questionIds;
 
     // Check if question IDs changed (add/remove)
@@ -190,21 +204,50 @@ export default function QuizEditor() {
 
   const filteredLeft = useMemo(() => {
     const s = search.trim().toLowerCase();
-    const inQuizIds = new Set((quiz?.questions || []).map((q) => q.id));
+    // Combine all question types from quiz
+    const quizQuestions = quiz ? (quiz.questions || combineQuestions(quiz)) : [];
+    // Use composite key (question_type + id) since IDs can overlap across question types
+    const inQuizKeys = new Set(quizQuestions.map((q) => `${q.question_type}:${q.id}`));
     return allQuestions
-      .filter((q) => !inQuizIds.has(q.id))
+      .filter((q) => !inQuizKeys.has(`${q.question_type}:${q.id}`))
       .filter((q) => (s ? q.text.toLowerCase().includes(s) : true));
   }, [allQuestions, quiz, search]);
 
   const handleAdd = (question: Question) => {
     if (!quiz) return;
-    if (quiz.questions.some(q => q.id === question.id)) return;
-    setQuiz({ ...quiz, questions: [...quiz.questions, question] });
+    const allQuestions = quiz.questions || combineQuestions(quiz);
+    // Use composite key since IDs can overlap across question types
+    if (allQuestions.some(q => q.question_type === question.question_type && q.id === question.id)) return;
+    
+    // Add to appropriate array based on question type
+    const updatedQuiz = { ...quiz };
+    if (question.question_type === 'multiple_choice') {
+      updatedQuiz.multiple_choice_questions = [...(updatedQuiz.multiple_choice_questions || []), question as any];
+    } else if (question.question_type === 'order') {
+      updatedQuiz.order_questions = [...(updatedQuiz.order_questions || []), question as any];
+    } else if (question.question_type === 'connect') {
+      updatedQuiz.connect_questions = [...(updatedQuiz.connect_questions || []), question as any];
+    }
+    // Update combined questions list
+    updatedQuiz.questions = combineQuestions(updatedQuiz);
+    setQuiz(updatedQuiz);
   };
 
   const handleRemove = (question: Question) => {
     if (!quiz) return;
-    setQuiz({ ...quiz, questions: quiz.questions.filter((q) => q.id !== question.id) });
+    const updatedQuiz = { ...quiz };
+    
+    // Remove from appropriate array
+    if (question.question_type === 'multiple_choice') {
+      updatedQuiz.multiple_choice_questions = (updatedQuiz.multiple_choice_questions || []).filter(q => q.id !== question.id);
+    } else if (question.question_type === 'order') {
+      updatedQuiz.order_questions = (updatedQuiz.order_questions || []).filter(q => q.id !== question.id);
+    } else if (question.question_type === 'connect') {
+      updatedQuiz.connect_questions = (updatedQuiz.connect_questions || []).filter(q => q.id !== question.id);
+    }
+    // Update combined questions list
+    updatedQuiz.questions = combineQuestions(updatedQuiz);
+    setQuiz(updatedQuiz);
   };
 
   // Simple HTML5 drag-reorder (client-side only for now)
@@ -213,13 +256,26 @@ export default function QuizEditor() {
   const onDragOver = (e: React.DragEvent) => e.preventDefault();
   const onDrop = (targetId: number) => {
     if (!quiz || dragId == null || dragId === targetId) return;
-    const curr = [...quiz.questions];
+    const allQuestions = quiz.questions || combineQuestions(quiz);
+    const curr = [...allQuestions];
     const fromIdx = curr.findIndex((q) => q.id === dragId);
     const toIdx = curr.findIndex((q) => q.id === targetId);
     if (fromIdx === -1 || toIdx === -1) return;
     const [moved] = curr.splice(fromIdx, 1);
     curr.splice(toIdx, 0, moved);
-    setQuiz({ ...quiz, questions: curr });
+    
+    // Update order values
+    curr.forEach((q, idx) => {
+      q.order = idx;
+    });
+    
+    // Rebuild quiz with updated questions
+    const updatedQuiz = { ...quiz };
+    updatedQuiz.multiple_choice_questions = curr.filter(q => q.question_type === 'multiple_choice') as any;
+    updatedQuiz.order_questions = curr.filter(q => q.question_type === 'order') as any;
+    updatedQuiz.connect_questions = curr.filter(q => q.question_type === 'connect') as any;
+    updatedQuiz.questions = curr;
+    setQuiz(updatedQuiz);
     setDragId(null);
   };
 
@@ -306,19 +362,32 @@ export default function QuizEditor() {
       }
 
       // Persist add/remove by updating the question.quiz field
-      const desiredIds = new Set((quiz?.questions || []).map(q => q.id));
-      const toAdd: number[] = Array.from(desiredIds).filter(id => !initialQuestionIds.includes(id));
-      const toRemove: number[] = initialQuestionIds.filter(id => !desiredIds.has(id));
+      const allQuestions = quiz ? (quiz.questions || combineQuestions(quiz)) : [];
+      // Use composite keys since IDs can overlap across question types
+      const desiredKeys = new Set(allQuestions.map(q => `${q.question_type}:${q.id}`));
+      
+      const toAdd: Array<{id: number, type: Question['question_type']}> = allQuestions
+        .filter(q => !initialQuestionKeys.has(`${q.question_type}:${q.id}`))
+        .map(q => ({ id: q.id, type: q.question_type }));
+      const toRemove: Array<{id: number, type: Question['question_type']}> = [];
+      initialQuestionKeys.forEach(key => {
+        if (!desiredKeys.has(key)) {
+          const [type, idStr] = key.split(':');
+          const id = Number(idStr);
+          const questionType = type as Question['question_type'];
+          toRemove.push({ id, type: questionType });
+        }
+      });
 
-      for (const qid of toAdd) {
-        await assignQuestionToQuiz(qid, quizId);
+      for (const { id: qid, type: questionType } of toAdd) {
+        await assignQuestionToQuiz(qid, quizId, questionType);
       }
-      for (const qid of toRemove) {
-        await assignQuestionToQuiz(qid, null);
+      for (const { id: qid, type: questionType } of toRemove) {
+        await assignQuestionToQuiz(qid, null, questionType);
       }
 
       // Persist ordering
-      const orderedIds = (quiz?.questions || []).map(q => q.id);
+      const orderedIds = allQuestions.map(q => q.id);
       if (orderedIds.length) {
         await reorderQuizQuestions(quizId, orderedIds);
       }
@@ -327,28 +396,39 @@ export default function QuizEditor() {
       if (isCreate) {
         const createdQuiz = await fetchQuiz(quizId);
         setQuiz(createdQuiz);
-        setInitialQuestionIds(createdQuiz.questions.map(q => q.id));
+        const allQuestions = createdQuiz.questions || combineQuestions(createdQuiz);
+        const qIds = allQuestions.map(q => q.id);
+        const qKeys = new Set(allQuestions.map(q => `${q.question_type}:${q.id}`));
+        setInitialQuestionIds(qIds);
+        setInitialQuestionKeys(qKeys);
         initialValues.current = {
           name: createdQuiz.name ?? "",
           description: createdQuiz.description ?? "",
           course: createdQuiz.course,
           module: createdQuiz.module,
-          questionIds: createdQuiz.questions.map(q => q.id),
+          questionIds: qIds,
         };
         // Mark as saved BEFORE navigation to prevent blocker
         setHasUnsavedChanges(false);
         // Update URL to edit mode
         navigate(`/quizzes/${quizId}/edit`, { replace: true });
       } else {
+        // Reload quiz to get updated state
+        const updatedQuiz = await fetchQuiz(quizId);
+        setQuiz(updatedQuiz);
+        const allQuestions = updatedQuiz.questions || combineQuestions(updatedQuiz);
+        const qIds = allQuestions.map(q => q.id);
+        const qKeys = new Set(allQuestions.map(q => `${q.question_type}:${q.id}`));
         // Update initial values after successful save (edit mode)
         initialValues.current = {
           name,
           description: description ?? "",
           course: selectedCourse,
           module: selectedModule,
-          questionIds: orderedIds,
+          questionIds: qIds,
         };
-        setInitialQuestionIds(orderedIds);
+        setInitialQuestionIds(qIds);
+        setInitialQuestionKeys(qKeys);
         // Mark as saved BEFORE navigation to prevent blocker
         setHasUnsavedChanges(false);
         navigate(`/quizzes/${quizId}/edit`);
@@ -465,16 +545,29 @@ export default function QuizEditor() {
               </TableHeader>
               <TableBody>
                 {filteredLeft.map((q) => (
-                  <TableRow key={q.id}>
-                    <TableCell className="max-w-[360px] truncate">{q.text}</TableCell>
-                    <TableCell>{q.topic_name}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="outline" onClick={() => handleAdd(q)} disabled={!quiz}>Add</Button>
-                        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate(`/questions/${q.id}/edit`); }}>Edit</Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                    <TableRow key={q.id}>
+                      <TableCell className="max-w-[360px] truncate">
+                        <div className="flex items-center gap-2">
+                          <QuestionTypeBadge questionType={q.question_type} />
+                          <span>{q.text}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{q.topic_name}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="outline" onClick={() => handleAdd(q)} disabled={!quiz}>Add</Button>
+                          <Button size="sm" variant="outline" onClick={(e) => { 
+                            e.stopPropagation(); 
+                            const typePath = q.question_type === 'multiple_choice' 
+                              ? 'multiple-choice' 
+                              : q.question_type === 'order'
+                              ? 'order'
+                              : 'connect';
+                            navigate(`/questions/${typePath}/${q.id}/edit`); 
+                          }}>Edit</Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                 ))}
               </TableBody>
             </Table>
@@ -495,26 +588,42 @@ export default function QuizEditor() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(quiz?.questions || []).map((q, idx) => (
-                  <TableRow
-                    key={q.id}
-                    draggable
-                    onDragStart={() => onDragStart(q.id)}
-                    onDragOver={onDragOver}
-                    onDrop={() => onDrop(q.id)}
-                    className="cursor-move"
-                  >
-                    <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
-                    <TableCell className="max-w-[360px] truncate">{q.text}</TableCell>
-                    <TableCell>{q.topic_name}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); navigate(`/questions/${q.id}/edit`); }}>Edit</Button>
-                        <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleRemove(q); }}>Remove</Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {(() => {
+                  const allQuestions = quiz ? (quiz.questions || combineQuestions(quiz)) : [];
+                  return allQuestions.map((q, idx) => (
+                    <TableRow
+                      key={q.id}
+                      draggable
+                      onDragStart={() => onDragStart(q.id)}
+                      onDragOver={onDragOver}
+                      onDrop={() => onDrop(q.id)}
+                      className="cursor-move"
+                    >
+                      <TableCell className="text-muted-foreground">{idx + 1}</TableCell>
+                      <TableCell className="max-w-[360px] truncate">
+                        <div className="flex items-center gap-2">
+                          <QuestionTypeBadge questionType={q.question_type} />
+                          <span>{q.text}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>{q.topic_name}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="outline" onClick={(e) => { 
+                            e.stopPropagation(); 
+                            const typePath = q.question_type === 'multiple_choice' 
+                              ? 'multiple-choice' 
+                              : q.question_type === 'order'
+                              ? 'order'
+                              : 'connect';
+                            navigate(`/questions/${typePath}/${q.id}/edit`); 
+                          }}>Edit</Button>
+                          <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleRemove(q); }}>Remove</Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ));
+                })()}
               </TableBody>
             </Table>
           </div>

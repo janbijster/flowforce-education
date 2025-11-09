@@ -1,33 +1,108 @@
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
-export interface Question {
+// Base question interface with common fields
+export interface BaseQuestion {
   id: number;
   text: string;
+  order: number;
+  question_type: 'multiple_choice' | 'order' | 'connect';
+  image: string | null;
+  video: string | null;
   organization: number;
+  quiz: number | null;
   topic: number;
+  learning_objectives: number[];
   topic_name: string;
   lesson_name: string;
   module_name: string;
   course_name: string;
-  learning_objectives: number[];
-  options_count: number;
+  quiz_name: string | null;
   learning_objectives_count: number;
   created_at: string;
   updated_at: string;
 }
 
+// Multiple Choice Question
+export interface MultipleChoiceQuestion extends BaseQuestion {
+  question_type: 'multiple_choice';
+  options_count: number;
+}
+
+export interface MultipleChoiceQuestionDetail extends MultipleChoiceQuestion {
+  options: Option[];
+}
+
+// Order Question
+export interface OrderQuestion extends BaseQuestion {
+  question_type: 'order';
+  order_options_count: number;
+}
+
+export interface OrderQuestionDetail extends OrderQuestion {
+  order_options: OrderOption[];
+}
+
+// Connect Question
+export interface ConnectQuestion extends BaseQuestion {
+  question_type: 'connect';
+  connect_options_count: number;
+  connections_count: number;
+}
+
+export interface ConnectQuestionDetail extends ConnectQuestion {
+  connect_options: ConnectOption[];
+  correct_connections: ConnectOptionConnection[];
+}
+
+// Union type for all question types
+export type Question = MultipleChoiceQuestion | OrderQuestion | ConnectQuestion;
+export type QuestionDetail = MultipleChoiceQuestionDetail | OrderQuestionDetail | ConnectQuestionDetail;
+
+// Options for different question types
 export interface Option {
   id: number;
   text: string;
   is_correct: boolean;
+  image: string | null;
   organization: number;
   question: number;
   created_at: string;
   updated_at: string;
 }
 
-export interface QuestionDetail extends Question {
-  options: Option[];
+export interface OrderOption {
+  id: number;
+  text: string;
+  image: string | null;
+  correct_order: number;
+  organization: number;
+  question: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConnectOption {
+  id: number;
+  text: string;
+  image: string | null;
+  position_x: number;
+  position_y: number;
+  organization: number;
+  question: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConnectOptionConnection {
+  id: number;
+  question: number;
+  from_option: number;
+  to_option: number;
+  from_option_text: string;
+  to_option_text: string;
+  organization: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Quiz {
@@ -47,7 +122,11 @@ export interface Quiz {
 }
 
 export interface QuizDetail extends Quiz {
-  questions: Question[];
+  multiple_choice_questions: MultipleChoiceQuestion[];
+  order_questions: OrderQuestion[];
+  connect_questions: ConnectQuestion[];
+  // Helper: get all questions as a unified list
+  questions?: Question[]; // Computed property, not from API
 }
 
 export interface Course {
@@ -189,25 +268,103 @@ function getCsrfToken(): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-export async function fetchQuestions(): Promise<Question[]> {
-  const response = await fetch(`${API_BASE_URL}/quizzes/questions/`, {
-    credentials: 'include',
-  });
-  if (!response.ok) {
-    throw new Error('Failed to fetch questions');
-  }
-  const data = await response.json();
-  return data.results || data;
+// Helper function to combine all question types into a unified list
+export function combineQuestions(quiz: QuizDetail): Question[] {
+  const questions: Question[] = [
+    ...(quiz.multiple_choice_questions || []),
+    ...(quiz.order_questions || []),
+    ...(quiz.connect_questions || []),
+  ];
+  // Sort by order
+  return questions.sort((a, b) => a.order - b.order);
 }
 
-export async function fetchQuestion(id: number): Promise<QuestionDetail> {
-  const response = await fetch(`${API_BASE_URL}/quizzes/questions/${id}/`, {
-    credentials: 'include',
-  });
-  if (!response.ok) {
-    throw new Error('Failed to fetch question');
+export async function fetchQuestions(): Promise<Question[]> {
+  // Fetch all question types and combine them
+  // Use Promise.allSettled to handle partial failures gracefully
+  const results = await Promise.allSettled([
+    fetch(`${API_BASE_URL}/quizzes/multiple-choice-questions/`, { credentials: 'include' }),
+    fetch(`${API_BASE_URL}/quizzes/order-questions/`, { credentials: 'include' }),
+    fetch(`${API_BASE_URL}/quizzes/connect-questions/`, { credentials: 'include' }),
+  ]);
+  
+  const allQuestions: Question[] = [];
+  
+  // Process each result, handling failures gracefully
+  for (const result of results) {
+    if (result.status === 'fulfilled' && result.value.ok) {
+      try {
+        const data = await result.value.json();
+        const questions = data.results || data;
+        allQuestions.push(...questions);
+      } catch (e) {
+        // Log error but continue with other question types
+        console.warn('Failed to parse question data:', e);
+      }
+    } else if (result.status === 'rejected') {
+      console.warn('Failed to fetch questions from one endpoint:', result.reason);
+    } else if (result.status === 'fulfilled' && !result.value.ok) {
+      console.warn('Question endpoint returned error:', result.value.status, result.value.statusText);
+    }
   }
-  return await response.json();
+  
+  return allQuestions;
+}
+
+export async function fetchQuestion(id: number, questionType?: 'multiple_choice' | 'order' | 'connect'): Promise<QuestionDetail> {
+  // If question type is provided, use the specific endpoint for better performance
+  if (questionType) {
+    let endpoint = `${API_BASE_URL}/quizzes/multiple-choice-questions/${id}/`;
+    if (questionType === 'order') {
+      endpoint = `${API_BASE_URL}/quizzes/order-questions/${id}/`;
+    } else if (questionType === 'connect') {
+      endpoint = `${API_BASE_URL}/quizzes/connect-questions/${id}/`;
+    }
+    
+    const response = await fetch(endpoint, { credentials: 'include' });
+    if (response.ok) {
+      const question = await response.json();
+      if (question.id === id) {
+        return question;
+      }
+    }
+    throw new Error(`Failed to fetch ${questionType} question with ID ${id}`);
+  }
+  
+  // If type is not provided, try all endpoints until we find one that matches the ID
+  // Since different question types can have overlapping IDs, we need to check all
+  // and return the one where the ID actually matches
+  
+  const endpoints = [
+    `${API_BASE_URL}/quizzes/multiple-choice-questions/${id}/`,
+    `${API_BASE_URL}/quizzes/order-questions/${id}/`,
+    `${API_BASE_URL}/quizzes/connect-questions/${id}/`,
+  ];
+  
+  // Try all endpoints in parallel for better performance
+  const responses = await Promise.allSettled(
+    endpoints.map(endpoint => 
+      fetch(endpoint, { credentials: 'include' })
+    )
+  );
+  
+  // Find the first successful response where the ID matches
+  for (let i = 0; i < responses.length; i++) {
+    const result = responses[i];
+    if (result.status === 'fulfilled' && result.value.ok) {
+      try {
+        const question = await result.value.json();
+        // Verify the ID matches (in case of redirects or errors)
+        if (question.id === id) {
+          return question;
+        }
+      } catch (e) {
+        // Continue to next endpoint
+      }
+    }
+  }
+  
+  throw new Error(`Failed to fetch question with ID ${id}`);
 }
 
 export async function fetchQuizzes(): Promise<Quiz[]> {
@@ -228,27 +385,80 @@ export async function fetchQuiz(id: number): Promise<QuizDetail> {
   if (!response.ok) {
     throw new Error('Failed to fetch quiz');
   }
-  return await response.json();
+  const quiz: QuizDetail = await response.json();
+  // Combine all question types into a unified list for backward compatibility
+  quiz.questions = combineQuestions(quiz);
+  return quiz;
 }
 
-export async function searchQuestions(params: { search?: string; quiz?: number; topic?: number }): Promise<Question[]> {
+export async function searchQuestions(params: { search?: string; quiz?: number; topic?: number; question_type?: 'multiple_choice' | 'order' | 'connect' }): Promise<Question[]> {
   const qs = new URLSearchParams();
   if (params.search) qs.set('search', params.search);
   if (typeof params.quiz === 'number') qs.set('quiz', String(params.quiz));
   if (typeof params.topic === 'number') qs.set('topic', String(params.topic));
-  const response = await fetch(`${API_BASE_URL}/quizzes/questions/?${qs.toString()}`, {
-    credentials: 'include',
-  });
-  if (!response.ok) {
-    throw new Error('Failed to search questions');
+  
+  // Search across all question types if no specific type is requested
+  if (params.question_type) {
+    const endpoint = params.question_type === 'multiple_choice' 
+      ? 'multiple-choice-questions'
+      : params.question_type === 'order'
+      ? 'order-questions'
+      : 'connect-questions';
+    const response = await fetch(`${API_BASE_URL}/quizzes/${endpoint}/?${qs.toString()}`, {
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to search questions');
+    }
+    const data = await response.json();
+    return data.results || data;
+  } else {
+    // Search all types and combine
+    // Use Promise.allSettled to handle partial failures gracefully
+    const results = await Promise.allSettled([
+      fetch(`${API_BASE_URL}/quizzes/multiple-choice-questions/?${qs.toString()}`, { credentials: 'include' }),
+      fetch(`${API_BASE_URL}/quizzes/order-questions/?${qs.toString()}`, { credentials: 'include' }),
+      fetch(`${API_BASE_URL}/quizzes/connect-questions/?${qs.toString()}`, { credentials: 'include' }),
+    ]);
+    
+    const allQuestions: Question[] = [];
+    
+    // Process each result, handling failures gracefully
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value.ok) {
+        try {
+          const data = await result.value.json();
+          const questions = data.results || data;
+          allQuestions.push(...questions);
+        } catch (e) {
+          // Log error but continue with other question types
+          console.warn('Failed to parse question data:', e);
+        }
+      } else if (result.status === 'rejected') {
+        console.warn('Failed to fetch questions from one endpoint:', result.reason);
+      } else if (result.status === 'fulfilled' && !result.value.ok) {
+        console.warn('Question endpoint returned error:', result.value.status, result.value.statusText);
+      }
+    }
+    
+    return allQuestions;
   }
-  const data = await response.json();
-  return data.results || data;
 }
 
-export async function assignQuestionToQuiz(questionId: number, quizId: number | null): Promise<Question> {
+export async function assignQuestionToQuiz(questionId: number, quizId: number | null, questionType?: 'multiple_choice' | 'order' | 'connect'): Promise<Question> {
   const csrftoken = getCsrfToken();
-  const response = await fetch(`${API_BASE_URL}/quizzes/questions/${questionId}/`, {
+  
+  // Determine endpoint based on question type
+  let endpoint = `${API_BASE_URL}/quizzes/questions/`; // Default to backward compatibility
+  if (questionType === 'order') {
+    endpoint = `${API_BASE_URL}/quizzes/order-questions/`;
+  } else if (questionType === 'connect') {
+    endpoint = `${API_BASE_URL}/quizzes/connect-questions/`;
+  } else if (questionType === 'multiple_choice') {
+    endpoint = `${API_BASE_URL}/quizzes/multiple-choice-questions/`;
+  }
+  
+  const response = await fetch(`${endpoint}${questionId}/`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
@@ -376,7 +586,17 @@ export async function fetchTopics(lessonId?: number): Promise<Topic[]> {
 
 export async function createQuestion(payload: Partial<Question>): Promise<Question> {
   const csrftoken = getCsrfToken();
-  const response = await fetch(`${API_BASE_URL}/quizzes/questions/`, {
+  const questionType = payload.question_type || 'multiple_choice';
+  
+  // Determine endpoint based on question type
+  let endpoint = `${API_BASE_URL}/quizzes/multiple-choice-questions/`;
+  if (questionType === 'order') {
+    endpoint = `${API_BASE_URL}/quizzes/order-questions/`;
+  } else if (questionType === 'connect') {
+    endpoint = `${API_BASE_URL}/quizzes/connect-questions/`;
+  }
+  
+  const response = await fetch(endpoint, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -392,9 +612,20 @@ export async function createQuestion(payload: Partial<Question>): Promise<Questi
   return await response.json();
 }
 
-export async function updateQuestion(id: number, payload: Partial<Question>): Promise<Question> {
+export async function updateQuestion(id: number, payload: Partial<Question>, questionType?: 'multiple_choice' | 'order' | 'connect'): Promise<Question> {
   const csrftoken = getCsrfToken();
-  const response = await fetch(`${API_BASE_URL}/quizzes/questions/${id}/`, {
+  
+  // If questionType not provided, try to infer from payload or fetch first
+  let endpoint = `${API_BASE_URL}/quizzes/questions/`; // Default to backward compatibility
+  if (questionType === 'order') {
+    endpoint = `${API_BASE_URL}/quizzes/order-questions/`;
+  } else if (questionType === 'connect') {
+    endpoint = `${API_BASE_URL}/quizzes/connect-questions/`;
+  } else if (questionType === 'multiple_choice' || payload.question_type === 'multiple_choice') {
+    endpoint = `${API_BASE_URL}/quizzes/multiple-choice-questions/`;
+  }
+  
+  const response = await fetch(`${endpoint}${id}/`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
@@ -458,6 +689,143 @@ export async function deleteOption(id: number): Promise<void> {
   });
   if (!response.ok) {
     throw new Error('Failed to delete option');
+  }
+}
+
+// Order Question API functions
+export async function createOrderOption(payload: Partial<OrderOption>): Promise<OrderOption> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/order-options/`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create order option');
+  }
+  return await response.json();
+}
+
+export async function updateOrderOption(id: number, payload: Partial<OrderOption>): Promise<OrderOption> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/order-options/${id}/`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update order option');
+  }
+  return await response.json();
+}
+
+export async function deleteOrderOption(id: number): Promise<void> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/order-options/${id}/`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete order option');
+  }
+}
+
+// Connect Question API functions
+export async function createConnectOption(payload: Partial<ConnectOption>): Promise<ConnectOption> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/connect-options/`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create connect option');
+  }
+  return await response.json();
+}
+
+export async function updateConnectOption(id: number, payload: Partial<ConnectOption>): Promise<ConnectOption> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/connect-options/${id}/`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to update connect option');
+  }
+  return await response.json();
+}
+
+export async function deleteConnectOption(id: number): Promise<void> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/connect-options/${id}/`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete connect option');
+  }
+}
+
+export async function createConnectOptionConnection(payload: Partial<ConnectOptionConnection>): Promise<ConnectOptionConnection> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/connect-option-connections/`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create connect option connection');
+  }
+  return await response.json();
+}
+
+export async function deleteConnectOptionConnection(id: number): Promise<void> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/quizzes/connect-option-connections/${id}/`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete connect option connection');
   }
 }
 
