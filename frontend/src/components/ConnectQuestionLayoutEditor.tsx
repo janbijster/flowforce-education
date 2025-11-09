@@ -404,7 +404,7 @@ export function ConnectQuestionLayoutEditor({
                   return (
                     <div
                       key={option.id}
-                      className={`absolute cursor-move rounded-md border p-2 bg-background shadow-sm min-w-[100px] ${
+                      className={`absolute cursor-move rounded-md border p-2 bg-background shadow-sm min-w-[100px] select-none ${
                         isSelected ? 'ring-2 ring-primary' : ''
                       } ${isConnectingFrom ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                       style={{
@@ -415,7 +415,7 @@ export function ConnectQuestionLayoutEditor({
                       onClick={(e) => handleOptionClick(option.id, e)}
                       onMouseDown={(e) => handleDragStart(option.id, e)}
                     >
-                      <div className="text-sm font-medium">{option.text || 'Untitled'}</div>
+                      <div className="text-sm font-medium select-none">{option.text || 'Untitled'}</div>
                       {option.image && (
                         <img
                           src={option.image}

@@ -13,6 +13,7 @@ interface QuestionPreviewProps {
   onOrderChange?: (optionIds: number[]) => void;
   onConnectionChange?: (connections: Array<[number, number]>) => void;
   showCorrectAnswer?: boolean;
+  onEditLayout?: () => void; // For Connect questions: callback to open layout editor
 }
 
 function MultipleChoicePreview({
@@ -388,7 +389,7 @@ function ConnectPreview({
             return (
               <div
                 key={option.id}
-                className={`absolute cursor-pointer rounded-md border p-2 bg-background shadow-sm min-w-[80px] text-center ${
+                className={`absolute cursor-pointer rounded-md border p-2 bg-background shadow-sm min-w-[80px] text-center select-none ${
                   isConnectingFrom ? 'ring-2 ring-primary ring-offset-2' : ''
                 } ${hasConnection ? 'border-primary' : ''}`}
                 style={{
@@ -398,7 +399,7 @@ function ConnectPreview({
                 }}
                 onClick={() => handleOptionClick(option.id)}
               >
-                <div className="text-xs font-medium">{option.text || 'Untitled'}</div>
+                <div className="text-xs font-medium select-none">{option.text || 'Untitled'}</div>
                 {option.image && (
                   <img
                     src={option.image}
@@ -442,6 +443,7 @@ export function QuestionPreview({
   onOrderChange,
   onConnectionChange,
   showCorrectAnswer = false,
+  onEditLayout,
 }: QuestionPreviewProps) {
   if (!question) {
     return (
@@ -488,12 +490,25 @@ export function QuestionPreview({
         )}
         
         {question.question_type === 'connect' && (
-          <ConnectPreview
-            question={question as ConnectQuestionDetail}
-            selectedConnections={selectedConnections}
-            onConnectionChange={onConnectionChange}
-            showCorrectAnswer={showCorrectAnswer}
-          />
+          <>
+            {onEditLayout && (
+              <div className="mb-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={onEditLayout}
+                >
+                  Edit Layout
+                </Button>
+              </div>
+            )}
+            <ConnectPreview
+              question={question as ConnectQuestionDetail}
+              selectedConnections={selectedConnections}
+              onConnectionChange={onConnectionChange}
+              showCorrectAnswer={showCorrectAnswer}
+            />
+          </>
         )}
       </div>
     </div>

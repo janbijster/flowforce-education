@@ -95,11 +95,15 @@ export default function QuestionEditor() {
     topic: number | null;
     options: EditableOption[];
     orderOptions?: EditableOrderOption[];
+    connectOptions?: EditableConnectOption[];
+    connectConnections?: Array<[number, number]>;
   }>({
     text: "",
     topic: null,
     options: [],
     orderOptions: [],
+    connectOptions: [],
+    connectConnections: [],
   });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isSavingRef = useRef(false);
@@ -170,6 +174,8 @@ export default function QuestionEditor() {
               text: q.text,
               topic: q.topic,
               options: [],
+              connectOptions: opts.map(opt => ({ ...opt })),
+              connectConnections: conns.map(([from, to]) => [from, to] as [number, number]),
             };
           }
 
@@ -326,10 +332,51 @@ export default function QuestionEditor() {
             opt.correct_order !== initOpt.correct_order
           );
         });
+    } else if (questionType === 'connect') {
+      // For connect questions, check if connect options or connections changed
+      const initialConnectOptions = (initialValues.current.connectOptions || [])
+        .sort((a, b) => (typeof a.id === 'number' ? a.id : 0) - (typeof b.id === 'number' ? b.id : 0));
+      const currentConnectOptions = [...connectOptions]
+        .sort((a, b) => (typeof a.id === 'number' ? a.id : 0) - (typeof b.id === 'number' ? b.id : 0));
+      
+      const connectOptionsChanged = 
+        currentConnectOptions.length !== initialConnectOptions.length ||
+        currentConnectOptions.some((opt, idx) => {
+          const initOpt = initialConnectOptions[idx];
+          if (!initOpt) return true;
+          return (
+            opt.text.trim() !== initOpt.text.trim() ||
+            opt.position_x !== initOpt.position_x ||
+            opt.position_y !== initOpt.position_y
+          );
+        }) ||
+        initialConnectOptions.some((initOpt, idx) => {
+          const opt = currentConnectOptions[idx];
+          if (!opt) return true;
+          return (
+            opt.text.trim() !== initOpt.text.trim() ||
+            opt.position_x !== initOpt.position_x ||
+            opt.position_y !== initOpt.position_y
+          );
+        });
+      
+      // Check if connections changed
+      const initialConnections = (initialValues.current.connectConnections || [])
+        .map(([from, to]) => `${Math.min(from, to)}-${Math.max(from, to)}`)
+        .sort();
+      const currentConnections = connectConnections
+        .map(([from, to]) => `${Math.min(from, to)}-${Math.max(from, to)}`)
+        .sort();
+      
+      const connectionsChanged = 
+        initialConnections.length !== currentConnections.length ||
+        !initialConnections.every((conn, idx) => conn === currentConnections[idx]);
+      
+      optionsChanged = connectOptionsChanged || connectionsChanged;
     }
 
     setHasUnsavedChanges(textChanged || topicChanged || optionsChanged);
-  }, [text, selectedTopic, options, orderOptions, questionType, question]);
+  }, [text, selectedTopic, options, orderOptions, connectOptions, connectConnections, questionType, question]);
 
   // Warn before leaving with unsaved changes
   useEffect(() => {
@@ -640,6 +687,8 @@ export default function QuestionEditor() {
             text: createdQuestion.text,
             topic: createdQuestion.topic,
             options: [],
+            connectOptions: opts.map(opt => ({ ...opt })),
+            connectConnections: conns.map(([from, to]) => [from, to] as [number, number]),
           };
         }
         
@@ -826,8 +875,8 @@ export default function QuestionEditor() {
           }
         }
 
-        // Reload question to get updated data
-        const updatedQuestion = await fetchQuestion(question.id);
+        // Reload question to get updated data (use question type to avoid fetching wrong question with same ID)
+        const updatedQuestion = await fetchQuestion(question.id, question.question_type);
         setQuestion(updatedQuestion);
         setQuestionType(updatedQuestion.question_type);
         setText(updatedQuestion.text);
@@ -862,6 +911,8 @@ export default function QuestionEditor() {
             text: updatedQuestion.text,
             topic: updatedQuestion.topic,
             options: [],
+            connectOptions: opts.map(opt => ({ ...opt })),
+            connectConnections: conns.map(([from, to]) => [from, to] as [number, number]),
           };
         }
         
@@ -1373,7 +1424,10 @@ export default function QuestionEditor() {
         </div>
 
         <div>
-          <QuestionPreview question={previewQuestion} />
+          <QuestionPreview 
+            question={previewQuestion}
+            onEditLayout={questionType === 'connect' ? () => setLayoutEditorOpen(true) : undefined}
+          />
         </div>
       </div>
 
