@@ -158,7 +158,7 @@ export function ConnectQuestionLayoutEditor({
     );
   };
 
-  const handleUpdateOption = (field: 'text' | 'position_x' | 'position_y', value: string | number) => {
+  const handleUpdateOption = (field: 'text' | 'position_x' | 'position_y' | 'width' | 'height', value: string | number) => {
     if (!selectedOptionId) return;
     onOptionsChange(
       options.map(opt =>
@@ -244,10 +244,40 @@ export function ConnectQuestionLayoutEditor({
                     />
                   </div>
                 </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Width (px)</label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="50"
+                      max="500"
+                      className="w-full rounded-md border px-2 py-1 text-sm"
+                      value={selectedOption.width || 100}
+                      onChange={(e) => handleUpdateOption('width', parseFloat(e.target.value) || 100)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Height (px)</label>
+                    <input
+                      type="number"
+                      step="1"
+                      min="30"
+                      max="300"
+                      className="w-full rounded-md border px-2 py-1 text-sm"
+                      value={selectedOption.height || 60}
+                      onChange={(e) => handleUpdateOption('height', parseFloat(e.target.value) || 60)}
+                    />
+                  </div>
+                </div>
                 {selectedOption.image && (
                   <div>
                     <label className="block text-xs font-medium mb-1">Image</label>
-                    <img src={selectedOption.image} alt={selectedOption.text} className="w-full h-auto rounded" />
+                    <img 
+                      src={selectedOption.image.startsWith('http') ? selectedOption.image : `http://127.0.0.1:8000${selectedOption.image}`} 
+                      alt={selectedOption.text} 
+                      className="w-full h-auto rounded max-h-32 object-contain" 
+                    />
                   </div>
                 )}
               </div>
@@ -411,6 +441,8 @@ export function ConnectQuestionLayoutEditor({
                         left: `${pixelPos.x}px`,
                         top: `${pixelPos.y}px`,
                         transform: 'translate(-50%, -50%)',
+                        width: `${option.width || 100}px`,
+                        minWidth: `${option.width || 100}px`,
                       }}
                       onClick={(e) => handleOptionClick(option.id, e)}
                       onMouseDown={(e) => handleDragStart(option.id, e)}
@@ -418,9 +450,10 @@ export function ConnectQuestionLayoutEditor({
                       <div className="text-sm font-medium select-none">{option.text || 'Untitled'}</div>
                       {option.image && (
                         <img
-                          src={option.image}
+                          src={option.image.startsWith('http') ? option.image : `http://127.0.0.1:8000${option.image}`}
                           alt={option.text}
-                          className="mt-1 max-w-[80px] h-auto rounded"
+                          className="mt-1 w-full h-auto rounded object-contain"
+                          style={{ maxHeight: `${(option.height || 60) - 60}px` }}
                         />
                       )}
                       <div className="mt-1 flex gap-1">

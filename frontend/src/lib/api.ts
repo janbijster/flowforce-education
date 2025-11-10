@@ -87,6 +87,8 @@ export interface ConnectOption {
   image: string | null;
   position_x: number;
   position_y: number;
+  width: number;
+  height: number;
   organization: number;
   question: number;
   created_at: string;
@@ -612,7 +614,7 @@ export async function createQuestion(payload: Partial<Question>): Promise<Questi
   return await response.json();
 }
 
-export async function updateQuestion(id: number, payload: Partial<Question>, questionType?: 'multiple_choice' | 'order' | 'connect'): Promise<Question> {
+export async function updateQuestion(id: number, payload: Partial<Question> & { imageFile?: File }, questionType?: 'multiple_choice' | 'order' | 'connect'): Promise<Question> {
   const csrftoken = getCsrfToken();
   
   // If questionType not provided, try to infer from payload or fetch first
@@ -625,56 +627,141 @@ export async function updateQuestion(id: number, payload: Partial<Question>, que
     endpoint = `${API_BASE_URL}/quizzes/multiple-choice-questions/`;
   }
   
-  const response = await fetch(`${endpoint}${id}/`, {
-    method: 'PATCH',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
-      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to update question');
+  const { imageFile, ...jsonPayload } = payload;
+  
+  // Use FormData if there's an image file, otherwise use JSON
+  if (imageFile) {
+    const formData = new FormData();
+    Object.entries(jsonPayload).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        if (Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value));
+        } else if (typeof value === 'object') {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, String(value));
+        }
+      }
+    });
+    formData.append('image', imageFile);
+    
+    const response = await fetch(`${endpoint}${id}/`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update question');
+    }
+    return await response.json();
+  } else {
+    const response = await fetch(`${endpoint}${id}/`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: JSON.stringify(jsonPayload),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update question');
+    }
+    return await response.json();
   }
-  return await response.json();
 }
 
-export async function createOption(payload: Partial<Option>): Promise<Option> {
+export async function createOption(payload: Partial<Option> & { imageFile?: File }): Promise<Option> {
   const csrftoken = getCsrfToken();
-  const response = await fetch(`${API_BASE_URL}/quizzes/options/`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
-      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to create option');
+  const { imageFile, ...jsonPayload } = payload;
+  
+  if (imageFile) {
+    const formData = new FormData();
+    Object.entries(jsonPayload).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append('image', imageFile);
+    
+    const response = await fetch(`${API_BASE_URL}/quizzes/options/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create option');
+    }
+    return await response.json();
+  } else {
+    const response = await fetch(`${API_BASE_URL}/quizzes/options/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: JSON.stringify(jsonPayload),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create option');
+    }
+    return await response.json();
   }
-  return await response.json();
 }
 
-export async function updateOption(id: number, payload: Partial<Option>): Promise<Option> {
+export async function updateOption(id: number, payload: Partial<Option> & { imageFile?: File }): Promise<Option> {
   const csrftoken = getCsrfToken();
-  const response = await fetch(`${API_BASE_URL}/quizzes/options/${id}/`, {
-    method: 'PATCH',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
-      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to update option');
+  const { imageFile, ...jsonPayload } = payload;
+  
+  if (imageFile) {
+    const formData = new FormData();
+    Object.entries(jsonPayload).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append('image', imageFile);
+    
+    const response = await fetch(`${API_BASE_URL}/quizzes/options/${id}/`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update option');
+    }
+    return await response.json();
+  } else {
+    const response = await fetch(`${API_BASE_URL}/quizzes/options/${id}/`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: JSON.stringify(jsonPayload),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update option');
+    }
+    return await response.json();
   }
-  return await response.json();
 }
 
 export async function deleteOption(id: number): Promise<void> {
@@ -693,40 +780,92 @@ export async function deleteOption(id: number): Promise<void> {
 }
 
 // Order Question API functions
-export async function createOrderOption(payload: Partial<OrderOption>): Promise<OrderOption> {
+export async function createOrderOption(payload: Partial<OrderOption> & { imageFile?: File }): Promise<OrderOption> {
   const csrftoken = getCsrfToken();
-  const response = await fetch(`${API_BASE_URL}/quizzes/order-options/`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
-      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to create order option');
+  const { imageFile, ...jsonPayload } = payload;
+  
+  if (imageFile) {
+    const formData = new FormData();
+    Object.entries(jsonPayload).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append('image', imageFile);
+    
+    const response = await fetch(`${API_BASE_URL}/quizzes/order-options/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create order option');
+    }
+    return await response.json();
+  } else {
+    const response = await fetch(`${API_BASE_URL}/quizzes/order-options/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: JSON.stringify(jsonPayload),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create order option');
+    }
+    return await response.json();
   }
-  return await response.json();
 }
 
-export async function updateOrderOption(id: number, payload: Partial<OrderOption>): Promise<OrderOption> {
+export async function updateOrderOption(id: number, payload: Partial<OrderOption> & { imageFile?: File }): Promise<OrderOption> {
   const csrftoken = getCsrfToken();
-  const response = await fetch(`${API_BASE_URL}/quizzes/order-options/${id}/`, {
-    method: 'PATCH',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
-      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to update order option');
+  const { imageFile, ...jsonPayload } = payload;
+  
+  if (imageFile) {
+    const formData = new FormData();
+    Object.entries(jsonPayload).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append('image', imageFile);
+    
+    const response = await fetch(`${API_BASE_URL}/quizzes/order-options/${id}/`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update order option');
+    }
+    return await response.json();
+  } else {
+    const response = await fetch(`${API_BASE_URL}/quizzes/order-options/${id}/`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: JSON.stringify(jsonPayload),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update order option');
+    }
+    return await response.json();
   }
-  return await response.json();
 }
 
 export async function deleteOrderOption(id: number): Promise<void> {
@@ -745,40 +884,92 @@ export async function deleteOrderOption(id: number): Promise<void> {
 }
 
 // Connect Question API functions
-export async function createConnectOption(payload: Partial<ConnectOption>): Promise<ConnectOption> {
+export async function createConnectOption(payload: Partial<ConnectOption> & { imageFile?: File }): Promise<ConnectOption> {
   const csrftoken = getCsrfToken();
-  const response = await fetch(`${API_BASE_URL}/quizzes/connect-options/`, {
-    method: 'POST',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
-      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to create connect option');
+  const { imageFile, ...jsonPayload } = payload;
+  
+  if (imageFile) {
+    const formData = new FormData();
+    Object.entries(jsonPayload).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append('image', imageFile);
+    
+    const response = await fetch(`${API_BASE_URL}/quizzes/connect-options/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create connect option');
+    }
+    return await response.json();
+  } else {
+    const response = await fetch(`${API_BASE_URL}/quizzes/connect-options/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: JSON.stringify(jsonPayload),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create connect option');
+    }
+    return await response.json();
   }
-  return await response.json();
 }
 
-export async function updateConnectOption(id: number, payload: Partial<ConnectOption>): Promise<ConnectOption> {
+export async function updateConnectOption(id: number, payload: Partial<ConnectOption> & { imageFile?: File }): Promise<ConnectOption> {
   const csrftoken = getCsrfToken();
-  const response = await fetch(`${API_BASE_URL}/quizzes/connect-options/${id}/`, {
-    method: 'PATCH',
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
-      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to update connect option');
+  const { imageFile, ...jsonPayload } = payload;
+  
+  if (imageFile) {
+    const formData = new FormData();
+    Object.entries(jsonPayload).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+    formData.append('image', imageFile);
+    
+    const response = await fetch(`${API_BASE_URL}/quizzes/connect-options/${id}/`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update connect option');
+    }
+    return await response.json();
+  } else {
+    const response = await fetch(`${API_BASE_URL}/quizzes/connect-options/${id}/`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: JSON.stringify(jsonPayload),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update connect option');
+    }
+    return await response.json();
   }
-  return await response.json();
 }
 
 export async function deleteConnectOption(id: number): Promise<void> {

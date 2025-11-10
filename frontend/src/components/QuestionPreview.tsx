@@ -27,6 +27,11 @@ function MultipleChoicePreview({
   onOptionSelect?: (optionId: number) => void;
   showCorrectAnswer?: boolean;
 }) {
+  const getImageUrl = (url: string | null) => {
+    if (!url) return null;
+    return url.startsWith('http') ? url : `http://127.0.0.1:8000${url}`;
+  };
+
   return (
     <div className="space-y-2">
       <p className="text-base font-medium mb-2">Options:</p>
@@ -59,6 +64,13 @@ function MultipleChoicePreview({
                   />
                   <div className="flex-1">
                     <span className="text-sm">{option.text}</span>
+                    {option.image && (
+                      <img 
+                        src={getImageUrl(option.image)} 
+                        alt={option.text} 
+                        className="mt-2 max-w-full max-h-40 object-contain rounded"
+                      />
+                    )}
                     {showCorrectAnswer && isCorrect && (
                       <span className="ml-2 text-xs text-green-600 font-medium">(Correct)</span>
                     )}
@@ -173,7 +185,16 @@ function OrderPreview({
                   <span className="text-sm font-medium text-muted-foreground w-6">
                     {index + 1}.
                   </span>
-                  <span className="text-sm flex-1">{option.text}</span>
+                  <div className="flex-1">
+                    <span className="text-sm">{option.text}</span>
+                    {option.image && (
+                      <img 
+                        src={option.image.startsWith('http') ? option.image : `http://127.0.0.1:8000${option.image}`} 
+                        alt={option.text} 
+                        className="mt-2 max-w-full max-h-40 object-contain rounded"
+                      />
+                    )}
+                  </div>
                   {showCorrectAnswer && (
                     <span className="text-xs text-muted-foreground">
                       (Correct: {option.correct_order})
@@ -389,22 +410,25 @@ function ConnectPreview({
             return (
               <div
                 key={option.id}
-                className={`absolute cursor-pointer rounded-md border p-2 bg-background shadow-sm min-w-[80px] text-center select-none ${
+                className={`absolute cursor-pointer rounded-md border p-2 bg-background shadow-sm text-center select-none ${
                   isConnectingFrom ? 'ring-2 ring-primary ring-offset-2' : ''
                 } ${hasConnection ? 'border-primary' : ''}`}
                 style={{
                   left: `${pixelPos.x}px`,
                   top: `${pixelPos.y}px`,
                   transform: 'translate(-50%, -50%)',
+                  width: `${option.width || 100}px`,
+                  minWidth: `${option.width || 100}px`,
                 }}
                 onClick={() => handleOptionClick(option.id)}
               >
                 <div className="text-xs font-medium select-none">{option.text || 'Untitled'}</div>
                 {option.image && (
                   <img
-                    src={option.image}
+                    src={option.image.startsWith('http') ? option.image : `http://127.0.0.1:8000${option.image}`}
                     alt={option.text}
-                    className="mt-1 max-w-[60px] h-auto rounded mx-auto"
+                    className="mt-1 w-full h-auto rounded object-contain"
+                    style={{ maxHeight: `${(option.height || 60) - 40}px` }}
                   />
                 )}
               </div>
@@ -464,7 +488,11 @@ export function QuestionPreview({
           <p className="text-base font-medium mb-1">Question:</p>
           <p className="text-sm text-muted-foreground whitespace-pre-wrap">{question.text}</p>
           {question.image && (
-            <img src={question.image} alt="Question" className="mt-2 max-w-full h-auto rounded" />
+            <img 
+              src={question.image.startsWith('http') ? question.image : `http://127.0.0.1:8000${question.image}`} 
+              alt="Question" 
+              className="mt-2 max-w-full max-h-40 object-contain rounded" 
+            />
           )}
           {question.video && (
             <video src={question.video} controls className="mt-2 max-w-full rounded" />

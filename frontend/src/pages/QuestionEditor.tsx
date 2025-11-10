@@ -46,6 +46,7 @@ import { QuestionPreview } from "@/components/QuestionPreview";
 import { QuestionTypeBadge } from "@/components/QuestionTypeBadge";
 import { ChevronUpIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { ConnectQuestionLayoutEditor } from "@/components/ConnectQuestionLayoutEditor";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 interface EditableOption extends Omit<Option, 'id' | 'created_at' | 'updated_at'> {
   id: number | string;
@@ -71,9 +72,14 @@ export default function QuestionEditor() {
   const [question, setQuestion] = useState<QuestionDetail | null>(null);
   const [questionType, setQuestionType] = useState<'multiple_choice' | 'order' | 'connect'>('multiple_choice');
   const [text, setText] = useState("");
+  const [questionImage, setQuestionImage] = useState<string | null>(null);
+  const [questionImageFile, setQuestionImageFile] = useState<File | null>(null);
   const [options, setOptions] = useState<EditableOption[]>([]);
+  const [optionImageFiles, setOptionImageFiles] = useState<Map<number | string, File>>(new Map());
   const [orderOptions, setOrderOptions] = useState<EditableOrderOption[]>([]);
+  const [orderOptionImageFiles, setOrderOptionImageFiles] = useState<Map<number | string, File>>(new Map());
   const [connectOptions, setConnectOptions] = useState<EditableConnectOption[]>([]);
+  const [connectOptionImageFiles, setConnectOptionImageFiles] = useState<Map<number | string, File>>(new Map());
   const [connectConnections, setConnectConnections] = useState<Array<[number, number]>>([]);
   const [layoutEditorOpen, setLayoutEditorOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -93,6 +99,7 @@ export default function QuestionEditor() {
   const initialValues = useRef<{
     text: string;
     topic: number | null;
+    image: string | null;
     options: EditableOption[];
     orderOptions?: EditableOrderOption[];
     connectOptions?: EditableConnectOption[];
@@ -100,6 +107,7 @@ export default function QuestionEditor() {
   }>({
     text: "",
     topic: null,
+    image: null,
     options: [],
     orderOptions: [],
     connectOptions: [],
@@ -145,15 +153,20 @@ export default function QuestionEditor() {
           setQuestionType(q.question_type);
           setText(q.text);
           setSelectedTopic(q.topic);
+          // Convert relative image URL to absolute if needed
+          const imageUrl = q.image ? (q.image.startsWith('http') ? q.image : `http://127.0.0.1:8000${q.image}`) : null;
+          setQuestionImage(imageUrl);
+          setQuestionImageFile(null);
           
           if (q.question_type === 'multiple_choice') {
             const opts = ((q as MultipleChoiceQuestionDetail).options || []).map(opt => ({ ...opt }));
-            setOptions(opts);
-            initialValues.current = {
-              text: q.text,
-              topic: q.topic,
-              options: opts.map(opt => ({ ...opt })),
-            };
+          setOptions(opts);
+          initialValues.current = {
+            text: q.text,
+            topic: q.topic,
+            image: imageUrl,
+            options: opts.map(opt => ({ ...opt })),
+          };
           } else if (q.question_type === 'order') {
             const opts = ((q as OrderQuestionDetail).order_options || [])
               .map(opt => ({ ...opt }))
@@ -162,17 +175,23 @@ export default function QuestionEditor() {
             initialValues.current = {
               text: q.text,
               topic: q.topic,
+              image: imageUrl,
               options: [],
               orderOptions: opts.map(opt => ({ ...opt })),
             };
           } else if (q.question_type === 'connect') {
-            const opts = ((q as ConnectQuestionDetail).connect_options || []).map(opt => ({ ...opt }));
+            const opts = ((q as ConnectQuestionDetail).connect_options || []).map(opt => ({ 
+              ...opt,
+              width: opt.width || 100,
+              height: opt.height || 60,
+            }));
             setConnectOptions(opts);
             const conns = ((q as ConnectQuestionDetail).correct_connections || []).map(conn => [conn.from_option, conn.to_option] as [number, number]);
             setConnectConnections(conns);
             initialValues.current = {
               text: q.text,
               topic: q.topic,
+              image: imageUrl,
               options: [],
               connectOptions: opts.map(opt => ({ ...opt })),
               connectConnections: conns.map(([from, to]) => [from, to] as [number, number]),
@@ -285,6 +304,7 @@ export default function QuestionEditor() {
   useEffect(() => {
     const textChanged = text.trim() !== initialValues.current.text.trim();
     const topicChanged = selectedTopic !== initialValues.current.topic;
+    const imageChanged = questionImage !== initialValues.current.image || questionImageFile !== null;
     
     let optionsChanged = false;
     if (questionType === 'multiple_choice') {
@@ -293,19 +313,23 @@ export default function QuestionEditor() {
         options.some((opt, idx) => {
           const initOpt = initialValues.current.options[idx];
           if (!initOpt) return true;
-          return (
-            opt.text.trim() !== initOpt.text.trim() ||
-            opt.is_correct !== initOpt.is_correct
-          );
-        }) ||
-        initialValues.current.options.some((initOpt, idx) => {
-          const opt = options[idx];
-          if (!opt) return true;
-          return (
-            opt.text.trim() !== initOpt.text.trim() ||
-            opt.is_correct !== initOpt.is_correct
-          );
-        });
+            return (
+              opt.text.trim() !== initOpt.text.trim() ||
+              opt.is_correct !== initOpt.is_correct ||
+              opt.image !== initOpt.image ||
+              optionImageFiles.has(opt.id)
+            );
+          }) ||
+          initialValues.current.options.some((initOpt, idx) => {
+            const opt = options[idx];
+            if (!opt) return true;
+            return (
+              opt.text.trim() !== initOpt.text.trim() ||
+              opt.is_correct !== initOpt.is_correct ||
+              opt.image !== initOpt.image ||
+              optionImageFiles.has(opt.id)
+            );
+          });
     } else if (questionType === 'order') {
       // For order questions, check if order options changed
       // Sort both arrays by correct_order for comparison
@@ -321,7 +345,9 @@ export default function QuestionEditor() {
           if (!initOpt) return true;
           return (
             opt.text.trim() !== initOpt.text.trim() ||
-            opt.correct_order !== initOpt.correct_order
+            opt.correct_order !== initOpt.correct_order ||
+            opt.image !== initOpt.image ||
+            orderOptionImageFiles.has(opt.id)
           );
         }) ||
         initialOrderOptions.some((initOpt, idx) => {
@@ -329,7 +355,9 @@ export default function QuestionEditor() {
           if (!opt) return true;
           return (
             opt.text.trim() !== initOpt.text.trim() ||
-            opt.correct_order !== initOpt.correct_order
+            opt.correct_order !== initOpt.correct_order ||
+            opt.image !== initOpt.image ||
+            orderOptionImageFiles.has(opt.id)
           );
         });
     } else if (questionType === 'connect') {
@@ -375,8 +403,8 @@ export default function QuestionEditor() {
       optionsChanged = connectOptionsChanged || connectionsChanged;
     }
 
-    setHasUnsavedChanges(textChanged || topicChanged || optionsChanged);
-  }, [text, selectedTopic, options, orderOptions, connectOptions, connectConnections, questionType, question]);
+    setHasUnsavedChanges(textChanged || topicChanged || imageChanged || optionsChanged);
+  }, [text, selectedTopic, questionImage, questionImageFile, options, orderOptions, connectOptions, connectConnections, questionType, question]);
 
   // Warn before leaving with unsaved changes
   useEffect(() => {
@@ -443,7 +471,7 @@ export default function QuestionEditor() {
     setOptions(options.filter(opt => opt.id !== optionId));
   };
 
-  const handleUpdateOption = (optionId: number | string, field: 'text' | 'is_correct', value: string | boolean) => {
+  const handleUpdateOption = (optionId: number | string, field: 'text' | 'is_correct' | 'image', value: string | boolean) => {
     setOptions(options.map(opt =>
       opt.id === optionId ? { ...opt, [field]: value } : opt
     ));
@@ -478,7 +506,7 @@ export default function QuestionEditor() {
     setOrderOptions(reordered);
   };
 
-  const handleUpdateOrderOption = (optionId: number | string, field: 'text' | 'correct_order', value: string | number) => {
+  const handleUpdateOrderOption = (optionId: number | string, field: 'text' | 'correct_order' | 'image', value: string | number) => {
     setOrderOptions(orderOptions.map(opt =>
       opt.id === optionId ? { ...opt, [field]: value } : opt
     ));
@@ -512,6 +540,8 @@ export default function QuestionEditor() {
       text: "",
       position_x: 0.5,
       position_y: 0.5,
+      width: 100,
+      height: 60,
       organization: user.organization.id,
       question: question?.id || 0,
       isNew: true,
@@ -527,7 +557,7 @@ export default function QuestionEditor() {
     );
   };
 
-  const handleUpdateConnectOption = (optionId: number | string, field: 'text', value: string) => {
+  const handleUpdateConnectOption = (optionId: number | string, field: 'text' | 'image' | 'width' | 'height', value: string | number) => {
     setConnectOptions(connectOptions.map(opt =>
       opt.id === optionId ? { ...opt, [field]: value } : opt
     ));
@@ -600,34 +630,49 @@ export default function QuestionEditor() {
         });
         questionId = created.id;
         
+        // Update question image if provided
+        if (questionImageFile) {
+          await updateQuestion(questionId, {
+            imageFile: questionImageFile,
+          }, questionType);
+        }
+        
         // Create options based on question type
         if (questionType === 'multiple_choice') {
           for (const opt of options) {
+            const imageFile = optionImageFiles.get(opt.id);
             await createOption({
               text: opt.text.trim(),
               is_correct: opt.is_correct,
               organization: user.organization.id,
               question: questionId,
+              imageFile: imageFile || undefined,
             });
           }
         } else if (questionType === 'order') {
           for (const opt of orderOptions) {
+            const imageFile = orderOptionImageFiles.get(opt.id);
             await createOrderOption({
               text: opt.text.trim(),
               correct_order: opt.correct_order,
               organization: user.organization.id,
               question: questionId,
+              imageFile: imageFile || undefined,
             });
           }
         } else if (questionType === 'connect') {
           const createdOptionIds: number[] = [];
           for (const opt of connectOptions) {
+            const imageFile = connectOptionImageFiles.get(opt.id);
             const created = await createConnectOption({
               text: opt.text.trim(),
               position_x: opt.position_x,
               position_y: opt.position_y,
+              width: opt.width || 100,
+              height: opt.height || 60,
               organization: user.organization.id,
               question: questionId,
+              imageFile: imageFile || undefined,
             });
             createdOptionIds.push(created.id);
           }
@@ -652,19 +697,24 @@ export default function QuestionEditor() {
         }
 
         // Reload question to get full data
-        const createdQuestion = await fetchQuestion(questionId);
+        const createdQuestion = await fetchQuestion(questionId, questionType);
         setQuestion(createdQuestion);
         setQuestionType(createdQuestion.question_type);
         setText(createdQuestion.text);
         setSelectedTopic(createdQuestion.topic);
+        const imageUrl = createdQuestion.image ? (createdQuestion.image.startsWith('http') ? createdQuestion.image : `http://127.0.0.1:8000${createdQuestion.image}`) : null;
+        setQuestionImage(imageUrl);
+        setQuestionImageFile(null);
         
         // Load options based on question type
         if (createdQuestion.question_type === 'multiple_choice') {
           const opts = ((createdQuestion as MultipleChoiceQuestionDetail).options || []).map(opt => ({ ...opt }));
           setOptions(opts);
+          setOptionImageFiles(new Map());
           initialValues.current = {
             text: createdQuestion.text,
             topic: createdQuestion.topic,
+            image: imageUrl,
             options: opts.map(opt => ({ ...opt })),
           };
         } else if (createdQuestion.question_type === 'order') {
@@ -672,20 +722,28 @@ export default function QuestionEditor() {
             .map(opt => ({ ...opt }))
             .sort((a, b) => a.correct_order - b.correct_order);
           setOrderOptions(opts);
+          setOrderOptionImageFiles(new Map());
           initialValues.current = {
             text: createdQuestion.text,
             topic: createdQuestion.topic,
+            image: imageUrl,
             options: [],
             orderOptions: opts.map(opt => ({ ...opt })),
           };
         } else if (createdQuestion.question_type === 'connect') {
-          const opts = ((createdQuestion as ConnectQuestionDetail).connect_options || []).map(opt => ({ ...opt }));
+          const opts = ((createdQuestion as ConnectQuestionDetail).connect_options || []).map(opt => ({ 
+            ...opt,
+            width: opt.width || 100,
+            height: opt.height || 60,
+          }));
           setConnectOptions(opts);
+          setConnectOptionImageFiles(new Map());
           const conns = ((createdQuestion as ConnectQuestionDetail).correct_connections || []).map(conn => [conn.from_option, conn.to_option] as [number, number]);
           setConnectConnections(conns);
           initialValues.current = {
             text: createdQuestion.text,
             topic: createdQuestion.topic,
+            image: imageUrl,
             options: [],
             connectOptions: opts.map(opt => ({ ...opt })),
             connectConnections: conns.map(([from, to]) => [from, to] as [number, number]),
@@ -701,10 +759,11 @@ export default function QuestionEditor() {
           : 'connect';
         navigate(`/questions/${typePath}/${questionId}/edit`, { replace: true });
       } else if (question) {
-        // Update existing question
+        // Update existing question (include image file if changed)
         await updateQuestion(question.id, { 
           text: text.trim(),
           topic: selectedTopic,
+          imageFile: questionImageFile || undefined,
         }, question.question_type);
 
         // Handle options based on question type
@@ -723,22 +782,28 @@ export default function QuestionEditor() {
           for (const opt of options) {
             if (typeof opt.id === 'string' || opt.isNew) {
               // Create new option
+              const imageFile = optionImageFiles.get(opt.id);
               await createOption({
                 text: opt.text.trim(),
                 is_correct: opt.is_correct,
                 organization: user.organization.id,
                 question: question.id,
+                imageFile: imageFile || undefined,
               });
             } else if (typeof opt.id === 'number') {
               // Update existing option
               const initOpt = initialValues.current.options.find(o => o.id === opt.id);
               if (!initOpt) continue;
 
-              const changed = opt.text.trim() !== initOpt.text.trim() || opt.is_correct !== initOpt.is_correct;
+              const imageFile = optionImageFiles.get(opt.id);
+              const changed = opt.text.trim() !== initOpt.text.trim() || 
+                            opt.is_correct !== initOpt.is_correct ||
+                            imageFile !== undefined;
               if (changed) {
                 await updateOption(opt.id, {
                   text: opt.text.trim(),
                   is_correct: opt.is_correct,
+                  imageFile: imageFile || undefined,
                 });
               }
             }
@@ -759,22 +824,28 @@ export default function QuestionEditor() {
           for (const opt of orderOptions) {
             if (typeof opt.id === 'string' || opt.isNew) {
               // Create new option
+              const imageFile = orderOptionImageFiles.get(opt.id);
               await createOrderOption({
                 text: opt.text.trim(),
                 correct_order: opt.correct_order,
                 organization: user.organization.id,
                 question: question.id,
+                imageFile: imageFile || undefined,
               });
             } else if (typeof opt.id === 'number') {
               // Update existing option
               const initOpt = initialOrderOptions.find(o => o.id === opt.id);
               if (!initOpt) continue;
 
-              const changed = opt.text.trim() !== initOpt.text.trim() || opt.correct_order !== initOpt.correct_order;
+              const imageFile = orderOptionImageFiles.get(opt.id);
+              const changed = opt.text.trim() !== initOpt.text.trim() || 
+                            opt.correct_order !== initOpt.correct_order ||
+                            imageFile !== undefined;
               if (changed) {
                 await updateOrderOption(opt.id, {
                   text: opt.text.trim(),
                   correct_order: opt.correct_order,
+                  imageFile: imageFile || undefined,
                 });
               }
             }
@@ -807,12 +878,16 @@ export default function QuestionEditor() {
           for (const opt of connectOptions) {
             if (typeof opt.id === 'string' || opt.isNew) {
               // Create new option
+              const imageFile = connectOptionImageFiles.get(opt.id);
               const created = await createConnectOption({
                 text: opt.text.trim(),
                 position_x: opt.position_x,
                 position_y: opt.position_y,
+                width: opt.width || 100,
+                height: opt.height || 60,
                 organization: user.organization.id,
                 question: question.id,
+                imageFile: imageFile || undefined,
               });
               createdOptionIdMap.set(opt.id, created.id);
             } else if (typeof opt.id === 'number') {
@@ -820,14 +895,21 @@ export default function QuestionEditor() {
               const initOpt = initialConnectOptions.find(o => o.id === opt.id);
               if (!initOpt) continue;
 
+              const imageFile = connectOptionImageFiles.get(opt.id);
               const changed = opt.text.trim() !== initOpt.text.trim() || 
                             opt.position_x !== initOpt.position_x || 
-                            opt.position_y !== initOpt.position_y;
+                            opt.position_y !== initOpt.position_y ||
+                            opt.width !== initOpt.width ||
+                            opt.height !== initOpt.height ||
+                            imageFile !== undefined;
               if (changed) {
                 await updateConnectOption(opt.id, {
                   text: opt.text.trim(),
                   position_x: opt.position_x,
                   position_y: opt.position_y,
+                  width: opt.width || 100,
+                  height: opt.height || 60,
+                  imageFile: imageFile || undefined,
                 });
               }
               createdOptionIdMap.set(opt.id, opt.id);
@@ -882,13 +964,19 @@ export default function QuestionEditor() {
         setText(updatedQuestion.text);
         setSelectedTopic(updatedQuestion.topic);
         
+        const imageUrl = updatedQuestion.image ? (updatedQuestion.image.startsWith('http') ? updatedQuestion.image : `http://127.0.0.1:8000${updatedQuestion.image}`) : null;
+        setQuestionImage(imageUrl);
+        setQuestionImageFile(null);
+        
         // Load options based on question type
         if (updatedQuestion.question_type === 'multiple_choice') {
           const opts = ((updatedQuestion as MultipleChoiceQuestionDetail).options || []).map(opt => ({ ...opt }));
           setOptions(opts);
+          setOptionImageFiles(new Map());
           initialValues.current = {
             text: updatedQuestion.text,
             topic: updatedQuestion.topic,
+            image: imageUrl,
             options: opts.map(opt => ({ ...opt })),
           };
         } else if (updatedQuestion.question_type === 'order') {
@@ -896,20 +984,28 @@ export default function QuestionEditor() {
             .map(opt => ({ ...opt }))
             .sort((a, b) => a.correct_order - b.correct_order);
           setOrderOptions(opts);
+          setOrderOptionImageFiles(new Map());
           initialValues.current = {
             text: updatedQuestion.text,
             topic: updatedQuestion.topic,
+            image: imageUrl,
             options: [],
             orderOptions: opts.map(opt => ({ ...opt })),
           };
         } else if (updatedQuestion.question_type === 'connect') {
-          const opts = ((updatedQuestion as ConnectQuestionDetail).connect_options || []).map(opt => ({ ...opt }));
+          const opts = ((updatedQuestion as ConnectQuestionDetail).connect_options || []).map(opt => ({ 
+            ...opt,
+            width: opt.width || 100,
+            height: opt.height || 60,
+          }));
           setConnectOptions(opts);
+          setConnectOptionImageFiles(new Map());
           const conns = ((updatedQuestion as ConnectQuestionDetail).correct_connections || []).map(conn => [conn.from_option, conn.to_option] as [number, number]);
           setConnectConnections(conns);
           initialValues.current = {
             text: updatedQuestion.text,
             topic: updatedQuestion.topic,
+            image: imageUrl,
             options: [],
             connectOptions: opts.map(opt => ({ ...opt })),
             connectConnections: conns.map(([from, to]) => [from, to] as [number, number]),
@@ -954,7 +1050,7 @@ export default function QuestionEditor() {
       text: text || "",
       order: question?.order || 0,
       question_type: 'multiple_choice' as const,
-      image: question?.image || null,
+      image: questionImage || question?.image || null,
       video: question?.video || null,
       organization: user?.organization.id || 0,
       quiz: question?.quiz || null,
@@ -984,7 +1080,7 @@ export default function QuestionEditor() {
       text: text || "",
       order: question?.order || 0,
       question_type: 'order' as const,
-      image: question?.image || null,
+      image: questionImage || question?.image || null,
       video: question?.video || null,
       organization: user?.organization.id || 0,
       quiz: question?.quiz || null,
@@ -1032,7 +1128,7 @@ export default function QuestionEditor() {
       text: text || "",
       order: question?.order || 0,
       question_type: 'connect' as const,
-      image: question?.image || null,
+      image: questionImage || question?.image || null,
       video: question?.video || null,
       organization: user?.organization.id || 0,
       quiz: question?.quiz || null,
@@ -1054,6 +1150,8 @@ export default function QuestionEditor() {
         image: opt.image || null,
         position_x: opt.position_x,
         position_y: opt.position_y,
+        width: opt.width || 100,
+        height: opt.height || 60,
         organization: opt.organization,
         question: opt.question,
         created_at: typeof opt.id === 'number' ? ((question as ConnectQuestionDetail)?.connect_options?.find(o => o.id === opt.id)?.created_at || '') : '',
@@ -1211,6 +1309,16 @@ export default function QuestionEditor() {
               placeholder="Enter question text"
               required
             />
+            <div className="mt-3">
+              <ImageUpload
+                value={questionImage}
+                onChange={(url, file) => {
+                  setQuestionImage(url);
+                  setQuestionImageFile(file || null);
+                }}
+                label="Question Image"
+              />
+            </div>
           </div>
 
           {questionType === 'multiple_choice' && (
@@ -1232,34 +1340,55 @@ export default function QuestionEditor() {
                   </TableHeader>
                   <TableBody>
                     {options.length > 0 ? (
-                      options.map((option) => (
-                        <TableRow key={typeof option.id === 'number' ? option.id : option.id}>
-                          <TableCell>
-                            <input
-                              className="w-full rounded-md border px-2 py-1 text-sm"
-                              value={option.text}
-                              onChange={(e) => handleUpdateOption(option.id, 'text', e.target.value)}
-                              placeholder="Enter option text"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <input
-                              type="checkbox"
-                              checked={option.is_correct}
-                              onChange={(e) => handleUpdateOption(option.id, 'is_correct', e.target.checked)}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleRemoveOption(option.id)}
-                            >
-                              Remove
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      options.map((option) => {
+                        const imageUrl = option.image ? (option.image.startsWith('http') ? option.image : `http://127.0.0.1:8000${option.image}`) : null;
+                        return (
+                          <TableRow key={typeof option.id === 'number' ? option.id : option.id}>
+                            <TableCell>
+                              <input
+                                className="w-full rounded-md border px-2 py-1 text-sm"
+                                value={option.text}
+                                onChange={(e) => handleUpdateOption(option.id, 'text', e.target.value)}
+                                placeholder="Enter option text"
+                              />
+                              <div className="mt-2">
+                                <ImageUpload
+                                  value={imageUrl}
+                                  onChange={(url, file) => {
+                                    handleUpdateOption(option.id, 'image', url);
+                                    if (file) {
+                                      setOptionImageFiles(prev => new Map(prev).set(option.id, file));
+                                    } else {
+                                      setOptionImageFiles(prev => {
+                                        const newMap = new Map(prev);
+                                        newMap.delete(option.id);
+                                        return newMap;
+                                      });
+                                    }
+                                  }}
+                                  label=""
+                                />
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <input
+                                type="checkbox"
+                                checked={option.is_correct}
+                                onChange={(e) => handleUpdateOption(option.id, 'is_correct', e.target.checked)}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleRemoveOption(option.id)}
+                              >
+                                Remove
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     ) : (
                       <TableRow>
                         <TableCell colSpan={3} className="text-center text-muted-foreground">
@@ -1306,6 +1435,24 @@ export default function QuestionEditor() {
                                 onChange={(e) => handleUpdateOrderOption(option.id, 'text', e.target.value)}
                                 placeholder="Enter option text"
                               />
+                              <div className="mt-2">
+                                <ImageUpload
+                                  value={option.image ? (option.image.startsWith('http') ? option.image : `http://127.0.0.1:8000${option.image}`) : null}
+                                  onChange={(url, file) => {
+                                    handleUpdateOrderOption(option.id, 'image', url || '');
+                                    if (file) {
+                                      setOrderOptionImageFiles(prev => new Map(prev).set(option.id, file));
+                                    } else {
+                                      setOrderOptionImageFiles(prev => {
+                                        const newMap = new Map(prev);
+                                        newMap.delete(option.id);
+                                        return newMap;
+                                      });
+                                    }
+                                  }}
+                                  label=""
+                                />
+                              </div>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-1">
@@ -1389,6 +1536,24 @@ export default function QuestionEditor() {
                               onChange={(e) => handleUpdateConnectOption(option.id, 'text', e.target.value)}
                               placeholder="Enter option text"
                             />
+                            <div className="mt-2">
+                              <ImageUpload
+                                value={option.image ? (option.image.startsWith('http') ? option.image : `http://127.0.0.1:8000${option.image}`) : null}
+                                onChange={(url, file) => {
+                                  handleUpdateConnectOption(option.id, 'image', url || '');
+                                  if (file) {
+                                    setConnectOptionImageFiles(prev => new Map(prev).set(option.id, file));
+                                  } else {
+                                    setConnectOptionImageFiles(prev => {
+                                      const newMap = new Map(prev);
+                                      newMap.delete(option.id);
+                                      return newMap;
+                                    });
+                                  }
+                                }}
+                                label=""
+                              />
+                            </div>
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">
                             ({option.position_x.toFixed(2)}, {option.position_y.toFixed(2)})

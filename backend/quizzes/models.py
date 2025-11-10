@@ -178,6 +178,8 @@ class ConnectOption(OrganizationModel):
     image = models.ImageField(upload_to='connect_options/', blank=True, null=True)
     position_x = models.FloatField(help_text="X position (0.0 to 1.0)")
     position_y = models.FloatField(help_text="Y position (0.0 to 1.0)")
+    width = models.FloatField(default=100.0, help_text="Width in pixels")
+    height = models.FloatField(default=60.0, help_text="Height in pixels")
     question = models.ForeignKey(
         ConnectQuestion,
         on_delete=models.CASCADE,
