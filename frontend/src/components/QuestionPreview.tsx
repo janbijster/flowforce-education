@@ -6,11 +6,13 @@ import { Button } from "./ui/button";
 
 interface QuestionPreviewProps {
   question: QuestionDetail | null;
-  selectedOption?: number | null;
+  selectedOption?: number | null; // For single selection (backward compatibility)
+  selectedOptions?: number[]; // For multiple selection in multiple choice
   selectedOrder?: number[] | null; // For OrderQuestion: array of option IDs in order
   selectedConnections?: Array<[number, number]> | null; // For ConnectQuestion: array of [from, to] pairs
   selectedNumber?: number | null; // For NumberQuestion: the entered number
-  onOptionSelect?: (optionId: number) => void;
+  onOptionSelect?: (optionId: number) => void; // For single selection (backward compatibility)
+  onOptionsSelect?: (optionIds: number[]) => void; // For multiple selection in multiple choice
   onOrderChange?: (optionIds: number[]) => void;
   onConnectionChange?: (connections: Array<[number, number]>) => void;
   onNumberChange?: (value: number) => void; // For NumberQuestion: callback when number changes
@@ -21,17 +23,43 @@ interface QuestionPreviewProps {
 function MultipleChoicePreview({
   question,
   selectedOption,
+  selectedOptions,
   onOptionSelect,
+  onOptionsSelect,
   showCorrectAnswer = false,
 }: {
   question: MultipleChoiceQuestionDetail;
-  selectedOption?: number | null;
-  onOptionSelect?: (optionId: number) => void;
+  selectedOption?: number | null; // For single selection (backward compatibility)
+  selectedOptions?: number[]; // For multiple selection
+  onOptionSelect?: (optionId: number) => void; // For single selection (backward compatibility)
+  onOptionsSelect?: (optionIds: number[]) => void; // For multiple selection
   showCorrectAnswer?: boolean;
 }) {
   const getImageUrl = (url: string | null): string | undefined => {
     if (!url) return undefined;
     return url.startsWith('http') ? url : `http://127.0.0.1:8000${url}`;
+  };
+
+  // Check if question has multiple correct answers
+  const correctAnswersCount = question.options.filter(opt => opt.is_correct).length;
+  const isMultipleSelect = correctAnswersCount > 1;
+  
+  // Use multiple selection if available, otherwise fall back to single selection
+  const currentSelectedOptions = selectedOptions !== undefined 
+    ? selectedOptions 
+    : selectedOption !== null && selectedOption !== undefined 
+      ? [selectedOption] 
+      : [];
+  
+  const handleOptionToggle = (optionId: number) => {
+    if (isMultipleSelect && onOptionsSelect) {
+      const newSelection = currentSelectedOptions.includes(optionId)
+        ? currentSelectedOptions.filter(id => id !== optionId)
+        : [...currentSelectedOptions, optionId];
+      onOptionsSelect(newSelection);
+    } else if (onOptionSelect) {
+      onOptionSelect(optionId);
+    }
   };
 
   return (
@@ -40,7 +68,7 @@ function MultipleChoicePreview({
       {question.options && question.options.length > 0 ? (
         <div className="space-y-2">
           {question.options.map((option: Option) => {
-            const isSelected = selectedOption === option.id;
+            const isSelected = currentSelectedOptions.includes(option.id);
             const isCorrect = option.is_correct;
             const showAsCorrect = showCorrectAnswer && isCorrect;
             const showAsIncorrect = showCorrectAnswer && isSelected && !isCorrect;
@@ -54,13 +82,13 @@ function MultipleChoicePreview({
                   ${showAsCorrect ? "bg-green-50 border-green-500" : ""}
                   ${showAsIncorrect ? "bg-red-50 border-red-500" : ""}
                 `}
-                onClick={() => onOptionSelect?.(option.id)}
+                onClick={() => handleOptionToggle(option.id)}
               >
                 <div className="flex items-start gap-2">
                   <input
-                    type="radio"
+                    type={isMultipleSelect ? "checkbox" : "radio"}
                     checked={isSelected}
-                    onChange={() => onOptionSelect?.(option.id)}
+                    onChange={() => handleOptionToggle(option.id)}
                     className="mt-1"
                     readOnly
                   />
@@ -540,10 +568,12 @@ function ConnectPreview({
 export function QuestionPreview({
   question,
   selectedOption,
+  selectedOptions,
   selectedOrder,
   selectedConnections,
   selectedNumber,
   onOptionSelect,
+  onOptionsSelect,
   onOrderChange,
   onConnectionChange,
   onNumberChange,
@@ -586,7 +616,9 @@ export function QuestionPreview({
           <MultipleChoicePreview
             question={question as MultipleChoiceQuestionDetail}
             selectedOption={selectedOption}
+            selectedOptions={selectedOptions}
             onOptionSelect={onOptionSelect}
+            onOptionsSelect={onOptionsSelect}
             showCorrectAnswer={showCorrectAnswer}
           />
         )}

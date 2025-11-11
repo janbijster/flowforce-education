@@ -29,6 +29,7 @@ import {
   combineQuestions,
 } from "@/lib/api";
 import { QuestionTypeBadge } from "@/components/QuestionTypeBadge";
+import { getLastCourse, setLastCourse, getLastModule, setLastModule } from "@/lib/utils";
 
 export default function QuizEditor() {
   const { id } = useParams<{ id: string }>();
@@ -131,6 +132,21 @@ export default function QuizEditor() {
           });
           setInitialQuestionIds([]);
           setInitialQuestionKeys(new Set());
+          
+          // Prefill with last used selections
+          const lastCourse = getLastCourse();
+          const lastModule = getLastModule();
+          
+          if (lastCourse) {
+            setSelectedCourse(lastCourse);
+            // Load modules for the last course
+            const mods = await fetchModules(lastCourse);
+            setModules(mods);
+            if (lastModule && mods.some(m => m.id === lastModule)) {
+              setSelectedModule(lastModule);
+            }
+          }
+          
           initialValues.current = {
             name: "",
             description: "",
@@ -160,16 +176,23 @@ export default function QuizEditor() {
             }
             return current;
           });
+          // Save last used course
+          if (isCreate) {
+            setLastCourse(selectedCourse);
+          }
         } catch (e) {
           setError(e instanceof Error ? e.message : "Failed to load modules");
         }
       } else {
         setModules([]);
         setSelectedModule(null);
+        if (isCreate) {
+          setLastCourse(null);
+        }
       }
     };
     loadModules();
-  }, [selectedCourse]);
+  }, [selectedCourse, isCreate]);
 
   // Check for unsaved changes
   useEffect(() => {
@@ -500,7 +523,14 @@ export default function QuizEditor() {
           <select
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             value={selectedCourse ?? ""}
-            onChange={(e) => setSelectedCourse(e.target.value ? Number(e.target.value) : null)}
+            onChange={(e) => {
+              const courseId = e.target.value ? Number(e.target.value) : null;
+              setSelectedCourse(courseId);
+              // Save last used course
+              if (isCreate && courseId) {
+                setLastCourse(courseId);
+              }
+            }}
           >
             <option value="">— Select Course —</option>
             {courses.map((course) => (
@@ -515,7 +545,14 @@ export default function QuizEditor() {
           <select
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
             value={selectedModule ?? ""}
-            onChange={(e) => setSelectedModule(e.target.value ? Number(e.target.value) : null)}
+            onChange={(e) => {
+              const moduleId = e.target.value ? Number(e.target.value) : null;
+              setSelectedModule(moduleId);
+              // Save last used module
+              if (isCreate && moduleId) {
+                setLastModule(moduleId);
+              }
+            }}
             disabled={!selectedCourse || modules.length === 0}
           >
             <option value="">— Select Module —</option>

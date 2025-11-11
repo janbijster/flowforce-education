@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useParams, useBlocker } from "react-router-dom";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,7 @@ import { QuestionTypeBadge } from "@/components/QuestionTypeBadge";
 import { ChevronUpIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { ConnectQuestionLayoutEditor } from "@/components/ConnectQuestionLayoutEditor";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { getLastCourse, setLastCourse, getLastModule, setLastModule, getLastLesson, setLastLesson, getLastTopic, setLastTopic } from "@/lib/utils";
 
 interface EditableOption extends Omit<Option, 'id' | 'created_at' | 'updated_at'> {
   id: number | string;
@@ -124,6 +125,8 @@ export default function QuestionEditor() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const isSavingRef = useRef(false);
   const newOptionCounterRef = useRef(0);
+  const isInitializingRef = useRef(false);
+  const [previewKey, setPreviewKey] = useState(0); // Force refresh of preview after save
 
   useEffect(() => {
     const init = async () => {
@@ -135,6 +138,7 @@ export default function QuestionEditor() {
 
         if (isCreate) {
           // Initialize empty state for new question
+          isInitializingRef.current = true;
           setText("");
           setQuestionType('multiple_choice');
           setQuestionHideText(false);
@@ -144,6 +148,40 @@ export default function QuestionEditor() {
           setOrderOptions([]);
           setConnectOptions([]);
           setConnectConnections([]);
+          
+          // Prefill with last used selections
+          const lastCourse = getLastCourse();
+          const lastModule = getLastModule();
+          const lastLesson = getLastLesson();
+          const lastTopic = getLastTopic();
+          
+          if (lastCourse) {
+            setSelectedCourse(lastCourse);
+            // Load modules for the last course
+            const mods = await fetchModules(lastCourse);
+            setModules(mods);
+            if (lastModule && mods.some(m => m.id === lastModule)) {
+              setSelectedModule(lastModule);
+              // Load lessons for the last module
+              const less = await fetchLessons(lastModule);
+              setLessons(less);
+              if (lastLesson && less.some(l => l.id === lastLesson)) {
+                setSelectedLesson(lastLesson);
+                // Load topics for the last lesson
+                const tops = await fetchTopics(lastLesson);
+                setTopics(tops);
+                if (lastTopic && tops.some(t => t.id === lastTopic)) {
+                  setSelectedTopic(lastTopic);
+                }
+              }
+            }
+          }
+          
+          // Mark initialization as complete after a short delay to let useEffect hooks run
+          setTimeout(() => {
+            isInitializingRef.current = false;
+          }, 100);
+          
           initialValues.current = {
             text: "",
             topic: null,
@@ -152,6 +190,7 @@ export default function QuestionEditor() {
             options: [],
           };
         } else {
+          isInitializingRef.current = false;
           // Load existing question
           // Convert URL type path to question type
           const questionType = type === 'multiple-choice' 
@@ -271,16 +310,18 @@ export default function QuestionEditor() {
             }
             return current;
           });
+          // Don't save to localStorage here - only save when question is saved
         } catch (e) {
           setError(e instanceof Error ? e.message : "Failed to load modules");
         }
       } else {
         setModules([]);
         setSelectedModule(null);
+        // Don't clear localStorage here - only save when question is saved
       }
     };
     loadModules();
-  }, [selectedCourse]);
+  }, [selectedCourse, isCreate]);
 
   // Fetch lessons when module changes
   useEffect(() => {
@@ -296,16 +337,18 @@ export default function QuestionEditor() {
             }
             return current;
           });
+          // Don't save to localStorage here - only save when question is saved
         } catch (e) {
           setError(e instanceof Error ? e.message : "Failed to load lessons");
         }
       } else {
         setLessons([]);
         setSelectedLesson(null);
+        // Don't clear localStorage here - only save when question is saved
       }
     };
     loadLessons();
-  }, [selectedModule]);
+  }, [selectedModule, isCreate]);
 
   // Fetch topics when lesson changes
   useEffect(() => {
@@ -321,16 +364,18 @@ export default function QuestionEditor() {
             }
             return current;
           });
+          // Don't save to localStorage here - only save when question is saved
         } catch (e) {
           setError(e instanceof Error ? e.message : "Failed to load topics");
         }
       } else {
         setTopics([]);
         setSelectedTopic(null);
+        // Don't clear localStorage here - only save when question is saved
       }
     };
     loadTopics();
-  }, [selectedLesson]);
+  }, [selectedLesson, isCreate]);
 
   // Check for unsaved changes
   useEffect(() => {
@@ -766,6 +811,9 @@ export default function QuestionEditor() {
 
         // Reload question to get full data
         const createdQuestion = await fetchQuestion(questionId, questionType);
+        
+        // Set the question first, then update other state
+        // Use setTimeout to ensure state updates are processed in order
         setQuestion(createdQuestion);
         setQuestionType(createdQuestion.question_type);
         setText(createdQuestion.text);
@@ -774,6 +822,18 @@ export default function QuestionEditor() {
         const imageUrl = createdQuestion.image ? (createdQuestion.image.startsWith('http') ? createdQuestion.image : `http://127.0.0.1:8000${createdQuestion.image}`) : null;
         setQuestionImage(imageUrl);
         setQuestionImageFile(null);
+        
+        // Force preview refresh by updating key
+        setPreviewKey(prev => prev + 1);
+        
+        // Clear and set options state after a microtask to ensure question is set first
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        // Clear options state first
+        setOptions([]);
+        setOrderOptions([]);
+        setConnectOptions([]);
+        setConnectConnections([]);
         
         // Load options based on question type
         if (createdQuestion.question_type === 'number') {
@@ -833,6 +893,42 @@ export default function QuestionEditor() {
             connectOptions: opts.map(opt => ({ ...opt })),
             connectConnections: conns.map(([from, to]) => [from, to] as [number, number]),
           };
+        }
+        
+        // Reload course/module/lesson from the created question's topic to ensure we have the correct values
+        const allTopics = await fetchTopics();
+        const topic = allTopics.find(t => t.id === createdQuestion.topic);
+        let savedCourse: number | null = selectedCourse;
+        let savedModule: number | null = selectedModule;
+        let savedLesson: number | null = selectedLesson;
+        
+        if (topic) {
+          savedLesson = topic.lesson;
+          const allLessons = await fetchLessons();
+          const lesson = allLessons.find(l => l.id === topic.lesson);
+          if (lesson) {
+            savedModule = lesson.module;
+            const allModules = await fetchModules();
+            const mod = allModules.find(m => m.id === lesson.module);
+            if (mod) {
+              savedCourse = mod.course;
+            }
+          }
+        }
+        
+        // Save last used selections to localStorage after successful save
+        // Use the values from the topic hierarchy to ensure accuracy
+        if (savedCourse) {
+          setLastCourse(savedCourse);
+        }
+        if (savedModule) {
+          setLastModule(savedModule);
+        }
+        if (savedLesson) {
+          setLastLesson(savedLesson);
+        }
+        if (createdQuestion.topic) {
+          setLastTopic(createdQuestion.topic);
         }
         
         setHasUnsavedChanges(false);
@@ -1064,11 +1160,49 @@ export default function QuestionEditor() {
 
         // Reload question to get updated data (use question type to avoid fetching wrong question with same ID)
         const updatedQuestion = await fetchQuestion(question.id, question.question_type);
+        
+        // Set the question first
         setQuestion(updatedQuestion);
         setQuestionType(updatedQuestion.question_type);
         setText(updatedQuestion.text);
         setSelectedTopic(updatedQuestion.topic);
         setQuestionHideText(updatedQuestion.hide_text || false);
+        
+        // Force preview refresh by updating key
+        setPreviewKey(prev => prev + 1);
+        
+        // Clear and set options state after a microtask to ensure question is set first
+        await new Promise(resolve => setTimeout(resolve, 0));
+        
+        // Clear options state
+        setOptions([]);
+        setOrderOptions([]);
+        setConnectOptions([]);
+        setConnectConnections([]);
+        
+        // Reload course/module/lesson from the updated topic
+        const allTopics = await fetchTopics();
+        const topic = allTopics.find(t => t.id === updatedQuestion.topic);
+        let updatedCourse: number | null = null;
+        let updatedModule: number | null = null;
+        let updatedLesson: number | null = null;
+        
+        if (topic) {
+          updatedLesson = topic.lesson;
+          setSelectedLesson(updatedLesson);
+          const allLessons = await fetchLessons();
+          const lesson = allLessons.find(l => l.id === topic.lesson);
+          if (lesson) {
+            updatedModule = lesson.module;
+            setSelectedModule(updatedModule);
+            const allModules = await fetchModules();
+            const mod = allModules.find(m => m.id === lesson.module);
+            if (mod) {
+              updatedCourse = mod.course;
+              setSelectedCourse(updatedCourse);
+            }
+          }
+        }
         
         const imageUrl = updatedQuestion.image ? (updatedQuestion.image.startsWith('http') ? updatedQuestion.image : `http://127.0.0.1:8000${updatedQuestion.image}`) : null;
         setQuestionImage(imageUrl);
@@ -1134,6 +1268,21 @@ export default function QuestionEditor() {
           };
         }
         
+        // Save last used selections to localStorage after successful save (for updates too)
+        // Use the freshly loaded values instead of state to avoid async timing issues
+        if (updatedCourse) {
+          setLastCourse(updatedCourse);
+        }
+        if (updatedModule) {
+          setLastModule(updatedModule);
+        }
+        if (updatedLesson) {
+          setLastLesson(updatedLesson);
+        }
+        if (updatedQuestion.topic) {
+          setLastTopic(updatedQuestion.topic);
+        }
+        
         setHasUnsavedChanges(false);
         const typePath = updatedQuestion.question_type === 'multiple_choice' 
           ? 'multiple-choice' 
@@ -1173,8 +1322,11 @@ export default function QuestionEditor() {
   };
 
   // Create a QuestionDetail-like object for preview
-  const previewQuestion: QuestionDetail | null = (question || (isCreate && text && selectedTopic)) ? (
-    questionType === 'number' ? {
+  // Use useMemo to prevent double rendering issues and ensure we always use question.options when available
+  const previewQuestion: QuestionDetail | null = useMemo(() => {
+    if (!question && !(isCreate && text && selectedTopic)) return null;
+    
+    return questionType === 'number' ? {
       id: question?.id || 0,
       text: text || "",
       order: question?.order || 0,
@@ -1213,21 +1365,33 @@ export default function QuestionEditor() {
       module_name: modules.find(m => m.id === selectedModule)?.name || "",
       course_name: courses.find(c => c.id === selectedCourse)?.name || "",
       quiz_name: null,
-      options_count: options.length,
+      options_count: question && (question as MultipleChoiceQuestionDetail).options 
+        ? (question as MultipleChoiceQuestionDetail).options.length 
+        : options.length,
       learning_objectives_count: 0,
       created_at: question?.created_at || "",
       updated_at: question?.updated_at || "",
-      options: options.map(opt => ({
-        id: typeof opt.id === 'number' ? opt.id : 0,
-        text: opt.text,
-        is_correct: opt.is_correct,
-        image: opt.image || null,
-        hide_text: opt.hide_text || false,
-        organization: opt.organization,
-        question: opt.question,
-        created_at: typeof opt.id === 'number' ? ((question as MultipleChoiceQuestionDetail)?.options?.find(o => o.id === opt.id)?.created_at || '') : '',
-        updated_at: typeof opt.id === 'number' ? ((question as MultipleChoiceQuestionDetail)?.options?.find(o => o.id === opt.id)?.updated_at || '') : '',
-      })),
+      options: (() => {
+        // Always prefer question.options when question exists and has options
+        if (question && question.question_type === 'multiple_choice') {
+          const questionOptions = (question as MultipleChoiceQuestionDetail).options;
+          if (questionOptions && questionOptions.length > 0) {
+            return questionOptions;
+          }
+        }
+        // Fall back to state options only when creating new question
+        return options.map(opt => ({
+          id: typeof opt.id === 'number' ? opt.id : 0,
+          text: opt.text,
+          is_correct: opt.is_correct,
+          image: opt.image || null,
+          hide_text: opt.hide_text || false,
+          organization: opt.organization,
+          question: opt.question,
+          created_at: typeof opt.id === 'number' ? ((question as MultipleChoiceQuestionDetail)?.options?.find(o => o.id === opt.id)?.created_at || '') : '',
+          updated_at: typeof opt.id === 'number' ? ((question as MultipleChoiceQuestionDetail)?.options?.find(o => o.id === opt.id)?.updated_at || '') : '',
+        }));
+      })(),
     } : questionType === 'order' ? {
       id: question?.id || 0,
       text: text || "",
@@ -1249,35 +1413,37 @@ export default function QuestionEditor() {
       learning_objectives_count: 0,
       created_at: question?.created_at || "",
       updated_at: question?.updated_at || "",
-      order_options: (() => {
-        // Create a map of original IDs to new IDs for new options
-        const idMap = new Map<string | number, number>();
-        let tempIdCounter = 1000;
-        
-        orderOptions.forEach(opt => {
-          if (typeof opt.id === 'string') {
-            // Generate a stable negative ID for string IDs
-            if (!idMap.has(opt.id)) {
-              idMap.set(opt.id, -tempIdCounter++);
-            }
-          }
-        });
-        
-        return orderOptions
-          .sort((a, b) => a.correct_order - b.correct_order)
-          .map((opt) => ({
-            // Use existing ID for saved options, or mapped ID for new options
-            id: typeof opt.id === 'number' ? opt.id : (idMap.get(opt.id) || -9999),
-            text: opt.text,
-            image: opt.image || null,
-            hide_text: opt.hide_text || false,
-            correct_order: opt.correct_order,
-            organization: opt.organization,
-            question: opt.question,
-            created_at: typeof opt.id === 'number' ? ((question as OrderQuestionDetail)?.order_options?.find(o => o.id === opt.id)?.created_at || '') : '',
-            updated_at: typeof opt.id === 'number' ? ((question as OrderQuestionDetail)?.order_options?.find(o => o.id === opt.id)?.updated_at || '') : '',
-          }));
-      })(),
+      order_options: question && (question as OrderQuestionDetail).order_options
+        ? (question as OrderQuestionDetail).order_options
+        : (() => {
+            // Create a map of original IDs to new IDs for new options
+            const idMap = new Map<string | number, number>();
+            let tempIdCounter = 1000;
+            
+            orderOptions.forEach(opt => {
+              if (typeof opt.id === 'string') {
+                // Generate a stable negative ID for string IDs
+                if (!idMap.has(opt.id)) {
+                  idMap.set(opt.id, -tempIdCounter++);
+                }
+              }
+            });
+            
+            return orderOptions
+              .sort((a, b) => a.correct_order - b.correct_order)
+              .map((opt) => ({
+                // Use existing ID for saved options, or mapped ID for new options
+                id: typeof opt.id === 'number' ? opt.id : (idMap.get(opt.id) || -9999),
+                text: opt.text,
+                image: opt.image || null,
+                hide_text: opt.hide_text || false,
+                correct_order: opt.correct_order,
+                organization: opt.organization,
+                question: opt.question,
+                created_at: typeof opt.id === 'number' ? ((question as OrderQuestionDetail)?.order_options?.find(o => o.id === opt.id)?.created_at || '') : '',
+                updated_at: typeof opt.id === 'number' ? ((question as OrderQuestionDetail)?.order_options?.find(o => o.id === opt.id)?.updated_at || '') : '',
+              }));
+          })(),
     } : {
       id: question?.id || 0,
       text: text || "",
@@ -1300,33 +1466,56 @@ export default function QuestionEditor() {
       learning_objectives_count: 0,
       created_at: question?.created_at || "",
       updated_at: question?.updated_at || "",
-      connect_options: connectOptions.map(opt => ({
-        id: typeof opt.id === 'number' ? opt.id : 0,
-        text: opt.text,
-        image: opt.image || null,
-        hide_text: opt.hide_text || false,
-        position_x: opt.position_x,
-        position_y: opt.position_y,
-        width: opt.width || 100,
-        height: opt.height || 60,
-        organization: opt.organization,
-        question: opt.question,
-        created_at: typeof opt.id === 'number' ? ((question as ConnectQuestionDetail)?.connect_options?.find(o => o.id === opt.id)?.created_at || '') : '',
-        updated_at: typeof opt.id === 'number' ? ((question as ConnectQuestionDetail)?.connect_options?.find(o => o.id === opt.id)?.updated_at || '') : '',
-      })),
-      correct_connections: connectConnections.map(([from, to], idx) => ({
-        id: idx,
-        question: question?.id || 0,
-        from_option: from,
-        to_option: to,
-        from_option_text: connectOptions.find(o => (typeof o.id === 'number' ? o.id : 0) === from)?.text || '',
-        to_option_text: connectOptions.find(o => (typeof o.id === 'number' ? o.id : 0) === to)?.text || '',
-        organization: user?.organization.id || 0,
-        created_at: '',
-        updated_at: '',
-      })),
-    }
-  ) : null;
+      connect_options: question && (question as ConnectQuestionDetail).connect_options
+        ? (question as ConnectQuestionDetail).connect_options
+        : connectOptions.map(opt => ({
+            id: typeof opt.id === 'number' ? opt.id : 0,
+            text: opt.text,
+            image: opt.image || null,
+            hide_text: opt.hide_text || false,
+            position_x: opt.position_x,
+            position_y: opt.position_y,
+            width: opt.width || 100,
+            height: opt.height || 60,
+            organization: opt.organization,
+            question: opt.question,
+            created_at: typeof opt.id === 'number' ? ((question as ConnectQuestionDetail)?.connect_options?.find(o => o.id === opt.id)?.created_at || '') : '',
+            updated_at: typeof opt.id === 'number' ? ((question as ConnectQuestionDetail)?.connect_options?.find(o => o.id === opt.id)?.updated_at || '') : '',
+          })),
+      correct_connections: question && (question as ConnectQuestionDetail).correct_connections
+        ? (question as ConnectQuestionDetail).correct_connections
+        : connectConnections.map(([from, to], idx) => ({
+            id: idx,
+            question: question?.id || 0,
+            from_option: from,
+            to_option: to,
+            from_option_text: connectOptions.find(o => (typeof o.id === 'number' ? o.id : 0) === from)?.text || '',
+            to_option_text: connectOptions.find(o => (typeof o.id === 'number' ? o.id : 0) === to)?.text || '',
+            organization: user?.organization.id || 0,
+            created_at: '',
+            updated_at: '',
+          })),
+    };
+  }, [
+    question,
+    isCreate,
+    text,
+    selectedTopic,
+    questionType,
+    questionImage,
+    questionHideText,
+    user?.organization.id,
+    topics,
+    lessons,
+    modules,
+    courses,
+    correctAnswer,
+    tolerance,
+    options,
+    orderOptions,
+    connectOptions,
+    connectConnections,
+  ]);
 
   return (
     <>
@@ -1393,7 +1582,11 @@ export default function QuestionEditor() {
               <select
                 className="w-full rounded-md border px-3 py-2 text-sm"
                 value={selectedCourse ?? ""}
-                onChange={(e) => setSelectedCourse(e.target.value ? Number(e.target.value) : null)}
+                onChange={(e) => {
+                  const courseId = e.target.value ? Number(e.target.value) : null;
+                  setSelectedCourse(courseId);
+                  // Don't save to localStorage here - only save when question is saved
+                }}
               >
                 <option value="">— Select Course —</option>
                 {courses.map((course) => (
@@ -1408,7 +1601,11 @@ export default function QuestionEditor() {
               <select
                 className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
                 value={selectedModule ?? ""}
-                onChange={(e) => setSelectedModule(e.target.value ? Number(e.target.value) : null)}
+                onChange={(e) => {
+                  const moduleId = e.target.value ? Number(e.target.value) : null;
+                  setSelectedModule(moduleId);
+                  // Don't save to localStorage here - only save when question is saved
+                }}
                 disabled={!selectedCourse || modules.length === 0}
               >
                 <option value="">— Select Module —</option>
@@ -1424,7 +1621,11 @@ export default function QuestionEditor() {
               <select
                 className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
                 value={selectedLesson ?? ""}
-                onChange={(e) => setSelectedLesson(e.target.value ? Number(e.target.value) : null)}
+                onChange={(e) => {
+                  const lessonId = e.target.value ? Number(e.target.value) : null;
+                  setSelectedLesson(lessonId);
+                  // Don't save to localStorage here - only save when question is saved
+                }}
                 disabled={!selectedModule || lessons.length === 0}
               >
                 <option value="">— Select Lesson —</option>
@@ -1442,7 +1643,11 @@ export default function QuestionEditor() {
               <select
                 className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
                 value={selectedTopic ?? ""}
-                onChange={(e) => setSelectedTopic(e.target.value ? Number(e.target.value) : null)}
+                onChange={(e) => {
+                  const topicId = e.target.value ? Number(e.target.value) : null;
+                  setSelectedTopic(topicId);
+                  // Don't save to localStorage here - only save when question is saved
+                }}
                 disabled={!selectedLesson || topics.length === 0}
                 required
               >
@@ -1836,6 +2041,7 @@ export default function QuestionEditor() {
 
         <div>
           <QuestionPreview 
+            key={previewKey}
             question={previewQuestion}
             onEditLayout={questionType === 'connect' ? () => setLayoutEditorOpen(true) : undefined}
           />

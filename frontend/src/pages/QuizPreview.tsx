@@ -21,7 +21,8 @@ export default function QuizPreview() {
   const [quiz, setQuiz] = useState<QuizDetail | null>(null);
   const [questions, setQuestions] = useState<QuestionDetail[]>([]);
   // Use composite keys (question_type:id) since IDs can overlap across question types
-  const [selectedOptions, setSelectedOptions] = useState<Record<string, number | null>>({});
+  // For multiple choice: support both single (number | null) and multiple (number[]) for backward compatibility
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, number | null | number[]>>({});
   const [selectedOrders, setSelectedOrders] = useState<Record<string, number[]>>({});
   const [selectedConnections, setSelectedConnections] = useState<Record<string, Array<[number, number]>>>({});
   const [selectedNumbers, setSelectedNumbers] = useState<Record<string, number | null>>({});
@@ -69,9 +70,20 @@ export default function QuizPreview() {
   const handleOptionSelect = (question: QuestionDetail, optionId: number) => {
     if (showAnswers) return;
     const key = `${question.question_type}:${question.id}`;
+    // For single selection (backward compatibility)
     setSelectedOptions((prev) => ({
       ...prev,
       [key]: optionId,
+    }));
+  };
+
+  const handleOptionsSelect = (question: QuestionDetail, optionIds: number[]) => {
+    if (showAnswers) return;
+    const key = `${question.question_type}:${question.id}`;
+    // For multiple selection
+    setSelectedOptions((prev) => ({
+      ...prev,
+      [key]: optionIds,
     }));
   };
 
@@ -171,11 +183,22 @@ export default function QuizPreview() {
                 </div>
                 <QuestionPreview
                   question={question}
-                  selectedOption={selectedOptions[`${question.question_type}:${question.id}`] || null}
+                  selectedOption={(() => {
+                    const selection = selectedOptions[`${question.question_type}:${question.id}`];
+                    // If it's an array, return null for selectedOption (use selectedOptions instead)
+                    if (Array.isArray(selection)) return null;
+                    return selection || null;
+                  })()}
+                  selectedOptions={(() => {
+                    const selection = selectedOptions[`${question.question_type}:${question.id}`];
+                    // If it's an array, return it; otherwise return undefined
+                    return Array.isArray(selection) ? selection : undefined;
+                  })()}
                   selectedOrder={selectedOrders[`${question.question_type}:${question.id}`] || null}
                   selectedConnections={selectedConnections[`${question.question_type}:${question.id}`] || null}
                   selectedNumber={selectedNumbers[`${question.question_type}:${question.id}`] || null}
                   onOptionSelect={(optionId) => handleOptionSelect(question, optionId)}
+                  onOptionsSelect={(optionIds) => handleOptionsSelect(question, optionIds)}
                   onOrderChange={(optionIds) => handleOrderChange(question, optionIds)}
                   onConnectionChange={(connections) => handleConnectionChange(question, connections)}
                   onNumberChange={(value) => handleNumberChange(question, value)}
