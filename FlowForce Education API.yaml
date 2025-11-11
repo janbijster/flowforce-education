@@ -6,6 +6,33 @@ info:
     levels
 paths:
   /api/organizations/organizations/:
+    post:
+      operationId: organizations_organizations_create
+      description: ViewSet for Organization model.
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+          description: ''
     get:
       operationId: organizations_organizations_list
       description: ViewSet for Organization model.
@@ -40,67 +67,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedOrganizationList'
           description: ''
-    post:
-      operationId: organizations_organizations_create
-      description: ViewSet for Organization model.
-      tags:
-      - organizations
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrganizationRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/OrganizationRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/OrganizationRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organization'
-          description: ''
   /api/organizations/organizations/{id}/:
-    patch:
-      operationId: organizations_organizations_partial_update
-      description: ViewSet for Organization model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this organization.
-        required: true
-      tags:
-      - organizations
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedOrganizationRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedOrganizationRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedOrganizationRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organization'
-          description: ''
     put:
       operationId: organizations_organizations_update
       description: ViewSet for Organization model.
@@ -135,6 +102,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/Organization'
           description: ''
+    delete:
+      operationId: organizations_organizations_destroy
+      description: ViewSet for Organization model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this organization.
+        required: true
+      tags:
+      - organizations
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
     get:
       operationId: organizations_organizations_retrieve
       description: ViewSet for Organization model.
@@ -157,8 +142,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Organization'
           description: ''
-    delete:
-      operationId: organizations_organizations_destroy
+    patch:
+      operationId: organizations_organizations_partial_update
       description: ViewSet for Organization model.
       parameters:
       - in: path
@@ -169,12 +154,27 @@ paths:
         required: true
       tags:
       - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOrganizationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOrganizationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOrganizationRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
-        '204':
-          description: No response body
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+          description: ''
   /api/organizations/organizations/{id}/users/:
     get:
       operationId: organizations_organizations_users_retrieve
@@ -199,6 +199,33 @@ paths:
                 $ref: '#/components/schemas/Organization'
           description: ''
   /api/organizations/users/:
+    post:
+      operationId: organizations_users_create
+      description: ViewSet for User model.
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
     get:
       operationId: organizations_users_list
       description: ViewSet for User model.
@@ -245,67 +272,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedUserList'
           description: ''
-    post:
-      operationId: organizations_users_create
-      description: ViewSet for User model.
-      tags:
-      - organizations
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/UserRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/UserRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: ''
   /api/organizations/users/{id}/:
-    patch:
-      operationId: organizations_users_partial_update
-      description: ViewSet for User model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this user.
-        required: true
-      tags:
-      - organizations
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: ''
     put:
       operationId: organizations_users_update
       description: ViewSet for User model.
@@ -340,6 +307,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
+    delete:
+      operationId: organizations_users_destroy
+      description: ViewSet for User model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - organizations
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
     get:
       operationId: organizations_users_retrieve
       description: ViewSet for User model.
@@ -362,8 +347,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
-    delete:
-      operationId: organizations_users_destroy
+    patch:
+      operationId: organizations_users_partial_update
       description: ViewSet for User model.
       parameters:
       - in: path
@@ -374,13 +359,55 @@ paths:
         required: true
       tags:
       - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
-        '204':
-          description: No response body
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
   /api/courses/courses/:
+    post:
+      operationId: courses_courses_create
+      description: ViewSet for Course model.
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
     get:
       operationId: courses_courses_list
       description: ViewSet for Course model.
@@ -419,67 +446,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedCourseList'
           description: ''
-    post:
-      operationId: courses_courses_create
-      description: ViewSet for Course model.
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-          description: ''
   /api/courses/courses/{id}/:
-    patch:
-      operationId: courses_courses_partial_update
-      description: ViewSet for Course model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this course.
-        required: true
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedCourseRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedCourseRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedCourseRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-          description: ''
     put:
       operationId: courses_courses_update
       description: ViewSet for Course model.
@@ -514,6 +481,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/Course'
           description: ''
+    delete:
+      operationId: courses_courses_destroy
+      description: ViewSet for Course model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
     get:
       operationId: courses_courses_retrieve
       description: ViewSet for Course model.
@@ -536,8 +521,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-    delete:
-      operationId: courses_courses_destroy
+    patch:
+      operationId: courses_courses_partial_update
       description: ViewSet for Course model.
       parameters:
       - in: path
@@ -548,12 +533,27 @@ paths:
         required: true
       tags:
       - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
-        '204':
-          description: No response body
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
   /api/courses/courses/{id}/modules/:
     get:
       operationId: courses_courses_modules_retrieve
@@ -578,6 +578,33 @@ paths:
                 $ref: '#/components/schemas/Course'
           description: ''
   /api/courses/modules/:
+    post:
+      operationId: courses_modules_create
+      description: ViewSet for Module model.
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModuleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModuleRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Module'
+          description: ''
     get:
       operationId: courses_modules_list
       description: ViewSet for Module model.
@@ -620,67 +647,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedModuleList'
           description: ''
-    post:
-      operationId: courses_modules_create
-      description: ViewSet for Module model.
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ModuleRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ModuleRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ModuleRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Module'
-          description: ''
   /api/courses/modules/{id}/:
-    patch:
-      operationId: courses_modules_partial_update
-      description: ViewSet for Module model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this module.
-        required: true
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedModuleRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedModuleRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedModuleRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Module'
-          description: ''
     put:
       operationId: courses_modules_update
       description: ViewSet for Module model.
@@ -715,6 +682,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/Module'
           description: ''
+    delete:
+      operationId: courses_modules_destroy
+      description: ViewSet for Module model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this module.
+        required: true
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
     get:
       operationId: courses_modules_retrieve
       description: ViewSet for Module model.
@@ -737,8 +722,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ModuleDetail'
           description: ''
-    delete:
-      operationId: courses_modules_destroy
+    patch:
+      operationId: courses_modules_partial_update
       description: ViewSet for Module model.
       parameters:
       - in: path
@@ -749,12 +734,27 @@ paths:
         required: true
       tags:
       - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedModuleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedModuleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedModuleRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
-        '204':
-          description: No response body
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Module'
+          description: ''
   /api/courses/modules/{id}/lessons/:
     get:
       operationId: courses_modules_lessons_retrieve
@@ -779,6 +779,33 @@ paths:
                 $ref: '#/components/schemas/Module'
           description: ''
   /api/courses/lessons/:
+    post:
+      operationId: courses_lessons_create
+      description: ViewSet for Lesson model.
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+          description: ''
     get:
       operationId: courses_lessons_list
       description: ViewSet for Lesson model.
@@ -821,67 +848,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedLessonList'
           description: ''
-    post:
-      operationId: courses_lessons_create
-      description: ViewSet for Lesson model.
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LessonRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/LessonRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/LessonRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Lesson'
-          description: ''
   /api/courses/lessons/{id}/:
-    patch:
-      operationId: courses_lessons_partial_update
-      description: ViewSet for Lesson model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this lesson.
-        required: true
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedLessonRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedLessonRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedLessonRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Lesson'
-          description: ''
     put:
       operationId: courses_lessons_update
       description: ViewSet for Lesson model.
@@ -916,6 +883,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/Lesson'
           description: ''
+    delete:
+      operationId: courses_lessons_destroy
+      description: ViewSet for Lesson model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
     get:
       operationId: courses_lessons_retrieve
       description: ViewSet for Lesson model.
@@ -938,8 +923,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/LessonDetail'
           description: ''
-    delete:
-      operationId: courses_lessons_destroy
+    patch:
+      operationId: courses_lessons_partial_update
       description: ViewSet for Lesson model.
       parameters:
       - in: path
@@ -950,12 +935,27 @@ paths:
         required: true
       tags:
       - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLessonRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
-        '204':
-          description: No response body
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+          description: ''
   /api/courses/lessons/{id}/topics/:
     get:
       operationId: courses_lessons_topics_retrieve
@@ -980,6 +980,33 @@ paths:
                 $ref: '#/components/schemas/Lesson'
           description: ''
   /api/courses/topics/:
+    post:
+      operationId: courses_topics_create
+      description: ViewSet for Topic model.
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TopicRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TopicRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TopicRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: ''
     get:
       operationId: courses_topics_list
       description: ViewSet for Topic model.
@@ -1022,67 +1049,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedTopicList'
           description: ''
-    post:
-      operationId: courses_topics_create
-      description: ViewSet for Topic model.
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TopicRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/TopicRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/TopicRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Topic'
-          description: ''
   /api/courses/topics/{id}/:
-    patch:
-      operationId: courses_topics_partial_update
-      description: ViewSet for Topic model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this topic.
-        required: true
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedTopicRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedTopicRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedTopicRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Topic'
-          description: ''
     put:
       operationId: courses_topics_update
       description: ViewSet for Topic model.
@@ -1117,6 +1084,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/Topic'
           description: ''
+    delete:
+      operationId: courses_topics_destroy
+      description: ViewSet for Topic model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this topic.
+        required: true
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
     get:
       operationId: courses_topics_retrieve
       description: ViewSet for Topic model.
@@ -1139,8 +1124,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/TopicDetail'
           description: ''
-    delete:
-      operationId: courses_topics_destroy
+    patch:
+      operationId: courses_topics_partial_update
       description: ViewSet for Topic model.
       parameters:
       - in: path
@@ -1151,12 +1136,27 @@ paths:
         required: true
       tags:
       - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTopicRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTopicRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTopicRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
-        '204':
-          description: No response body
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: ''
   /api/courses/topics/{id}/learning_objectives/:
     get:
       operationId: courses_topics_learning_objectives_retrieve
@@ -1181,6 +1181,33 @@ paths:
                 $ref: '#/components/schemas/Topic'
           description: ''
   /api/courses/learning-objectives/:
+    post:
+      operationId: courses_learning_objectives_create
+      description: ViewSet for LearningObjective model.
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LearningObjectiveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LearningObjectiveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LearningObjectiveRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningObjective'
+          description: ''
     get:
       operationId: courses_learning_objectives_list
       description: ViewSet for LearningObjective model.
@@ -1227,67 +1254,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedLearningObjectiveList'
           description: ''
-    post:
-      operationId: courses_learning_objectives_create
-      description: ViewSet for LearningObjective model.
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LearningObjectiveRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/LearningObjectiveRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/LearningObjectiveRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LearningObjective'
-          description: ''
   /api/courses/learning-objectives/{id}/:
-    patch:
-      operationId: courses_learning_objectives_partial_update
-      description: ViewSet for LearningObjective model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this learning objective.
-        required: true
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedLearningObjectiveRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedLearningObjectiveRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedLearningObjectiveRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LearningObjective'
-          description: ''
     put:
       operationId: courses_learning_objectives_update
       description: ViewSet for LearningObjective model.
@@ -1322,6 +1289,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/LearningObjective'
           description: ''
+    delete:
+      operationId: courses_learning_objectives_destroy
+      description: ViewSet for LearningObjective model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this learning objective.
+        required: true
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
     get:
       operationId: courses_learning_objectives_retrieve
       description: ViewSet for LearningObjective model.
@@ -1344,8 +1329,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/LearningObjective'
           description: ''
-    delete:
-      operationId: courses_learning_objectives_destroy
+    patch:
+      operationId: courses_learning_objectives_partial_update
       description: ViewSet for LearningObjective model.
       parameters:
       - in: path
@@ -1356,12 +1341,27 @@ paths:
         required: true
       tags:
       - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLearningObjectiveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLearningObjectiveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLearningObjectiveRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
-        '204':
-          description: No response body
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LearningObjective'
+          description: ''
   /api/courses/learning-objectives/{id}/topics/:
     get:
       operationId: courses_learning_objectives_topics_retrieve
@@ -1386,6 +1386,33 @@ paths:
                 $ref: '#/components/schemas/LearningObjective'
           description: ''
   /api/quizzes/quizzes/:
+    post:
+      operationId: quizzes_quizzes_create
+      description: ViewSet for Quiz model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
     get:
       operationId: quizzes_quizzes_list
       description: ViewSet for Quiz model.
@@ -1432,67 +1459,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedQuizList'
           description: ''
-    post:
-      operationId: quizzes_quizzes_create
-      description: ViewSet for Quiz model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/QuizRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/QuizRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/QuizRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Quiz'
-          description: ''
   /api/quizzes/quizzes/{id}/:
-    patch:
-      operationId: quizzes_quizzes_partial_update
-      description: ViewSet for Quiz model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this quiz.
-        required: true
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Quiz'
-          description: ''
     put:
       operationId: quizzes_quizzes_update
       description: ViewSet for Quiz model.
@@ -1501,7 +1468,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this quiz.
+        description: A unique integer value identifying this Quiz.
         required: true
       tags:
       - quizzes
@@ -1527,6 +1494,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/Quiz'
           description: ''
+    delete:
+      operationId: quizzes_quizzes_destroy
+      description: ViewSet for Quiz model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Quiz.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
     get:
       operationId: quizzes_quizzes_retrieve
       description: ViewSet for Quiz model.
@@ -1535,7 +1520,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this quiz.
+        description: A unique integer value identifying this Quiz.
         required: true
       tags:
       - quizzes
@@ -1549,34 +1534,49 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuizDetail'
           description: ''
-    delete:
-      operationId: quizzes_quizzes_destroy
+    patch:
+      operationId: quizzes_quizzes_partial_update
       description: ViewSet for Quiz model.
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this quiz.
+        description: A unique integer value identifying this Quiz.
         required: true
       tags:
       - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedQuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedQuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedQuizRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
-        '204':
-          description: No response body
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
   /api/quizzes/quizzes/{id}/questions/:
     get:
       operationId: quizzes_quizzes_questions_retrieve
-      description: Get all questions for this quiz.
+      description: Get all questions for this quiz (all types).
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this quiz.
+        description: A unique integer value identifying this Quiz.
         required: true
       tags:
       - quizzes
@@ -1590,10 +1590,76 @@ paths:
               schema:
                 $ref: '#/components/schemas/Quiz'
           description: ''
+  /api/quizzes/quizzes/{id}/reorder/:
+    post:
+      operationId: quizzes_quizzes_reorder_create
+      description: |-
+        Reorder questions within this quiz (all types).
+
+        Expects JSON body: { "ordered_ids": [q1, q2, ...] }
+        Works across all question types.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Quiz.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
   /api/quizzes/questions/:
+    post:
+      operationId: quizzes_questions_create
+      description: ViewSet for MultipleChoiceQuestion model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
+          description: ''
     get:
       operationId: quizzes_questions_list
-      description: ViewSet for Question model.
+      description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: query
         name: learning_objectives
@@ -1643,78 +1709,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedQuestionList'
-          description: ''
-    post:
-      operationId: quizzes_questions_create
-      description: ViewSet for Question model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/QuestionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/QuestionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/QuestionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Question'
+                $ref: '#/components/schemas/PaginatedMultipleChoiceQuestionList'
           description: ''
   /api/quizzes/questions/{id}/:
-    patch:
-      operationId: quizzes_questions_partial_update
-      description: ViewSet for Question model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this question.
-        required: true
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedQuestionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedQuestionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedQuestionRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Question'
-          description: ''
     put:
       operationId: quizzes_questions_update
-      description: ViewSet for Question model.
+      description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this question.
+        description: A unique integer value identifying this multiple choice question.
         required: true
       tags:
       - quizzes
@@ -1722,13 +1728,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/QuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/QuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
         required: true
       security:
       - cookieAuth: []
@@ -1738,39 +1744,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Question'
-          description: ''
-    get:
-      operationId: quizzes_questions_retrieve
-      description: ViewSet for Question model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this question.
-        required: true
-      tags:
-      - quizzes
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/QuestionDetail'
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
           description: ''
     delete:
       operationId: quizzes_questions_destroy
-      description: ViewSet for Question model.
+      description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this question.
+        description: A unique integer value identifying this multiple choice question.
         required: true
       tags:
       - quizzes
@@ -1780,16 +1764,15 @@ paths:
       responses:
         '204':
           description: No response body
-  /api/quizzes/questions/{id}/correct_options/:
     get:
-      operationId: quizzes_questions_correct_options_retrieve
-      description: Get only correct options for this question.
+      operationId: quizzes_questions_retrieve
+      description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this question.
+        description: A unique integer value identifying this multiple choice question.
         required: true
       tags:
       - quizzes
@@ -1801,7 +1784,63 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Question'
+                $ref: '#/components/schemas/MultipleChoiceQuestionDetail'
+          description: ''
+    patch:
+      operationId: quizzes_questions_partial_update
+      description: ViewSet for MultipleChoiceQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this multiple choice question.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
+          description: ''
+  /api/quizzes/questions/{id}/correct_options/:
+    get:
+      operationId: quizzes_questions_correct_options_retrieve
+      description: Get only correct options for this question.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this multiple choice question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
           description: ''
   /api/quizzes/questions/{id}/options/:
     get:
@@ -1812,7 +1851,7 @@ paths:
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this question.
+        description: A unique integer value identifying this multiple choice question.
         required: true
       tags:
       - quizzes
@@ -1824,12 +1863,914 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Question'
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
+          description: ''
+  /api/quizzes/multiple-choice-questions/:
+    post:
+      operationId: quizzes_multiple_choice_questions_create
+      description: ViewSet for MultipleChoiceQuestion model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
+          description: ''
+    get:
+      operationId: quizzes_multiple_choice_questions_list
+      description: ViewSet for MultipleChoiceQuestion model.
+      parameters:
+      - in: query
+        name: learning_objectives
+        schema:
+          type: array
+          items:
+            type: integer
+        explode: true
+        style: form
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: quiz
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: topic
+        schema:
+          type: integer
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMultipleChoiceQuestionList'
+          description: ''
+  /api/quizzes/multiple-choice-questions/{id}/:
+    put:
+      operationId: quizzes_multiple_choice_questions_update
+      description: ViewSet for MultipleChoiceQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this multiple choice question.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
+          description: ''
+    delete:
+      operationId: quizzes_multiple_choice_questions_destroy
+      description: ViewSet for MultipleChoiceQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this multiple choice question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+    get:
+      operationId: quizzes_multiple_choice_questions_retrieve
+      description: ViewSet for MultipleChoiceQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this multiple choice question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestionDetail'
+          description: ''
+    patch:
+      operationId: quizzes_multiple_choice_questions_partial_update
+      description: ViewSet for MultipleChoiceQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this multiple choice question.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
+          description: ''
+  /api/quizzes/multiple-choice-questions/{id}/correct_options/:
+    get:
+      operationId: quizzes_multiple_choice_questions_correct_options_retrieve
+      description: Get only correct options for this question.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this multiple choice question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
+          description: ''
+  /api/quizzes/multiple-choice-questions/{id}/options/:
+    get:
+      operationId: quizzes_multiple_choice_questions_options_retrieve
+      description: Get all options for this question.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this multiple choice question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
+          description: ''
+  /api/quizzes/order-questions/:
+    post:
+      operationId: quizzes_order_questions_create
+      description: ViewSet for OrderQuestion model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderQuestion'
+          description: ''
+    get:
+      operationId: quizzes_order_questions_list
+      description: ViewSet for OrderQuestion model.
+      parameters:
+      - in: query
+        name: learning_objectives
+        schema:
+          type: array
+          items:
+            type: integer
+        explode: true
+        style: form
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: quiz
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: topic
+        schema:
+          type: integer
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderQuestionList'
+          description: ''
+  /api/quizzes/order-questions/{id}/:
+    put:
+      operationId: quizzes_order_questions_update
+      description: ViewSet for OrderQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order question.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderQuestion'
+          description: ''
+    delete:
+      operationId: quizzes_order_questions_destroy
+      description: ViewSet for OrderQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+    get:
+      operationId: quizzes_order_questions_retrieve
+      description: ViewSet for OrderQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderQuestionDetail'
+          description: ''
+    patch:
+      operationId: quizzes_order_questions_partial_update
+      description: ViewSet for OrderQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order question.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderQuestion'
+          description: ''
+  /api/quizzes/order-questions/{id}/order_options/:
+    get:
+      operationId: quizzes_order_questions_order_options_retrieve
+      description: Get all order options for this question.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderQuestion'
+          description: ''
+  /api/quizzes/connect-questions/:
+    post:
+      operationId: quizzes_connect_questions_create
+      description: ViewSet for ConnectQuestion model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectQuestion'
+          description: ''
+    get:
+      operationId: quizzes_connect_questions_list
+      description: ViewSet for ConnectQuestion model.
+      parameters:
+      - in: query
+        name: learning_objectives
+        schema:
+          type: array
+          items:
+            type: integer
+        explode: true
+        style: form
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: quiz
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: topic
+        schema:
+          type: integer
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConnectQuestionList'
+          description: ''
+  /api/quizzes/connect-questions/{id}/:
+    put:
+      operationId: quizzes_connect_questions_update
+      description: ViewSet for ConnectQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect question.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectQuestion'
+          description: ''
+    delete:
+      operationId: quizzes_connect_questions_destroy
+      description: ViewSet for ConnectQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+    get:
+      operationId: quizzes_connect_questions_retrieve
+      description: ViewSet for ConnectQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectQuestionDetail'
+          description: ''
+    patch:
+      operationId: quizzes_connect_questions_partial_update
+      description: ViewSet for ConnectQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect question.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectQuestion'
+          description: ''
+  /api/quizzes/connect-questions/{id}/connect_options/:
+    get:
+      operationId: quizzes_connect_questions_connect_options_retrieve
+      description: Get all connect options for this question.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectQuestion'
+          description: ''
+  /api/quizzes/connect-questions/{id}/connections/:
+    get:
+      operationId: quizzes_connect_questions_connections_retrieve
+      description: Get all correct connections for this question.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectQuestion'
+          description: ''
+  /api/quizzes/number-questions/:
+    post:
+      operationId: quizzes_number_questions_create
+      description: ViewSet for NumberQuestion model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NumberQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NumberQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NumberQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberQuestion'
+          description: ''
+    get:
+      operationId: quizzes_number_questions_list
+      description: ViewSet for NumberQuestion model.
+      parameters:
+      - in: query
+        name: learning_objectives
+        schema:
+          type: array
+          items:
+            type: integer
+        explode: true
+        style: form
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: quiz
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: topic
+        schema:
+          type: integer
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNumberQuestionList'
+          description: ''
+  /api/quizzes/number-questions/{id}/:
+    put:
+      operationId: quizzes_number_questions_update
+      description: ViewSet for NumberQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this number question.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NumberQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NumberQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NumberQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberQuestion'
+          description: ''
+    delete:
+      operationId: quizzes_number_questions_destroy
+      description: ViewSet for NumberQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this number question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+    get:
+      operationId: quizzes_number_questions_retrieve
+      description: ViewSet for NumberQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this number question.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberQuestionDetail'
+          description: ''
+    patch:
+      operationId: quizzes_number_questions_partial_update
+      description: ViewSet for NumberQuestion model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this number question.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberQuestion'
           description: ''
   /api/quizzes/options/:
+    post:
+      operationId: quizzes_options_create
+      description: ViewSet for Option model (MultipleChoiceQuestion).
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OptionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Option'
+          description: ''
     get:
       operationId: quizzes_options_list
-      description: ViewSet for Option model.
+      description: ViewSet for Option model (MultipleChoiceQuestion).
       parameters:
       - in: query
         name: is_correct
@@ -1873,70 +2814,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedOptionList'
           description: ''
-    post:
-      operationId: quizzes_options_create
-      description: ViewSet for Option model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OptionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/OptionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/OptionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Option'
-          description: ''
   /api/quizzes/options/{id}/:
-    patch:
-      operationId: quizzes_options_partial_update
-      description: ViewSet for Option model.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this option.
-        required: true
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedOptionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedOptionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedOptionRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Option'
-          description: ''
     put:
       operationId: quizzes_options_update
-      description: ViewSet for Option model.
+      description: ViewSet for Option model (MultipleChoiceQuestion).
       parameters:
       - in: path
         name: id
@@ -1968,9 +2849,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/Option'
           description: ''
+    delete:
+      operationId: quizzes_options_destroy
+      description: ViewSet for Option model (MultipleChoiceQuestion).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this option.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
     get:
       operationId: quizzes_options_retrieve
-      description: ViewSet for Option model.
+      description: ViewSet for Option model (MultipleChoiceQuestion).
       parameters:
       - in: path
         name: id
@@ -1990,9 +2889,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/OptionDetail'
           description: ''
-    delete:
-      operationId: quizzes_options_destroy
-      description: ViewSet for Option model.
+    patch:
+      operationId: quizzes_options_partial_update
+      description: ViewSet for Option model (MultipleChoiceQuestion).
       parameters:
       - in: path
         name: id
@@ -2002,14 +2901,1658 @@ paths:
         required: true
       tags:
       - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOptionRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Option'
+          description: ''
+  /api/quizzes/order-options/:
+    post:
+      operationId: quizzes_order_options_create
+      description: ViewSet for OrderOption model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderOptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderOptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderOptionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderOption'
+          description: ''
+    get:
+      operationId: quizzes_order_options_list
+      description: ViewSet for OrderOption model.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: question
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderOptionList'
+          description: ''
+  /api/quizzes/order-options/{id}/:
+    put:
+      operationId: quizzes_order_options_update
+      description: ViewSet for OrderOption model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order option.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderOptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderOptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderOptionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderOption'
+          description: ''
+    delete:
+      operationId: quizzes_order_options_destroy
+      description: ViewSet for OrderOption model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order option.
+        required: true
+      tags:
+      - quizzes
       security:
       - cookieAuth: []
       - tokenAuth: []
       responses:
         '204':
           description: No response body
+    get:
+      operationId: quizzes_order_options_retrieve
+      description: ViewSet for OrderOption model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order option.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderOptionDetail'
+          description: ''
+    patch:
+      operationId: quizzes_order_options_partial_update
+      description: ViewSet for OrderOption model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this order option.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderOptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderOptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOrderOptionRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderOption'
+          description: ''
+  /api/quizzes/connect-options/:
+    post:
+      operationId: quizzes_connect_options_create
+      description: ViewSet for ConnectOption model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectOption'
+          description: ''
+    get:
+      operationId: quizzes_connect_options_list
+      description: ViewSet for ConnectOption model.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: question
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConnectOptionList'
+          description: ''
+  /api/quizzes/connect-options/{id}/:
+    put:
+      operationId: quizzes_connect_options_update
+      description: ViewSet for ConnectOption model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect option.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectOption'
+          description: ''
+    delete:
+      operationId: quizzes_connect_options_destroy
+      description: ViewSet for ConnectOption model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect option.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+    get:
+      operationId: quizzes_connect_options_retrieve
+      description: ViewSet for ConnectOption model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect option.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectOptionDetail'
+          description: ''
+    patch:
+      operationId: quizzes_connect_options_partial_update
+      description: ViewSet for ConnectOption model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect option.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConnectOptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConnectOptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConnectOptionRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectOption'
+          description: ''
+  /api/quizzes/connect-option-connections/:
+    post:
+      operationId: quizzes_connect_option_connections_create
+      description: ViewSet for ConnectOptionConnection model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectOptionConnection'
+          description: ''
+    get:
+      operationId: quizzes_connect_option_connections_list
+      description: ViewSet for ConnectOptionConnection model.
+      parameters:
+      - in: query
+        name: from_option
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: question
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: to_option
+        schema:
+          type: integer
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConnectOptionConnectionList'
+          description: ''
+  /api/quizzes/connect-option-connections/{id}/:
+    put:
+      operationId: quizzes_connect_option_connections_update
+      description: ViewSet for ConnectOptionConnection model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect option connection.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectOptionConnection'
+          description: ''
+    delete:
+      operationId: quizzes_connect_option_connections_destroy
+      description: ViewSet for ConnectOptionConnection model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect option connection.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+    get:
+      operationId: quizzes_connect_option_connections_retrieve
+      description: ViewSet for ConnectOptionConnection model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect option connection.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectOptionConnection'
+          description: ''
+    patch:
+      operationId: quizzes_connect_option_connections_partial_update
+      description: ViewSet for ConnectOptionConnection model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this connect option connection.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectOptionConnection'
+          description: ''
+  /api/students/student-groups/:
+    post:
+      operationId: students_student_groups_create
+      description: ViewSet for StudentGroup model.
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentGroupRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentGroupRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentGroupRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGroup'
+          description: ''
+    get:
+      operationId: students_student_groups_list
+      description: ViewSet for StudentGroup model.
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+      - in: query
+        name: modules
+        schema:
+          type: array
+          items:
+            type: integer
+        explode: true
+        style: form
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: year
+        schema:
+          type: integer
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentGroupList'
+          description: ''
+  /api/students/student-groups/{id}/:
+    put:
+      operationId: students_student_groups_update
+      description: ViewSet for StudentGroup model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student group.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentGroupRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentGroupRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentGroupRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGroup'
+          description: ''
+    delete:
+      operationId: students_student_groups_destroy
+      description: ViewSet for StudentGroup model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student group.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+    get:
+      operationId: students_student_groups_retrieve
+      description: ViewSet for StudentGroup model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student group.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGroupDetail'
+          description: ''
+    patch:
+      operationId: students_student_groups_partial_update
+      description: ViewSet for StudentGroup model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student group.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentGroupRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentGroupRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentGroupRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGroup'
+          description: ''
+  /api/students/student-groups/{id}/students/:
+    get:
+      operationId: students_student_groups_students_retrieve
+      description: Get all students for this group.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student group.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGroup'
+          description: ''
+  /api/students/students/:
+    post:
+      operationId: students_students_create
+      description: ViewSet for Student model.
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+    get:
+      operationId: students_students_list
+      description: ViewSet for Student model.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: student_groups
+        schema:
+          type: array
+          items:
+            type: integer
+        explode: true
+        style: form
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentList'
+          description: ''
+  /api/students/students/{id}/:
+    put:
+      operationId: students_students_update
+      description: ViewSet for Student model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+    delete:
+      operationId: students_students_destroy
+      description: ViewSet for Student model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+    get:
+      operationId: students_students_retrieve
+      description: ViewSet for Student model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentDetail'
+          description: ''
+    patch:
+      operationId: students_students_partial_update
+      description: ViewSet for Student model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+  /api/students/students/{id}/group-progress/{group_id}/:
+    get:
+      operationId: students_students_group_progress_retrieve
+      description: Get topic progress for a student in a specific student group.
+      parameters:
+      - in: path
+        name: group_id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+  /api/students/students/{id}/question_answers/:
+    get:
+      operationId: students_students_question_answers_retrieve
+      description: Get all question answers for this student.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
+  /api/students/student-question-answers/:
+    post:
+      operationId: students_student_question_answers_create
+      description: ViewSet for StudentQuestionAnswer model.
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentQuestionAnswer'
+          description: ''
+    get:
+      operationId: students_student_question_answers_list
+      description: ViewSet for StudentQuestionAnswer model.
+      parameters:
+      - in: query
+        name: answer
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: organization
+        schema:
+          type: integer
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: question_content_type
+        schema:
+          type: integer
+      - in: query
+        name: question_id
+        schema:
+          type: integer
+      - in: query
+        name: quiz
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: student
+        schema:
+          type: integer
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentQuestionAnswerList'
+          description: ''
+  /api/students/student-question-answers/{id}/:
+    put:
+      operationId: students_student_question_answers_update
+      description: ViewSet for StudentQuestionAnswer model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student question answer.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentQuestionAnswer'
+          description: ''
+    delete:
+      operationId: students_student_question_answers_destroy
+      description: ViewSet for StudentQuestionAnswer model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student question answer.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+    get:
+      operationId: students_student_question_answers_retrieve
+      description: ViewSet for StudentQuestionAnswer model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student question answer.
+        required: true
+      tags:
+      - students
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentQuestionAnswer'
+          description: ''
+    patch:
+      operationId: students_student_question_answers_partial_update
+      description: ViewSet for StudentQuestionAnswer model.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this student question answer.
+        required: true
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentQuestionAnswer'
+          description: ''
 components:
   schemas:
+    ConnectOption:
+      type: object
+      description: Serializer for ConnectOption model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        image:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        position_x:
+          type: number
+          format: double
+          description: X position (0.0 to 1.0)
+        position_y:
+          type: number
+          format: double
+          description: Y position (0.0 to 1.0)
+        width:
+          type: number
+          format: double
+          description: Width in pixels
+        height:
+          type: number
+          format: double
+          description: Height in pixels
+        organization:
+          type: integer
+        question:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - organization
+      - position_x
+      - position_y
+      - question
+      - text
+      - updated_at
+    ConnectOptionConnection:
+      type: object
+      description: Serializer for ConnectOptionConnection model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        question:
+          type: integer
+        from_option:
+          type: integer
+        to_option:
+          type: integer
+        from_option_text:
+          type: string
+          readOnly: true
+        to_option_text:
+          type: string
+          readOnly: true
+        organization:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - from_option
+      - from_option_text
+      - id
+      - organization
+      - question
+      - to_option
+      - to_option_text
+      - updated_at
+    ConnectOptionConnectionRequest:
+      type: object
+      description: Serializer for ConnectOptionConnection model.
+      properties:
+        question:
+          type: integer
+        from_option:
+          type: integer
+        to_option:
+          type: integer
+        organization:
+          type: integer
+      required:
+      - from_option
+      - organization
+      - question
+      - to_option
+    ConnectOptionDetail:
+      type: object
+      description: Detailed serializer for ConnectOption with question details.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        image:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        position_x:
+          type: number
+          format: double
+          description: X position (0.0 to 1.0)
+        position_y:
+          type: number
+          format: double
+          description: Y position (0.0 to 1.0)
+        width:
+          type: number
+          format: double
+          description: Width in pixels
+        height:
+          type: number
+          format: double
+          description: Height in pixels
+        organization:
+          type: integer
+        question:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        question_text:
+          type: string
+          readOnly: true
+        topic_name:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+      required:
+      - course_name
+      - created_at
+      - id
+      - organization
+      - position_x
+      - position_y
+      - question
+      - question_text
+      - text
+      - topic_name
+      - updated_at
+    ConnectOptionRequest:
+      type: object
+      description: Serializer for ConnectOption model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        image:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        position_x:
+          type: number
+          format: double
+          description: X position (0.0 to 1.0)
+        position_y:
+          type: number
+          format: double
+          description: Y position (0.0 to 1.0)
+        width:
+          type: number
+          format: double
+          description: Width in pixels
+        height:
+          type: number
+          format: double
+          description: Height in pixels
+        organization:
+          type: integer
+        question:
+          type: integer
+      required:
+      - organization
+      - position_x
+      - position_y
+      - question
+      - text
+    ConnectQuestion:
+      type: object
+      description: Serializer for ConnectQuestion model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        question_type:
+          allOf:
+          - $ref: '#/components/schemas/QuestionTypeEnum'
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+        quiz_name:
+          type: string
+          readOnly: true
+        topic_name:
+          type: string
+          readOnly: true
+        lesson_name:
+          type: string
+          readOnly: true
+        module_name:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+        learning_objectives_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        connect_options_count:
+          type: string
+          readOnly: true
+        connections_count:
+          type: string
+          readOnly: true
+      required:
+      - connect_options_count
+      - connections_count
+      - course_name
+      - created_at
+      - id
+      - learning_objectives_count
+      - lesson_name
+      - module_name
+      - organization
+      - question_type
+      - quiz_name
+      - text
+      - topic
+      - topic_name
+      - updated_at
+    ConnectQuestionDetail:
+      type: object
+      description: Detailed serializer for ConnectQuestion with connect options and
+        connections.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        question_type:
+          allOf:
+          - $ref: '#/components/schemas/QuestionTypeEnum'
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+        quiz_name:
+          type: string
+          readOnly: true
+        topic_name:
+          type: string
+          readOnly: true
+        lesson_name:
+          type: string
+          readOnly: true
+        module_name:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+        learning_objectives_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        connect_options_count:
+          type: string
+          readOnly: true
+        connections_count:
+          type: string
+          readOnly: true
+        connect_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectOption'
+          readOnly: true
+        correct_connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectOptionConnection'
+          readOnly: true
+      required:
+      - connect_options
+      - connect_options_count
+      - connections_count
+      - correct_connections
+      - course_name
+      - created_at
+      - id
+      - learning_objectives_count
+      - lesson_name
+      - module_name
+      - organization
+      - question_type
+      - quiz_name
+      - text
+      - topic
+      - topic_name
+      - updated_at
+    ConnectQuestionRequest:
+      type: object
+      description: Serializer for ConnectQuestion model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+      required:
+      - organization
+      - text
+      - topic
     Course:
       type: object
       description: Serializer for Course model.
@@ -2362,9 +4905,456 @@ components:
       - course
       - name
       - organization
+    MultipleChoiceQuestion:
+      type: object
+      description: Serializer for MultipleChoiceQuestion model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        question_type:
+          allOf:
+          - $ref: '#/components/schemas/QuestionTypeEnum'
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+        quiz_name:
+          type: string
+          readOnly: true
+        topic_name:
+          type: string
+          readOnly: true
+        lesson_name:
+          type: string
+          readOnly: true
+        module_name:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+        learning_objectives_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        options_count:
+          type: string
+          readOnly: true
+      required:
+      - course_name
+      - created_at
+      - id
+      - learning_objectives_count
+      - lesson_name
+      - module_name
+      - options_count
+      - organization
+      - question_type
+      - quiz_name
+      - text
+      - topic
+      - topic_name
+      - updated_at
+    MultipleChoiceQuestionDetail:
+      type: object
+      description: Detailed serializer for MultipleChoiceQuestion with options.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        question_type:
+          allOf:
+          - $ref: '#/components/schemas/QuestionTypeEnum'
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+        quiz_name:
+          type: string
+          readOnly: true
+        topic_name:
+          type: string
+          readOnly: true
+        lesson_name:
+          type: string
+          readOnly: true
+        module_name:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+        learning_objectives_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        options_count:
+          type: string
+          readOnly: true
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/Option'
+          readOnly: true
+      required:
+      - course_name
+      - created_at
+      - id
+      - learning_objectives_count
+      - lesson_name
+      - module_name
+      - options
+      - options_count
+      - organization
+      - question_type
+      - quiz_name
+      - text
+      - topic
+      - topic_name
+      - updated_at
+    MultipleChoiceQuestionRequest:
+      type: object
+      description: Serializer for MultipleChoiceQuestion model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+      required:
+      - organization
+      - text
+      - topic
+    NumberQuestion:
+      type: object
+      description: Serializer for NumberQuestion model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        question_type:
+          allOf:
+          - $ref: '#/components/schemas/QuestionTypeEnum'
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+        quiz_name:
+          type: string
+          readOnly: true
+        topic_name:
+          type: string
+          readOnly: true
+        lesson_name:
+          type: string
+          readOnly: true
+        module_name:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+        learning_objectives_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        correct_answer:
+          type: number
+          format: double
+          description: The correct numeric answer
+        tolerance:
+          type: number
+          format: double
+          description: Tolerance for the answer (e.g., 0.1 means answer is correct
+            if within ±0.1 of correct_answer)
+      required:
+      - correct_answer
+      - course_name
+      - created_at
+      - id
+      - learning_objectives_count
+      - lesson_name
+      - module_name
+      - organization
+      - question_type
+      - quiz_name
+      - text
+      - topic
+      - topic_name
+      - updated_at
+    NumberQuestionDetail:
+      type: object
+      description: Detailed serializer for NumberQuestion (same as base since it has
+        no nested objects).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        question_type:
+          allOf:
+          - $ref: '#/components/schemas/QuestionTypeEnum'
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+        quiz_name:
+          type: string
+          readOnly: true
+        topic_name:
+          type: string
+          readOnly: true
+        lesson_name:
+          type: string
+          readOnly: true
+        module_name:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+        learning_objectives_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        correct_answer:
+          type: number
+          format: double
+          description: The correct numeric answer
+        tolerance:
+          type: number
+          format: double
+          description: Tolerance for the answer (e.g., 0.1 means answer is correct
+            if within ±0.1 of correct_answer)
+      required:
+      - correct_answer
+      - course_name
+      - created_at
+      - id
+      - learning_objectives_count
+      - lesson_name
+      - module_name
+      - organization
+      - question_type
+      - quiz_name
+      - text
+      - topic
+      - topic_name
+      - updated_at
+    NumberQuestionRequest:
+      type: object
+      description: Serializer for NumberQuestion model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+        correct_answer:
+          type: number
+          format: double
+          description: The correct numeric answer
+        tolerance:
+          type: number
+          format: double
+          description: Tolerance for the answer (e.g., 0.1 means answer is correct
+            if within ±0.1 of correct_answer)
+      required:
+      - correct_answer
+      - organization
+      - text
+      - topic
     Option:
       type: object
-      description: Serializer for Option model.
+      description: Serializer for Option model (MultipleChoiceQuestion).
       properties:
         id:
           type: integer
@@ -2373,6 +5363,14 @@ components:
           type: string
         is_correct:
           type: boolean
+        image:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
         organization:
           type: integer
         question:
@@ -2403,6 +5401,14 @@ components:
           type: string
         is_correct:
           type: boolean
+        image:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
         organization:
           type: integer
         question:
@@ -2436,13 +5442,21 @@ components:
       - updated_at
     OptionRequest:
       type: object
-      description: Serializer for Option model.
+      description: Serializer for Option model (MultipleChoiceQuestion).
       properties:
         text:
           type: string
           minLength: 1
         is_correct:
           type: boolean
+        image:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
         organization:
           type: integer
         question:
@@ -2451,6 +5465,349 @@ components:
       - organization
       - question
       - text
+    OrderOption:
+      type: object
+      description: Serializer for OrderOption model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        image:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        correct_order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: The correct position in the order (1-based)
+        organization:
+          type: integer
+        question:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - correct_order
+      - created_at
+      - id
+      - organization
+      - question
+      - text
+      - updated_at
+    OrderOptionDetail:
+      type: object
+      description: Detailed serializer for OrderOption with question details.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        image:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        correct_order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: The correct position in the order (1-based)
+        organization:
+          type: integer
+        question:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        question_text:
+          type: string
+          readOnly: true
+        topic_name:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+      required:
+      - correct_order
+      - course_name
+      - created_at
+      - id
+      - organization
+      - question
+      - question_text
+      - text
+      - topic_name
+      - updated_at
+    OrderOptionRequest:
+      type: object
+      description: Serializer for OrderOption model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        image:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        correct_order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: The correct position in the order (1-based)
+        organization:
+          type: integer
+        question:
+          type: integer
+      required:
+      - correct_order
+      - organization
+      - question
+      - text
+    OrderQuestion:
+      type: object
+      description: Serializer for OrderQuestion model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        question_type:
+          allOf:
+          - $ref: '#/components/schemas/QuestionTypeEnum'
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+        quiz_name:
+          type: string
+          readOnly: true
+        topic_name:
+          type: string
+          readOnly: true
+        lesson_name:
+          type: string
+          readOnly: true
+        module_name:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+        learning_objectives_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        order_options_count:
+          type: string
+          readOnly: true
+      required:
+      - course_name
+      - created_at
+      - id
+      - learning_objectives_count
+      - lesson_name
+      - module_name
+      - order_options_count
+      - organization
+      - question_type
+      - quiz_name
+      - text
+      - topic
+      - topic_name
+      - updated_at
+    OrderQuestionDetail:
+      type: object
+      description: Detailed serializer for OrderQuestion with order options.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        text:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        question_type:
+          allOf:
+          - $ref: '#/components/schemas/QuestionTypeEnum'
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          nullable: true
+        video:
+          type: string
+          format: uri
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+        quiz_name:
+          type: string
+          readOnly: true
+        topic_name:
+          type: string
+          readOnly: true
+        lesson_name:
+          type: string
+          readOnly: true
+        module_name:
+          type: string
+          readOnly: true
+        course_name:
+          type: string
+          readOnly: true
+        learning_objectives_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        order_options_count:
+          type: string
+          readOnly: true
+        order_options:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderOption'
+          readOnly: true
+      required:
+      - course_name
+      - created_at
+      - id
+      - learning_objectives_count
+      - lesson_name
+      - module_name
+      - order_options
+      - order_options_count
+      - organization
+      - question_type
+      - quiz_name
+      - text
+      - topic
+      - topic_name
+      - updated_at
+    OrderQuestionRequest:
+      type: object
+      description: Serializer for OrderQuestion model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+      required:
+      - organization
+      - text
+      - topic
     Organization:
       type: object
       description: Serializer for Organization model.
@@ -2499,6 +5856,75 @@ components:
       required:
       - name
       - slug
+    PaginatedConnectOptionConnectionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectOptionConnection'
+    PaginatedConnectOptionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectOption'
+    PaginatedConnectQuestionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectQuestion'
     PaginatedCourseList:
       type: object
       required:
@@ -2591,6 +6017,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Module'
+    PaginatedMultipleChoiceQuestionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MultipleChoiceQuestion'
+    PaginatedNumberQuestionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NumberQuestion'
     PaginatedOptionList:
       type: object
       required:
@@ -2614,6 +6086,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Option'
+    PaginatedOrderOptionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderOption'
+    PaginatedOrderQuestionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderQuestion'
     PaginatedOrganizationList:
       type: object
       required:
@@ -2637,29 +6155,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Organization'
-    PaginatedQuestionList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Question'
     PaginatedQuizList:
       type: object
       required:
@@ -2683,6 +6178,75 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Quiz'
+    PaginatedStudentGroupList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentGroup'
+    PaginatedStudentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+    PaginatedStudentQuestionAnswerList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentQuestionAnswer'
     PaginatedTopicList:
       type: object
       required:
@@ -2729,6 +6293,88 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/User'
+    PatchedConnectOptionConnectionRequest:
+      type: object
+      description: Serializer for ConnectOptionConnection model.
+      properties:
+        question:
+          type: integer
+        from_option:
+          type: integer
+        to_option:
+          type: integer
+        organization:
+          type: integer
+    PatchedConnectOptionRequest:
+      type: object
+      description: Serializer for ConnectOption model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        image:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        position_x:
+          type: number
+          format: double
+          description: X position (0.0 to 1.0)
+        position_y:
+          type: number
+          format: double
+          description: Y position (0.0 to 1.0)
+        width:
+          type: number
+          format: double
+          description: Width in pixels
+        height:
+          type: number
+          format: double
+          description: Height in pixels
+        organization:
+          type: integer
+        question:
+          type: integer
+    PatchedConnectQuestionRequest:
+      type: object
+      description: Serializer for ConnectQuestion model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
     PatchedCourseRequest:
       type: object
       description: Serializer for Course model.
@@ -2785,19 +6431,166 @@ components:
           type: integer
         course:
           type: integer
+    PatchedMultipleChoiceQuestionRequest:
+      type: object
+      description: Serializer for MultipleChoiceQuestion model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+    PatchedNumberQuestionRequest:
+      type: object
+      description: Serializer for NumberQuestion model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
+        correct_answer:
+          type: number
+          format: double
+          description: The correct numeric answer
+        tolerance:
+          type: number
+          format: double
+          description: Tolerance for the answer (e.g., 0.1 means answer is correct
+            if within ±0.1 of correct_answer)
     PatchedOptionRequest:
       type: object
-      description: Serializer for Option model.
+      description: Serializer for Option model (MultipleChoiceQuestion).
       properties:
         text:
           type: string
           minLength: 1
         is_correct:
           type: boolean
+        image:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
         organization:
           type: integer
         question:
           type: integer
+    PatchedOrderOptionRequest:
+      type: object
+      description: Serializer for OrderOption model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        image:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        correct_order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: The correct position in the order (1-based)
+        organization:
+          type: integer
+        question:
+          type: integer
+    PatchedOrderQuestionRequest:
+      type: object
+      description: Serializer for OrderQuestion model.
+      properties:
+        text:
+          type: string
+          minLength: 1
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        image:
+          type: string
+          format: binary
+          nullable: true
+        video:
+          type: string
+          format: binary
+          nullable: true
+        hide_text:
+          type: boolean
+          description: If True, hide the text and use it as alt-text for the image
+            (for accessibility)
+        organization:
+          type: integer
+        quiz:
+          type: integer
+          nullable: true
+        topic:
+          type: integer
+        learning_objectives:
+          type: array
+          items:
+            type: integer
     PatchedOrganizationRequest:
       type: object
       description: Serializer for Organization model.
@@ -2813,24 +6606,6 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         description:
           type: string
-    PatchedQuestionRequest:
-      type: object
-      description: Serializer for Question model.
-      properties:
-        text:
-          type: string
-          minLength: 1
-        organization:
-          type: integer
-        quiz:
-          type: integer
-          nullable: true
-        topic:
-          type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
     PatchedQuizRequest:
       type: object
       description: Serializer for Quiz model.
@@ -2854,6 +6629,64 @@ components:
           items:
             type: integer
         topics:
+          type: array
+          items:
+            type: integer
+    PatchedStudentGroupRequest:
+      type: object
+      description: Serializer for StudentGroup model.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        organization:
+          type: integer
+        course:
+          type: integer
+        modules:
+          type: array
+          items:
+            type: integer
+        year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+    PatchedStudentQuestionAnswerRequest:
+      type: object
+      description: Serializer for StudentQuestionAnswer model.
+      properties:
+        student:
+          type: integer
+        quiz:
+          type: integer
+        answer:
+          type: integer
+          nullable: true
+        answer_data:
+          nullable: true
+        organization:
+          type: integer
+    PatchedStudentRequest:
+      type: object
+      description: Serializer for Student model.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        organization:
+          type: integer
+        student_groups:
           type: array
           items:
             type: integer
@@ -2905,160 +6738,18 @@ components:
         organization:
           type: integer
           nullable: true
-    Question:
-      type: object
-      description: Serializer for Question model.
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        text:
-          type: string
-        organization:
-          type: integer
-        quiz:
-          type: integer
-          nullable: true
-        topic:
-          type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
-        quiz_name:
-          type: string
-          readOnly: true
-        topic_name:
-          type: string
-          readOnly: true
-        lesson_name:
-          type: string
-          readOnly: true
-        module_name:
-          type: string
-          readOnly: true
-        course_name:
-          type: string
-          readOnly: true
-        options_count:
-          type: string
-          readOnly: true
-        learning_objectives_count:
-          type: string
-          readOnly: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - course_name
-      - created_at
-      - id
-      - learning_objectives_count
-      - lesson_name
-      - module_name
-      - options_count
-      - organization
-      - quiz_name
-      - text
-      - topic
-      - topic_name
-      - updated_at
-    QuestionDetail:
-      type: object
-      description: Detailed serializer for Question with options.
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        text:
-          type: string
-        organization:
-          type: integer
-        quiz:
-          type: integer
-          nullable: true
-        topic:
-          type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
-        quiz_name:
-          type: string
-          readOnly: true
-        topic_name:
-          type: string
-          readOnly: true
-        lesson_name:
-          type: string
-          readOnly: true
-        module_name:
-          type: string
-          readOnly: true
-        course_name:
-          type: string
-          readOnly: true
-        options_count:
-          type: string
-          readOnly: true
-        learning_objectives_count:
-          type: string
-          readOnly: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-        options:
-          type: array
-          items:
-            $ref: '#/components/schemas/Option'
-          readOnly: true
-      required:
-      - course_name
-      - created_at
-      - id
-      - learning_objectives_count
-      - lesson_name
-      - module_name
-      - options
-      - options_count
-      - organization
-      - quiz_name
-      - text
-      - topic
-      - topic_name
-      - updated_at
-    QuestionRequest:
-      type: object
-      description: Serializer for Question model.
-      properties:
-        text:
-          type: string
-          minLength: 1
-        organization:
-          type: integer
-        quiz:
-          type: integer
-          nullable: true
-        topic:
-          type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
-      required:
-      - organization
-      - text
-      - topic
+    QuestionTypeEnum:
+      enum:
+      - multiple_choice
+      - order
+      - connect
+      - number
+      type: string
+      description: |-
+        * `multiple_choice` - Multiple Choice
+        * `order` - Order
+        * `connect` - Connect
+        * `number` - Number
     Quiz:
       type: object
       description: Serializer for Quiz model.
@@ -3115,7 +6806,7 @@ components:
       - updated_at
     QuizDetail:
       type: object
-      description: Detailed serializer for Quiz with questions.
+      description: Detailed serializer for Quiz with all question types.
       properties:
         id:
           type: integer
@@ -3158,19 +6849,37 @@ components:
           type: string
           format: date-time
           readOnly: true
-        questions:
+        multiple_choice_questions:
           type: array
           items:
-            $ref: '#/components/schemas/Question'
+            $ref: '#/components/schemas/MultipleChoiceQuestion'
+          readOnly: true
+        order_questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderQuestion'
+          readOnly: true
+        connect_questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectQuestion'
+          readOnly: true
+        number_questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/NumberQuestion'
           readOnly: true
       required:
+      - connect_questions
       - course_name
       - created_at
       - id
       - module_name
+      - multiple_choice_questions
       - name
+      - number_questions
+      - order_questions
       - organization
-      - questions
       - questions_count
       - updated_at
     QuizRequest:
@@ -3201,6 +6910,366 @@ components:
             type: integer
       required:
       - name
+      - organization
+    Student:
+      type: object
+      description: Serializer for Student model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+          nullable: true
+        first_name:
+          type: string
+          maxLength: 255
+        last_name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        organization:
+          type: integer
+        student_groups:
+          type: array
+          items:
+            type: integer
+        student_groups_names:
+          type: string
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - first_name
+      - full_name
+      - id
+      - last_name
+      - organization
+      - student_groups_names
+      - updated_at
+      - user
+    StudentDetail:
+      type: object
+      description: Detailed serializer for Student with question answers.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+          nullable: true
+        first_name:
+          type: string
+          maxLength: 255
+        last_name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        organization:
+          type: integer
+        student_groups:
+          type: array
+          items:
+            type: integer
+        student_groups_names:
+          type: string
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        question_answers_count:
+          type: string
+          readOnly: true
+        student_groups_with_progress:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - first_name
+      - full_name
+      - id
+      - last_name
+      - organization
+      - question_answers_count
+      - student_groups_names
+      - student_groups_with_progress
+      - updated_at
+      - user
+    StudentGroup:
+      type: object
+      description: Serializer for StudentGroup model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        organization:
+          type: integer
+        course:
+          type: integer
+        modules:
+          type: array
+          items:
+            type: integer
+        year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        course_name:
+          type: string
+          readOnly: true
+        modules_names:
+          type: string
+          readOnly: true
+        course_name_display:
+          type: string
+          readOnly: true
+        students_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course
+      - course_name
+      - course_name_display
+      - created_at
+      - id
+      - modules_names
+      - name
+      - organization
+      - students_count
+      - updated_at
+      - year
+    StudentGroupDetail:
+      type: object
+      description: Detailed serializer for StudentGroup with students.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        organization:
+          type: integer
+        course:
+          type: integer
+        modules:
+          type: array
+          items:
+            type: integer
+        year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        course_name:
+          type: string
+          readOnly: true
+        modules_names:
+          type: string
+          readOnly: true
+        course_name_display:
+          type: string
+          readOnly: true
+        students_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        students:
+          type: string
+          readOnly: true
+      required:
+      - course
+      - course_name
+      - course_name_display
+      - created_at
+      - id
+      - modules_names
+      - name
+      - organization
+      - students
+      - students_count
+      - updated_at
+      - year
+    StudentGroupRequest:
+      type: object
+      description: Serializer for StudentGroup model.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        organization:
+          type: integer
+        course:
+          type: integer
+        modules:
+          type: array
+          items:
+            type: integer
+        year:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+      required:
+      - course
+      - name
+      - organization
+      - year
+    StudentQuestionAnswer:
+      type: object
+      description: Serializer for StudentQuestionAnswer model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student:
+          type: integer
+        question:
+          type: string
+          readOnly: true
+        quiz:
+          type: integer
+        answer:
+          type: integer
+          nullable: true
+        answer_data:
+          nullable: true
+        student_name:
+          type: string
+          readOnly: true
+        question_text:
+          type: string
+          readOnly: true
+        question_type:
+          type: string
+          readOnly: true
+        quiz_name:
+          type: string
+          readOnly: true
+        answer_text:
+          type: string
+          readOnly: true
+        answer_data_display:
+          type: string
+          readOnly: true
+        correct:
+          type: string
+          readOnly: true
+        organization:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - answer_data_display
+      - answer_text
+      - correct
+      - created_at
+      - id
+      - organization
+      - question
+      - question_text
+      - question_type
+      - quiz
+      - quiz_name
+      - student
+      - student_name
+      - updated_at
+    StudentQuestionAnswerRequest:
+      type: object
+      description: Serializer for StudentQuestionAnswer model.
+      properties:
+        student:
+          type: integer
+        quiz:
+          type: integer
+        answer:
+          type: integer
+          nullable: true
+        answer_data:
+          nullable: true
+        organization:
+          type: integer
+      required:
+      - organization
+      - quiz
+      - student
+    StudentRequest:
+      type: object
+      description: Serializer for Student model.
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        organization:
+          type: integer
+        student_groups:
+          type: array
+          items:
+            type: integer
+      required:
+      - first_name
+      - last_name
       - organization
     Topic:
       type: object
