@@ -106,9 +106,11 @@ export default function QuestionDetail() {
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Question Text</p>
-                <p className="mt-1 whitespace-pre-wrap">{question.text}</p>
+                {!question.hide_text && (
+                  <p className="mt-1 whitespace-pre-wrap">{question.text}</p>
+                )}
                 {question.image && (
-                  <img src={question.image} alt="Question" className="mt-2 max-w-full h-auto rounded" />
+                  <img src={question.image} alt={question.hide_text ? question.text : "Question"} className="mt-2 max-w-full h-auto rounded" />
                 )}
                 {question.video && (
                   <video src={question.video} controls className="mt-2 max-w-full rounded" />

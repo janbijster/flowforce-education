@@ -8,6 +8,7 @@ export interface BaseQuestion {
   question_type: 'multiple_choice' | 'order' | 'connect';
   image: string | null;
   video: string | null;
+  hide_text: boolean;
   organization: number;
   quiz: number | null;
   topic: number;
@@ -64,6 +65,7 @@ export interface Option {
   text: string;
   is_correct: boolean;
   image: string | null;
+  hide_text: boolean;
   organization: number;
   question: number;
   created_at: string;
@@ -74,6 +76,7 @@ export interface OrderOption {
   id: number;
   text: string;
   image: string | null;
+  hide_text: boolean;
   correct_order: number;
   organization: number;
   question: number;
@@ -85,6 +88,7 @@ export interface ConnectOption {
   id: number;
   text: string;
   image: string | null;
+  hide_text: boolean;
   position_x: number;
   position_y: number;
   width: number;

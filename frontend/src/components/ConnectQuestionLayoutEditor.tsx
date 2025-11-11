@@ -158,7 +158,7 @@ export function ConnectQuestionLayoutEditor({
     );
   };
 
-  const handleUpdateOption = (field: 'text' | 'position_x' | 'position_y' | 'width' | 'height', value: string | number) => {
+  const handleUpdateOption = (field: 'text' | 'position_x' | 'position_y' | 'width' | 'height' | 'hide_text', value: string | number | boolean) => {
     if (!selectedOptionId) return;
     onOptionsChange(
       options.map(opt =>
@@ -217,6 +217,19 @@ export function ConnectQuestionLayoutEditor({
                     value={selectedOption.text}
                     onChange={(e) => handleUpdateOption('text', e.target.value)}
                   />
+                  {selectedOption.image && (
+                    <div className="mt-2">
+                      <label className="flex items-center gap-2 text-xs">
+                        <input
+                          type="checkbox"
+                          checked={selectedOption.hide_text || false}
+                          onChange={(e) => handleUpdateOption('hide_text', e.target.checked)}
+                          className="rounded"
+                        />
+                        <span>Hide text (use as alt-text)</span>
+                      </label>
+                    </div>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -447,11 +460,13 @@ export function ConnectQuestionLayoutEditor({
                       onClick={(e) => handleOptionClick(option.id, e)}
                       onMouseDown={(e) => handleDragStart(option.id, e)}
                     >
-                      <div className="text-sm font-medium select-none">{option.text || 'Untitled'}</div>
+                      {!option.hide_text && (
+                        <div className="text-sm font-medium select-none">{option.text || 'Untitled'}</div>
+                      )}
                       {option.image && (
                         <img
                           src={option.image.startsWith('http') ? option.image : `http://127.0.0.1:8000${option.image}`}
-                          alt={option.text}
+                          alt={option.hide_text ? option.text : (option.text || 'Untitled')}
                           className="mt-1 w-full h-auto rounded object-contain"
                           style={{ maxHeight: `${(option.height || 60) - 60}px` }}
                         />

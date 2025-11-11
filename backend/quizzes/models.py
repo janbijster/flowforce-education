@@ -69,6 +69,10 @@ class BaseQuestion(OrganizationModel):
     )
     image = models.ImageField(upload_to='questions/', blank=True, null=True)
     video = models.FileField(upload_to='questions/videos/', blank=True, null=True)
+    hide_text = models.BooleanField(
+        default=False,
+        help_text="If True, hide the text and use it as alt-text for the image (for accessibility)"
+    )
     quiz = models.ForeignKey(
         Quiz,
         on_delete=models.CASCADE,
@@ -113,6 +117,10 @@ class Option(OrganizationModel):
     text = models.TextField()
     is_correct = models.BooleanField(default=False)
     image = models.ImageField(upload_to='options/', blank=True, null=True)
+    hide_text = models.BooleanField(
+        default=False,
+        help_text="If True, hide the text and use it as alt-text for the image (for accessibility)"
+    )
     question = models.ForeignKey(
         MultipleChoiceQuestion,
         on_delete=models.CASCADE,
@@ -143,6 +151,10 @@ class OrderOption(OrganizationModel):
     
     text = models.TextField()
     image = models.ImageField(upload_to='order_options/', blank=True, null=True)
+    hide_text = models.BooleanField(
+        default=False,
+        help_text="If True, hide the text and use it as alt-text for the image (for accessibility)"
+    )
     correct_order = models.PositiveIntegerField(
         help_text="The correct position in the order (1-based)"
     )
@@ -176,6 +188,10 @@ class ConnectOption(OrganizationModel):
     
     text = models.TextField()
     image = models.ImageField(upload_to='connect_options/', blank=True, null=True)
+    hide_text = models.BooleanField(
+        default=False,
+        help_text="If True, hide the text and use it as alt-text for the image (for accessibility)"
+    )
     position_x = models.FloatField(help_text="X position (0.0 to 1.0)")
     position_y = models.FloatField(help_text="Y position (0.0 to 1.0)")
     width = models.FloatField(default=100.0, help_text="Width in pixels")

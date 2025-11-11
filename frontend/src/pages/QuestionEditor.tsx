@@ -74,6 +74,7 @@ export default function QuestionEditor() {
   const [text, setText] = useState("");
   const [questionImage, setQuestionImage] = useState<string | null>(null);
   const [questionImageFile, setQuestionImageFile] = useState<File | null>(null);
+  const [questionHideText, setQuestionHideText] = useState(false);
   const [options, setOptions] = useState<EditableOption[]>([]);
   const [optionImageFiles, setOptionImageFiles] = useState<Map<number | string, File>>(new Map());
   const [orderOptions, setOrderOptions] = useState<EditableOrderOption[]>([]);
@@ -100,6 +101,7 @@ export default function QuestionEditor() {
     text: string;
     topic: number | null;
     image: string | null;
+    hide_text: boolean;
     options: EditableOption[];
     orderOptions?: EditableOrderOption[];
     connectOptions?: EditableConnectOption[];
@@ -108,6 +110,7 @@ export default function QuestionEditor() {
     text: "",
     topic: null,
     image: null,
+    hide_text: false,
     options: [],
     orderOptions: [],
     connectOptions: [],
@@ -129,6 +132,7 @@ export default function QuestionEditor() {
           // Initialize empty state for new question
           setText("");
           setQuestionType('multiple_choice');
+          setQuestionHideText(false);
           setOptions([]);
           setOrderOptions([]);
           setConnectOptions([]);
@@ -136,6 +140,8 @@ export default function QuestionEditor() {
           initialValues.current = {
             text: "",
             topic: null,
+            image: null,
+            hide_text: false,
             options: [],
           };
         } else {
@@ -153,6 +159,7 @@ export default function QuestionEditor() {
           setQuestionType(q.question_type);
           setText(q.text);
           setSelectedTopic(q.topic);
+          setQuestionHideText(q.hide_text || false);
           // Convert relative image URL to absolute if needed
           const imageUrl = q.image ? (q.image.startsWith('http') ? q.image : `http://127.0.0.1:8000${q.image}`) : null;
           setQuestionImage(imageUrl);
@@ -165,6 +172,7 @@ export default function QuestionEditor() {
             text: q.text,
             topic: q.topic,
             image: imageUrl,
+            hide_text: q.hide_text || false,
             options: opts.map(opt => ({ ...opt })),
           };
           } else if (q.question_type === 'order') {
@@ -176,6 +184,7 @@ export default function QuestionEditor() {
               text: q.text,
               topic: q.topic,
               image: imageUrl,
+              hide_text: q.hide_text || false,
               options: [],
               orderOptions: opts.map(opt => ({ ...opt })),
             };
@@ -192,6 +201,7 @@ export default function QuestionEditor() {
               text: q.text,
               topic: q.topic,
               image: imageUrl,
+              hide_text: q.hide_text || false,
               options: [],
               connectOptions: opts.map(opt => ({ ...opt })),
               connectConnections: conns.map(([from, to]) => [from, to] as [number, number]),
@@ -305,6 +315,7 @@ export default function QuestionEditor() {
     const textChanged = text.trim() !== initialValues.current.text.trim();
     const topicChanged = selectedTopic !== initialValues.current.topic;
     const imageChanged = questionImage !== initialValues.current.image || questionImageFile !== null;
+    const hideTextChanged = questionHideText !== initialValues.current.hide_text;
     
     let optionsChanged = false;
     if (questionType === 'multiple_choice') {
@@ -317,6 +328,7 @@ export default function QuestionEditor() {
               opt.text.trim() !== initOpt.text.trim() ||
               opt.is_correct !== initOpt.is_correct ||
               opt.image !== initOpt.image ||
+              opt.hide_text !== initOpt.hide_text ||
               optionImageFiles.has(opt.id)
             );
           }) ||
@@ -327,6 +339,7 @@ export default function QuestionEditor() {
               opt.text.trim() !== initOpt.text.trim() ||
               opt.is_correct !== initOpt.is_correct ||
               opt.image !== initOpt.image ||
+              opt.hide_text !== initOpt.hide_text ||
               optionImageFiles.has(opt.id)
             );
           });
@@ -347,6 +360,7 @@ export default function QuestionEditor() {
             opt.text.trim() !== initOpt.text.trim() ||
             opt.correct_order !== initOpt.correct_order ||
             opt.image !== initOpt.image ||
+            opt.hide_text !== initOpt.hide_text ||
             orderOptionImageFiles.has(opt.id)
           );
         }) ||
@@ -357,6 +371,7 @@ export default function QuestionEditor() {
             opt.text.trim() !== initOpt.text.trim() ||
             opt.correct_order !== initOpt.correct_order ||
             opt.image !== initOpt.image ||
+            opt.hide_text !== initOpt.hide_text ||
             orderOptionImageFiles.has(opt.id)
           );
         });
@@ -375,7 +390,8 @@ export default function QuestionEditor() {
           return (
             opt.text.trim() !== initOpt.text.trim() ||
             opt.position_x !== initOpt.position_x ||
-            opt.position_y !== initOpt.position_y
+            opt.position_y !== initOpt.position_y ||
+            opt.hide_text !== initOpt.hide_text
           );
         }) ||
         initialConnectOptions.some((initOpt, idx) => {
@@ -384,7 +400,8 @@ export default function QuestionEditor() {
           return (
             opt.text.trim() !== initOpt.text.trim() ||
             opt.position_x !== initOpt.position_x ||
-            opt.position_y !== initOpt.position_y
+            opt.position_y !== initOpt.position_y ||
+            opt.hide_text !== initOpt.hide_text
           );
         });
       
@@ -403,8 +420,8 @@ export default function QuestionEditor() {
       optionsChanged = connectOptionsChanged || connectionsChanged;
     }
 
-    setHasUnsavedChanges(textChanged || topicChanged || imageChanged || optionsChanged);
-  }, [text, selectedTopic, questionImage, questionImageFile, options, orderOptions, connectOptions, connectConnections, questionType, question]);
+    setHasUnsavedChanges(textChanged || topicChanged || imageChanged || hideTextChanged || optionsChanged);
+  }, [text, selectedTopic, questionImage, questionImageFile, questionHideText, options, orderOptions, connectOptions, connectConnections, questionType, question, optionImageFiles, orderOptionImageFiles]);
 
   // Warn before leaving with unsaved changes
   useEffect(() => {
@@ -460,6 +477,7 @@ export default function QuestionEditor() {
       id: uniqueId,
       text: "",
       is_correct: false,
+      hide_text: false,
       organization: user.organization.id,
       question: question?.id || 0,
       isNew: true,
@@ -471,7 +489,7 @@ export default function QuestionEditor() {
     setOptions(options.filter(opt => opt.id !== optionId));
   };
 
-  const handleUpdateOption = (optionId: number | string, field: 'text' | 'is_correct' | 'image', value: string | boolean) => {
+  const handleUpdateOption = (optionId: number | string, field: 'text' | 'is_correct' | 'image' | 'hide_text', value: string | boolean) => {
     setOptions(options.map(opt =>
       opt.id === optionId ? { ...opt, [field]: value } : opt
     ));
@@ -488,6 +506,7 @@ export default function QuestionEditor() {
       id: uniqueId,
       text: "",
       correct_order: currentMaxOrder + 1,
+      hide_text: false,
       organization: user.organization.id,
       question: question?.id || 0,
       isNew: true,
@@ -506,7 +525,7 @@ export default function QuestionEditor() {
     setOrderOptions(reordered);
   };
 
-  const handleUpdateOrderOption = (optionId: number | string, field: 'text' | 'correct_order' | 'image', value: string | number) => {
+  const handleUpdateOrderOption = (optionId: number | string, field: 'text' | 'correct_order' | 'image' | 'hide_text', value: string | number | boolean) => {
     setOrderOptions(orderOptions.map(opt =>
       opt.id === optionId ? { ...opt, [field]: value } : opt
     ));
@@ -542,6 +561,7 @@ export default function QuestionEditor() {
       position_y: 0.5,
       width: 100,
       height: 60,
+      hide_text: false,
       organization: user.organization.id,
       question: question?.id || 0,
       isNew: true,
@@ -557,7 +577,7 @@ export default function QuestionEditor() {
     );
   };
 
-  const handleUpdateConnectOption = (optionId: number | string, field: 'text' | 'image' | 'width' | 'height', value: string | number) => {
+  const handleUpdateConnectOption = (optionId: number | string, field: 'text' | 'image' | 'width' | 'height' | 'hide_text', value: string | number | boolean) => {
     setConnectOptions(connectOptions.map(opt =>
       opt.id === optionId ? { ...opt, [field]: value } : opt
     ));
@@ -627,13 +647,15 @@ export default function QuestionEditor() {
           organization: user.organization.id,
           topic: selectedTopic,
           learning_objectives: [],
+          hide_text: questionHideText,
         });
         questionId = created.id;
         
         // Update question image if provided
-        if (questionImageFile) {
+        if (questionImageFile || questionHideText !== false) {
           await updateQuestion(questionId, {
             imageFile: questionImageFile,
+            hide_text: questionHideText,
           }, questionType);
         }
         
@@ -644,6 +666,7 @@ export default function QuestionEditor() {
             await createOption({
               text: opt.text.trim(),
               is_correct: opt.is_correct,
+              hide_text: opt.hide_text || false,
               organization: user.organization.id,
               question: questionId,
               imageFile: imageFile || undefined,
@@ -655,6 +678,7 @@ export default function QuestionEditor() {
             await createOrderOption({
               text: opt.text.trim(),
               correct_order: opt.correct_order,
+              hide_text: opt.hide_text || false,
               organization: user.organization.id,
               question: questionId,
               imageFile: imageFile || undefined,
@@ -670,6 +694,7 @@ export default function QuestionEditor() {
               position_y: opt.position_y,
               width: opt.width || 100,
               height: opt.height || 60,
+              hide_text: opt.hide_text || false,
               organization: user.organization.id,
               question: questionId,
               imageFile: imageFile || undefined,
@@ -702,6 +727,7 @@ export default function QuestionEditor() {
         setQuestionType(createdQuestion.question_type);
         setText(createdQuestion.text);
         setSelectedTopic(createdQuestion.topic);
+        setQuestionHideText(createdQuestion.hide_text || false);
         const imageUrl = createdQuestion.image ? (createdQuestion.image.startsWith('http') ? createdQuestion.image : `http://127.0.0.1:8000${createdQuestion.image}`) : null;
         setQuestionImage(imageUrl);
         setQuestionImageFile(null);
@@ -715,6 +741,7 @@ export default function QuestionEditor() {
             text: createdQuestion.text,
             topic: createdQuestion.topic,
             image: imageUrl,
+            hide_text: createdQuestion.hide_text || false,
             options: opts.map(opt => ({ ...opt })),
           };
         } else if (createdQuestion.question_type === 'order') {
@@ -727,6 +754,7 @@ export default function QuestionEditor() {
             text: createdQuestion.text,
             topic: createdQuestion.topic,
             image: imageUrl,
+            hide_text: createdQuestion.hide_text || false,
             options: [],
             orderOptions: opts.map(opt => ({ ...opt })),
           };
@@ -744,6 +772,7 @@ export default function QuestionEditor() {
             text: createdQuestion.text,
             topic: createdQuestion.topic,
             image: imageUrl,
+            hide_text: createdQuestion.hide_text || false,
             options: [],
             connectOptions: opts.map(opt => ({ ...opt })),
             connectConnections: conns.map(([from, to]) => [from, to] as [number, number]),
@@ -763,6 +792,7 @@ export default function QuestionEditor() {
         await updateQuestion(question.id, { 
           text: text.trim(),
           topic: selectedTopic,
+          hide_text: questionHideText,
           imageFile: questionImageFile || undefined,
         }, question.question_type);
 
@@ -786,6 +816,7 @@ export default function QuestionEditor() {
               await createOption({
                 text: opt.text.trim(),
                 is_correct: opt.is_correct,
+                hide_text: opt.hide_text || false,
                 organization: user.organization.id,
                 question: question.id,
                 imageFile: imageFile || undefined,
@@ -798,11 +829,13 @@ export default function QuestionEditor() {
               const imageFile = optionImageFiles.get(opt.id);
               const changed = opt.text.trim() !== initOpt.text.trim() || 
                             opt.is_correct !== initOpt.is_correct ||
+                            opt.hide_text !== initOpt.hide_text ||
                             imageFile !== undefined;
               if (changed) {
                 await updateOption(opt.id, {
                   text: opt.text.trim(),
                   is_correct: opt.is_correct,
+                  hide_text: opt.hide_text || false,
                   imageFile: imageFile || undefined,
                 });
               }
@@ -828,6 +861,7 @@ export default function QuestionEditor() {
               await createOrderOption({
                 text: opt.text.trim(),
                 correct_order: opt.correct_order,
+                hide_text: opt.hide_text || false,
                 organization: user.organization.id,
                 question: question.id,
                 imageFile: imageFile || undefined,
@@ -840,11 +874,13 @@ export default function QuestionEditor() {
               const imageFile = orderOptionImageFiles.get(opt.id);
               const changed = opt.text.trim() !== initOpt.text.trim() || 
                             opt.correct_order !== initOpt.correct_order ||
+                            opt.hide_text !== initOpt.hide_text ||
                             imageFile !== undefined;
               if (changed) {
                 await updateOrderOption(opt.id, {
                   text: opt.text.trim(),
                   correct_order: opt.correct_order,
+                  hide_text: opt.hide_text || false,
                   imageFile: imageFile || undefined,
                 });
               }
@@ -885,6 +921,7 @@ export default function QuestionEditor() {
                 position_y: opt.position_y,
                 width: opt.width || 100,
                 height: opt.height || 60,
+                hide_text: opt.hide_text || false,
                 organization: user.organization.id,
                 question: question.id,
                 imageFile: imageFile || undefined,
@@ -901,6 +938,7 @@ export default function QuestionEditor() {
                             opt.position_y !== initOpt.position_y ||
                             opt.width !== initOpt.width ||
                             opt.height !== initOpt.height ||
+                            opt.hide_text !== initOpt.hide_text ||
                             imageFile !== undefined;
               if (changed) {
                 await updateConnectOption(opt.id, {
@@ -909,6 +947,7 @@ export default function QuestionEditor() {
                   position_y: opt.position_y,
                   width: opt.width || 100,
                   height: opt.height || 60,
+                  hide_text: opt.hide_text || false,
                   imageFile: imageFile || undefined,
                 });
               }
@@ -963,6 +1002,7 @@ export default function QuestionEditor() {
         setQuestionType(updatedQuestion.question_type);
         setText(updatedQuestion.text);
         setSelectedTopic(updatedQuestion.topic);
+        setQuestionHideText(updatedQuestion.hide_text || false);
         
         const imageUrl = updatedQuestion.image ? (updatedQuestion.image.startsWith('http') ? updatedQuestion.image : `http://127.0.0.1:8000${updatedQuestion.image}`) : null;
         setQuestionImage(imageUrl);
@@ -977,6 +1017,7 @@ export default function QuestionEditor() {
             text: updatedQuestion.text,
             topic: updatedQuestion.topic,
             image: imageUrl,
+            hide_text: updatedQuestion.hide_text || false,
             options: opts.map(opt => ({ ...opt })),
           };
         } else if (updatedQuestion.question_type === 'order') {
@@ -989,6 +1030,7 @@ export default function QuestionEditor() {
             text: updatedQuestion.text,
             topic: updatedQuestion.topic,
             image: imageUrl,
+            hide_text: updatedQuestion.hide_text || false,
             options: [],
             orderOptions: opts.map(opt => ({ ...opt })),
           };
@@ -1006,6 +1048,7 @@ export default function QuestionEditor() {
             text: updatedQuestion.text,
             topic: updatedQuestion.topic,
             image: imageUrl,
+            hide_text: updatedQuestion.hide_text || false,
             options: [],
             connectOptions: opts.map(opt => ({ ...opt })),
             connectConnections: conns.map(([from, to]) => [from, to] as [number, number]),
@@ -1052,6 +1095,7 @@ export default function QuestionEditor() {
       question_type: 'multiple_choice' as const,
       image: questionImage || question?.image || null,
       video: question?.video || null,
+      hide_text: questionHideText,
       organization: user?.organization.id || 0,
       quiz: question?.quiz || null,
       topic: selectedTopic || 0,
@@ -1070,6 +1114,7 @@ export default function QuestionEditor() {
         text: opt.text,
         is_correct: opt.is_correct,
         image: opt.image || null,
+        hide_text: opt.hide_text || false,
         organization: opt.organization,
         question: opt.question,
         created_at: typeof opt.id === 'number' ? ((question as MultipleChoiceQuestionDetail)?.options?.find(o => o.id === opt.id)?.created_at || '') : '',
@@ -1082,6 +1127,7 @@ export default function QuestionEditor() {
       question_type: 'order' as const,
       image: questionImage || question?.image || null,
       video: question?.video || null,
+      hide_text: questionHideText,
       organization: user?.organization.id || 0,
       quiz: question?.quiz || null,
       topic: selectedTopic || 0,
@@ -1116,6 +1162,7 @@ export default function QuestionEditor() {
             id: typeof opt.id === 'number' ? opt.id : (idMap.get(opt.id) || -9999),
             text: opt.text,
             image: opt.image || null,
+            hide_text: opt.hide_text || false,
             correct_order: opt.correct_order,
             organization: opt.organization,
             question: opt.question,
@@ -1130,6 +1177,7 @@ export default function QuestionEditor() {
       question_type: 'connect' as const,
       image: questionImage || question?.image || null,
       video: question?.video || null,
+      hide_text: questionHideText,
       organization: user?.organization.id || 0,
       quiz: question?.quiz || null,
       topic: selectedTopic || 0,
@@ -1148,6 +1196,7 @@ export default function QuestionEditor() {
         id: typeof opt.id === 'number' ? opt.id : 0,
         text: opt.text,
         image: opt.image || null,
+        hide_text: opt.hide_text || false,
         position_x: opt.position_x,
         position_y: opt.position_y,
         width: opt.width || 100,
@@ -1318,6 +1367,19 @@ export default function QuestionEditor() {
                 }}
                 label="Question Image"
               />
+              {questionImage && (
+                <div className="mt-2">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={questionHideText}
+                      onChange={(e) => setQuestionHideText(e.target.checked)}
+                      className="rounded"
+                    />
+                    <span>Hide text</span>
+                  </label>
+                </div>
+              )}
             </div>
           </div>
 
@@ -1368,6 +1430,19 @@ export default function QuestionEditor() {
                                   }}
                                   label=""
                                 />
+                                {imageUrl && (
+                                  <div className="mt-2">
+                                    <label className="flex items-center gap-2 text-xs">
+                                      <input
+                                        type="checkbox"
+                                        checked={option.hide_text || false}
+                                        onChange={(e) => handleUpdateOption(option.id, 'hide_text', e.target.checked)}
+                                        className="rounded"
+                                      />
+                                      <span>Hide text (use as alt-text)</span>
+                                    </label>
+                                  </div>
+                                )}
                               </div>
                             </TableCell>
                             <TableCell>
@@ -1452,6 +1527,19 @@ export default function QuestionEditor() {
                                   }}
                                   label=""
                                 />
+                                {option.image && (
+                                  <div className="mt-2">
+                                    <label className="flex items-center gap-2 text-xs">
+                                      <input
+                                        type="checkbox"
+                                        checked={option.hide_text || false}
+                                        onChange={(e) => handleUpdateOrderOption(option.id, 'hide_text', e.target.checked)}
+                                        className="rounded"
+                                      />
+                                      <span>Hide text (use as alt-text)</span>
+                                    </label>
+                                  </div>
+                                )}
                               </div>
                             </TableCell>
                             <TableCell>
@@ -1553,6 +1641,19 @@ export default function QuestionEditor() {
                                 }}
                                 label=""
                               />
+                              {option.image && (
+                                <div className="mt-2">
+                                  <label className="flex items-center gap-2 text-xs">
+                                    <input
+                                      type="checkbox"
+                                      checked={option.hide_text || false}
+                                      onChange={(e) => handleUpdateConnectOption(option.id, 'hide_text', e.target.checked)}
+                                      className="rounded"
+                                    />
+                                    <span>Hide text (use as alt-text)</span>
+                                  </label>
+                                </div>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground">

@@ -15,7 +15,7 @@ class OptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Option
         fields = [
-            'id', 'text', 'is_correct', 'image', 'organization', 'question',
+            'id', 'text', 'is_correct', 'image', 'hide_text', 'organization', 'question',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
@@ -27,7 +27,7 @@ class OrderOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderOption
         fields = [
-            'id', 'text', 'image', 'correct_order', 'organization', 'question',
+            'id', 'text', 'image', 'hide_text', 'correct_order', 'organization', 'question',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
@@ -39,7 +39,7 @@ class ConnectOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConnectOption
         fields = [
-            'id', 'text', 'image', 'position_x', 'position_y', 'width', 'height', 'organization', 'question',
+            'id', 'text', 'image', 'hide_text', 'position_x', 'position_y', 'width', 'height', 'organization', 'question',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
@@ -72,7 +72,7 @@ class BaseQuestionSerializer(serializers.ModelSerializer):
     
     class Meta:
         fields = [
-            'id', 'text', 'order', 'question_type', 'image', 'video',
+            'id', 'text', 'order', 'question_type', 'image', 'video', 'hide_text',
             'organization', 'quiz', 'topic', 'learning_objectives',
             'quiz_name', 'topic_name', 'lesson_name', 'module_name', 'course_name',
             'learning_objectives_count',
