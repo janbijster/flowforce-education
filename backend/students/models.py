@@ -66,6 +66,7 @@ class StudentQuestionAnswer(OrganizationModel):
     - MultipleChoiceQuestion: uses 'answer' ForeignKey to Option
     - OrderQuestion: uses 'answer_data' JSONField with list of option IDs in order
     - ConnectQuestion: uses 'answer_data' JSONField with list of connection pairs
+    - NumberQuestion: uses 'answer_data' JSONField with numeric value
     """
     
     student = models.ForeignKey(
@@ -77,7 +78,7 @@ class StudentQuestionAnswer(OrganizationModel):
     question_content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        limit_choices_to={'model__in': ['multiplechoicequestion', 'orderquestion', 'connectquestion']},
+        limit_choices_to={'model__in': ['multiplechoicequestion', 'orderquestion', 'connectquestion', 'numberquestion']},
         null=True,  # Nullable for migration
         blank=True
     )
@@ -107,17 +108,25 @@ class StudentQuestionAnswer(OrganizationModel):
     
     def clean(self):
         """Validate that answer or answer_data is provided based on question type."""
-        if not self.question:
+        # Safely access the question
+        try:
+            if not self.question_content_type_id or not self.question_id:
+                return
+            question = self.question
+            if not question:
+                return
+        except (AttributeError, Exception):
+            # If question can't be accessed, skip validation
             return
         
-        question_type = self.question.question_type
+        question_type = question.question_type
         
         if question_type == 'multiple_choice':
             if not self.answer:
                 raise ValidationError({'answer': 'Answer (Option) is required for multiple choice questions.'})
             if self.answer_data:
                 raise ValidationError({'answer_data': 'answer_data should not be set for multiple choice questions.'})
-        elif question_type in ['order', 'connect']:
+        elif question_type in ['order', 'connect', 'number']:
             if self.answer:
                 raise ValidationError({'answer': f'answer should not be set for {question_type} questions.'})
             if not self.answer_data:
@@ -129,16 +138,38 @@ class StudentQuestionAnswer(OrganizationModel):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        question_text = getattr(self.question, 'text', 'Unknown')[:50]
+        # Safely access question text
+        try:
+            question = self.question
+            question_text = getattr(question, 'text', 'Unknown')[:50] if question else 'Unknown'
+        except (AttributeError, Exception):
+            question_text = 'Unknown'
         return f"{self.student} - {question_text}..."
     
     @property
     def correct(self):
         """Check if the answer is correct based on question type."""
-        if not self.question:
+        # Safely access the question via GenericForeignKey
+        # Handle cases where ContentType is invalid or question doesn't exist
+        try:
+            # Check if we have valid content_type and question_id
+            if not self.question_content_type_id or not self.question_id:
+                return False
+            
+            # Try to get the ContentType and verify it's valid
+            ct = self.question_content_type
+            if not ct or ct.model_class() is None:
+                return False
+            
+            # Now try to access the question (this may fail if question was deleted)
+            question = self.question
+            if not question:
+                return False
+        except (AttributeError, Exception):
+            # If ContentType is invalid or question doesn't exist, return False
             return False
         
-        question_type = self.question.question_type
+        question_type = question.question_type
         
         if question_type == 'multiple_choice':
             return self.answer.is_correct if self.answer else False
@@ -150,7 +181,7 @@ class StudentQuestionAnswer(OrganizationModel):
             # Get correct order from OrderOptions
             from quizzes.models import OrderOption
             order_options = OrderOption.objects.filter(
-                question=self.question,
+                question=question,
                 organization=self.organization
             ).order_by('correct_order')
             
@@ -166,7 +197,7 @@ class StudentQuestionAnswer(OrganizationModel):
             # Get correct connections
             from quizzes.models import ConnectOptionConnection
             correct_connections = ConnectOptionConnection.objects.filter(
-                question=self.question,
+                question=question,
                 organization=self.organization
             )
             
@@ -184,6 +215,23 @@ class StudentQuestionAnswer(OrganizationModel):
             
             # Check if student's connections match exactly
             return student_pairs == correct_pairs
+        
+        elif question_type == 'number':
+            # For number questions, we need to check if answer_data matches correct_answer within tolerance
+            if not hasattr(question, 'correct_answer'):
+                return False
+            
+            try:
+                student_answer = float(self.answer_data) if self.answer_data is not None else None
+                if student_answer is None:
+                    return False
+                
+                correct_answer = question.correct_answer
+                tolerance = getattr(question, 'tolerance', 0.0)
+                
+                return abs(student_answer - correct_answer) <= tolerance
+            except (ValueError, TypeError):
+                return False
         
         return False
 

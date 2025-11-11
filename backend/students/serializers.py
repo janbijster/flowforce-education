@@ -43,6 +43,8 @@ class StudentGroupDetailSerializer(StudentGroupSerializer):
     
     def get_students(self, obj):
         from courses.models import Topic
+        from django.contrib.contenttypes.models import ContentType
+        from quizzes.models import MultipleChoiceQuestion, OrderQuestion, ConnectQuestion, NumberQuestion
         
         students = obj.students.all()
         
@@ -55,19 +57,112 @@ class StudentGroupDetailSerializer(StudentGroupSerializer):
         total_topics = topics.count()
         
         # Get all correct answers for students in this group
-        correct_answers = StudentQuestionAnswer.objects.filter(
-            student__in=students,
-            answer__is_correct=True
-        ).select_related('question__topic', 'answer')
+        # Note: We can only select_related on regular ForeignKeys, not GenericForeignKeys
+        topic_ids = list(topics.values_list('id', flat=True))
+        
+        # Get ContentTypes for question types
+        mcq_ct = ContentType.objects.get_for_model(MultipleChoiceQuestion)
+        order_ct = ContentType.objects.get_for_model(OrderQuestion)
+        connect_ct = ContentType.objects.get_for_model(ConnectQuestion)
+        number_ct = ContentType.objects.get_for_model(NumberQuestion)
+        
+        # Get question IDs from all question types in these topics
+        mcq_ids = MultipleChoiceQuestion.objects.filter(
+            topic__in=topic_ids,
+            organization=obj.organization
+        ).values_list('id', flat=True)
+        order_ids = OrderQuestion.objects.filter(
+            topic__in=topic_ids,
+            organization=obj.organization
+        ).values_list('id', flat=True)
+        connect_ids = ConnectQuestion.objects.filter(
+            topic__in=topic_ids,
+            organization=obj.organization
+        ).values_list('id', flat=True)
+        number_ids = NumberQuestion.objects.filter(
+            topic__in=topic_ids,
+            organization=obj.organization
+        ).values_list('id', flat=True)
+        
+        # Build list of (content_type_id, question_id) tuples
+        question_refs = (
+            [(mcq_ct.id, qid) for qid in mcq_ids] +
+            [(order_ct.id, qid) for qid in order_ids] +
+            [(connect_ct.id, qid) for qid in connect_ids] +
+            [(number_ct.id, qid) for qid in number_ids]
+        )
+        
+        # Filter StudentQuestionAnswer by content_type and question_id pairs
+        from django.db.models import Q
+        q_objects = Q()
+        for ct_id, q_id in question_refs:
+            q_objects |= Q(question_content_type_id=ct_id, question_id=q_id)
+        
+        # Get all answers (we'll filter for correct ones in Python since we need to check the 'correct' property)
+        all_answers = StudentQuestionAnswer.objects.filter(
+            student__in=students
+        ).filter(q_objects).select_related('answer', 'question_content_type')
+        
+        # Build a map of (content_type_id, question_id) -> topic_id
+        question_to_topic = {}
+        if mcq_ids:
+            mcq_questions = MultipleChoiceQuestion.objects.filter(id__in=mcq_ids).values('id', 'topic_id')
+            for q in mcq_questions:
+                question_to_topic[(mcq_ct.id, q['id'])] = q['topic_id']
+        if order_ids:
+            order_questions = OrderQuestion.objects.filter(id__in=order_ids).values('id', 'topic_id')
+            for q in order_questions:
+                question_to_topic[(order_ct.id, q['id'])] = q['topic_id']
+        if connect_ids:
+            connect_questions = ConnectQuestion.objects.filter(id__in=connect_ids).values('id', 'topic_id')
+            for q in connect_questions:
+                question_to_topic[(connect_ct.id, q['id'])] = q['topic_id']
+        if number_ids:
+            number_questions = NumberQuestion.objects.filter(id__in=number_ids).values('id', 'topic_id')
+            for q in number_questions:
+                question_to_topic[(number_ct.id, q['id'])] = q['topic_id']
         
         # Create a map of student -> set of topics with correct answers
+        # Build set of valid ContentType IDs
+        valid_ct_ids = {mcq_ct.id, order_ct.id, connect_ct.id, number_ct.id}
+        
         student_mastered_topics = {}
-        for answer in correct_answers:
-            student_id = answer.student.id
-            topic_id = answer.question.topic.id
-            if student_id not in student_mastered_topics:
-                student_mastered_topics[student_id] = set()
-            student_mastered_topics[student_id].add(topic_id)
+        for answer in all_answers:
+            # Check if answer is correct
+            # Only process if we have valid content_type and question_id
+            if not answer.question_content_type_id or not answer.question_id:
+                continue
+            
+            # Only process if ContentType is one of our known question types
+            if answer.question_content_type_id not in valid_ct_ids:
+                continue
+            
+            is_correct = False
+            
+            # Check if this is a MultipleChoiceQuestion (we can check directly)
+            if answer.question_content_type_id == mcq_ct.id:
+                if answer.answer and answer.answer.is_correct:
+                    is_correct = True
+            else:
+                # For other question types (Order, Connect, Number), we need to access the question
+                # Try to access the question safely
+                try:
+                    # Accessing answer.question will trigger GenericForeignKey resolution
+                    # If ContentType is invalid, this will raise an exception
+                    if answer.question:
+                        is_correct = answer.correct
+                except (AttributeError, Exception):
+                    # If ContentType is invalid or question doesn't exist, skip
+                    continue
+            
+            if is_correct:
+                key = (answer.question_content_type_id, answer.question_id)
+                topic_id = question_to_topic.get(key)
+                if topic_id:
+                    student_id = answer.student.id
+                    if student_id not in student_mastered_topics:
+                        student_mastered_topics[student_id] = set()
+                    student_mastered_topics[student_id].add(topic_id)
         
         # Serialize students with progress
         student_data = []
@@ -180,6 +275,8 @@ class StudentDetailSerializer(StudentSerializer):
     def get_student_groups_with_progress(self, obj):
         """Calculate progress for each student group the student belongs to."""
         from courses.models import Topic
+        from django.contrib.contenttypes.models import ContentType
+        from quizzes.models import MultipleChoiceQuestion, OrderQuestion, ConnectQuestion, NumberQuestion
         
         groups_data = []
         for group in obj.student_groups.all():
@@ -191,18 +288,112 @@ class StudentDetailSerializer(StudentSerializer):
             ).distinct()
             total_topics = topics.count()
             
-            # Get correct answers for this student in topics from this group
+            # Get correct answers for this student
+            # Note: We can't filter directly on GenericForeignKey, so we need to get question IDs first
             topic_ids = list(topics.values_list('id', flat=True))
-            correct_answers = StudentQuestionAnswer.objects.filter(
-                student=obj,
-                answer__is_correct=True,
-                question__topic__in=topic_ids
-            ).select_related('question__topic', 'answer')
+            
+            # Get ContentTypes for question types
+            mcq_ct = ContentType.objects.get_for_model(MultipleChoiceQuestion)
+            order_ct = ContentType.objects.get_for_model(OrderQuestion)
+            connect_ct = ContentType.objects.get_for_model(ConnectQuestion)
+            number_ct = ContentType.objects.get_for_model(NumberQuestion)
+            
+            # Get question IDs from all question types in these topics
+            mcq_ids = MultipleChoiceQuestion.objects.filter(
+                topic__in=topic_ids,
+                organization=obj.organization
+            ).values_list('id', flat=True)
+            order_ids = OrderQuestion.objects.filter(
+                topic__in=topic_ids,
+                organization=obj.organization
+            ).values_list('id', flat=True)
+            connect_ids = ConnectQuestion.objects.filter(
+                topic__in=topic_ids,
+                organization=obj.organization
+            ).values_list('id', flat=True)
+            number_ids = NumberQuestion.objects.filter(
+                topic__in=topic_ids,
+                organization=obj.organization
+            ).values_list('id', flat=True)
+            
+            # Build list of (content_type_id, question_id) tuples
+            question_refs = (
+                [(mcq_ct.id, qid) for qid in mcq_ids] +
+                [(order_ct.id, qid) for qid in order_ids] +
+                [(connect_ct.id, qid) for qid in connect_ids] +
+                [(number_ct.id, qid) for qid in number_ids]
+            )
+            
+            # Filter StudentQuestionAnswer by content_type and question_id pairs
+            from django.db.models import Q
+            q_objects = Q()
+            for ct_id, q_id in question_refs:
+                q_objects |= Q(question_content_type_id=ct_id, question_id=q_id)
+            
+            # Get all answers (we'll filter for correct ones in Python since we need to check the 'correct' property)
+            all_answers = StudentQuestionAnswer.objects.filter(
+                student=obj
+            ).filter(q_objects).select_related('answer', 'question_content_type')
+            
+            # Build a map of (content_type_id, question_id) -> topic_id
+            question_to_topic = {}
+            if mcq_ids:
+                mcq_questions = MultipleChoiceQuestion.objects.filter(id__in=mcq_ids).values('id', 'topic_id')
+                for q in mcq_questions:
+                    question_to_topic[(mcq_ct.id, q['id'])] = q['topic_id']
+            if order_ids:
+                order_questions = OrderQuestion.objects.filter(id__in=order_ids).values('id', 'topic_id')
+                for q in order_questions:
+                    question_to_topic[(order_ct.id, q['id'])] = q['topic_id']
+            if connect_ids:
+                connect_questions = ConnectQuestion.objects.filter(id__in=connect_ids).values('id', 'topic_id')
+                for q in connect_questions:
+                    question_to_topic[(connect_ct.id, q['id'])] = q['topic_id']
+            if number_ids:
+                number_questions = NumberQuestion.objects.filter(id__in=number_ids).values('id', 'topic_id')
+                for q in number_questions:
+                    question_to_topic[(number_ct.id, q['id'])] = q['topic_id']
             
             # Count distinct topics with correct answers
-            mastered_topics = len(set(
-                answer.question.topic.id for answer in correct_answers
-            ))
+            # Build set of valid ContentType IDs
+            valid_ct_ids = {mcq_ct.id, order_ct.id, connect_ct.id, number_ct.id}
+            
+            mastered_topic_ids = set()
+            for answer in all_answers:
+                # Check if answer is correct
+                # Only process if we have valid content_type and question_id
+                if not answer.question_content_type_id or not answer.question_id:
+                    continue
+                
+                # Only process if ContentType is one of our known question types
+                if answer.question_content_type_id not in valid_ct_ids:
+                    continue
+                
+                is_correct = False
+                
+                # Check if this is a MultipleChoiceQuestion (we can check directly)
+                if answer.question_content_type_id == mcq_ct.id:
+                    if answer.answer and answer.answer.is_correct:
+                        is_correct = True
+                else:
+                    # For other question types (Order, Connect, Number), we need to access the question
+                    # Try to access the question safely
+                    try:
+                        # Accessing answer.question will trigger GenericForeignKey resolution
+                        # If ContentType is invalid, this will raise an exception
+                        if answer.question:
+                            is_correct = answer.correct
+                    except (AttributeError, Exception):
+                        # If ContentType is invalid or question doesn't exist, skip
+                        continue
+                
+                if is_correct:
+                    key = (answer.question_content_type_id, answer.question_id)
+                    topic_id = question_to_topic.get(key)
+                    if topic_id:
+                        mastered_topic_ids.add(topic_id)
+            
+            mastered_topics = len(mastered_topic_ids)
             
             groups_data.append({
                 'id': group.id,
