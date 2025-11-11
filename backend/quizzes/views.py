@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import (
     Quiz,
-    MultipleChoiceQuestion, OrderQuestion, ConnectQuestion,
+    MultipleChoiceQuestion, OrderQuestion, ConnectQuestion, NumberQuestion,
     Option, OrderOption, ConnectOption, ConnectOptionConnection
 )
 from .serializers import (
@@ -12,6 +12,7 @@ from .serializers import (
     MultipleChoiceQuestionSerializer, MultipleChoiceQuestionDetailSerializer,
     OrderQuestionSerializer, OrderQuestionDetailSerializer,
     ConnectQuestionSerializer, ConnectQuestionDetailSerializer,
+    NumberQuestionSerializer, NumberQuestionDetailSerializer,
     OptionSerializer, OptionDetailSerializer,
     OrderOptionSerializer, OrderOptionDetailSerializer,
     ConnectOptionSerializer, ConnectOptionDetailSerializer,
@@ -49,16 +50,19 @@ class QuizViewSet(viewsets.ModelViewSet):
         mc_questions = quiz.multiplechoicequestion_questions.all()
         order_questions = quiz.orderquestion_questions.all()
         connect_questions = quiz.connectquestion_questions.all()
+        number_questions = quiz.numberquestion_questions.all()
         
         # Serialize each type
         mc_data = MultipleChoiceQuestionSerializer(mc_questions, many=True).data
         order_data = OrderQuestionSerializer(order_questions, many=True).data
         connect_data = ConnectQuestionSerializer(connect_questions, many=True).data
+        number_data = NumberQuestionSerializer(number_questions, many=True).data
         
         return Response({
             'multiple_choice': mc_data,
             'order': order_data,
-            'connect': connect_data
+            'connect': connect_data,
+            'number': number_data
         })
 
     @action(detail=True, methods=['post'])
@@ -98,11 +102,19 @@ class QuizViewSet(viewsets.ModelViewSet):
                 question.order = new_order
                 to_update.append(question)
         
+        # Update NumberQuestions
+        for question in quiz.numberquestion_questions.filter(id__in=order_map.keys()):
+            new_order = order_map.get(question.id)
+            if new_order is not None and question.order != new_order:
+                question.order = new_order
+                to_update.append(question)
+        
         if to_update:
             # Separate by type for bulk update
             mc_to_update = [q for q in to_update if q.__class__ == MultipleChoiceQuestion]
             order_to_update = [q for q in to_update if q.__class__ == OrderQuestion]
             connect_to_update = [q for q in to_update if q.__class__ == ConnectQuestion]
+            number_to_update = [q for q in to_update if q.__class__ == NumberQuestion]
             
             if mc_to_update:
                 MultipleChoiceQuestion.objects.bulk_update(mc_to_update, ['order'])
@@ -110,6 +122,8 @@ class QuizViewSet(viewsets.ModelViewSet):
                 OrderQuestion.objects.bulk_update(order_to_update, ['order'])
             if connect_to_update:
                 ConnectQuestion.objects.bulk_update(connect_to_update, ['order'])
+            if number_to_update:
+                NumberQuestion.objects.bulk_update(number_to_update, ['order'])
         
         return Response({"updated": len(to_update)})
 
@@ -273,3 +287,20 @@ class ConnectOptionConnectionViewSet(viewsets.ModelViewSet):
     
     def get_serializer_class(self):
         return ConnectOptionConnectionSerializer
+
+
+class NumberQuestionViewSet(viewsets.ModelViewSet):
+    """ViewSet for NumberQuestion model."""
+    
+    queryset = NumberQuestion.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['text']
+    ordering_fields = ['text', 'created_at', 'order']
+    ordering = ['order', 'created_at']
+    filterset_fields = ['organization', 'topic', 'learning_objectives', 'quiz']
+    
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return NumberQuestionDetailSerializer
+        return NumberQuestionSerializer

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Quiz, 
-    MultipleChoiceQuestion, OrderQuestion, ConnectQuestion,
+    MultipleChoiceQuestion, OrderQuestion, ConnectQuestion, NumberQuestion,
     Option, OrderOption, ConnectOption, ConnectOptionConnection
 )
 
@@ -155,6 +155,21 @@ class ConnectQuestionDetailSerializer(ConnectQuestionSerializer):
         fields = ConnectQuestionSerializer.Meta.fields + ['connect_options', 'correct_connections']
 
 
+class NumberQuestionSerializer(BaseQuestionSerializer):
+    """Serializer for NumberQuestion model."""
+    
+    class Meta(BaseQuestionSerializer.Meta):
+        model = NumberQuestion
+        fields = BaseQuestionSerializer.Meta.fields + ['correct_answer', 'tolerance']
+
+
+class NumberQuestionDetailSerializer(NumberQuestionSerializer):
+    """Detailed serializer for NumberQuestion (same as base since it has no nested objects)."""
+    
+    class Meta(NumberQuestionSerializer.Meta):
+        fields = NumberQuestionSerializer.Meta.fields
+
+
 # Backward compatibility aliases
 QuestionSerializer = MultipleChoiceQuestionSerializer
 QuestionDetailSerializer = MultipleChoiceQuestionDetailSerializer
@@ -181,7 +196,8 @@ class QuizSerializer(serializers.ModelSerializer):
         return (
             obj.multiplechoicequestion_questions.count() +
             obj.orderquestion_questions.count() +
-            obj.connectquestion_questions.count()
+            obj.connectquestion_questions.count() +
+            obj.numberquestion_questions.count()
         )
 
 
@@ -197,10 +213,13 @@ class QuizDetailSerializer(QuizSerializer):
     connect_questions = ConnectQuestionSerializer(
         source='connectquestion_questions', many=True, read_only=True
     )
+    number_questions = NumberQuestionSerializer(
+        source='numberquestion_questions', many=True, read_only=True
+    )
     
     class Meta(QuizSerializer.Meta):
         fields = QuizSerializer.Meta.fields + [
-            'multiple_choice_questions', 'order_questions', 'connect_questions'
+            'multiple_choice_questions', 'order_questions', 'connect_questions', 'number_questions'
         ]
 
 

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Quiz, 
-    MultipleChoiceQuestion, OrderQuestion, ConnectQuestion,
+    MultipleChoiceQuestion, OrderQuestion, ConnectQuestion, NumberQuestion,
     Option, OrderOption, ConnectOption, ConnectOptionConnection
 )
 
@@ -27,13 +27,19 @@ class ConnectQuestionInline(admin.TabularInline):
     fields = ['text', 'order', 'topic', 'image', 'video']
 
 
+class NumberQuestionInline(admin.TabularInline):
+    model = NumberQuestion
+    extra = 1
+    fields = ['text', 'order', 'topic', 'image', 'video', 'correct_answer', 'tolerance']
+
+
 @admin.register(Quiz)
 class QuizAdmin(admin.ModelAdmin):
     list_display = ['name', 'course', 'module', 'organization', 'created_at']
     list_filter = ['organization', 'created_at']
     search_fields = ['name', 'description']
     filter_horizontal = ['lessons', 'topics']
-    inlines = [MultipleChoiceQuestionInline, OrderQuestionInline, ConnectQuestionInline]
+    inlines = [MultipleChoiceQuestionInline, OrderQuestionInline, ConnectQuestionInline, NumberQuestionInline]
 
 
 class OptionInline(admin.TabularInline):
@@ -118,3 +124,13 @@ class ConnectOptionAdmin(admin.ModelAdmin):
 class ConnectOptionConnectionAdmin(admin.ModelAdmin):
     list_display = ['question', 'from_option', 'to_option', 'organization', 'created_at']
     list_filter = ['organization', 'question', 'created_at']
+
+
+@admin.register(NumberQuestion)
+class NumberQuestionAdmin(admin.ModelAdmin):
+    list_display = ['text', 'question_type', 'topic', 'correct_answer', 'tolerance', 'organization', 'order', 'created_at']
+    list_filter = ['organization', 'question_type', 'topic__lesson__module__course', 'created_at']
+    search_fields = ['text']
+    filter_horizontal = ['learning_objectives']
+    readonly_fields = ['question_type']
+    fields = ['organization', 'text', 'question_type', 'image', 'video', 'hide_text', 'order', 'quiz', 'topic', 'learning_objectives', 'correct_answer', 'tolerance']

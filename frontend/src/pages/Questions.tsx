@@ -84,7 +84,9 @@ export default function Questions() {
       ? 'multiple-choice' 
       : question.question_type === 'order'
       ? 'order'
-      : 'connect';
+      : question.question_type === 'connect'
+      ? 'connect'
+      : 'number';
     navigate(`/questions/${typePath}/${question.id}`);
   };
 
@@ -171,7 +173,7 @@ export default function Questions() {
           <TableBody>
             {filteredQuestions.map((question) => (
               <TableRow
-                key={question.id}
+                key={`${question.question_type}:${question.id}`}
                 onClick={() => handleRowClick(question)}
                 className="cursor-pointer"
               >
@@ -187,7 +189,9 @@ export default function Questions() {
                     ? (question as any).options_count || 0
                     : question.question_type === 'order'
                     ? (question as any).order_options_count || 0
-                    : (question as any).connect_options_count || 0}
+                    : question.question_type === 'connect'
+                    ? (question as any).connect_options_count || 0
+                    : 0}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <Button
@@ -198,7 +202,9 @@ export default function Questions() {
                         ? 'multiple-choice' 
                         : question.question_type === 'order'
                         ? 'order'
-                        : 'connect';
+                        : question.question_type === 'connect'
+                        ? 'connect'
+                        : 'number';
                       navigate(`/questions/${typePath}/${question.id}`);
                     }}
                   >

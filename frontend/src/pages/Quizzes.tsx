@@ -82,7 +82,7 @@ export default function Quizzes() {
           <TableBody>
             {quizzes.map((quiz) => (
               <TableRow
-                key={quiz.id}
+                key={`quiz-${quiz.id}-${quiz.organization}`}
                 onClick={() => handleRowClick(quiz.id)}
                 className="cursor-pointer"
               >

@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     QuizViewSet,
-    MultipleChoiceQuestionViewSet, OrderQuestionViewSet, ConnectQuestionViewSet,
+    MultipleChoiceQuestionViewSet, OrderQuestionViewSet, ConnectQuestionViewSet, NumberQuestionViewSet,
     OptionViewSet, OrderOptionViewSet, ConnectOptionViewSet,
     ConnectOptionConnectionViewSet,
 )
@@ -15,6 +15,7 @@ router.register(r'questions', MultipleChoiceQuestionViewSet, basename='question'
 router.register(r'multiple-choice-questions', MultipleChoiceQuestionViewSet, basename='multiplechoicequestion')
 router.register(r'order-questions', OrderQuestionViewSet)
 router.register(r'connect-questions', ConnectQuestionViewSet)
+router.register(r'number-questions', NumberQuestionViewSet)
 # Option type endpoints
 router.register(r'options', OptionViewSet)  # MultipleChoiceQuestion options
 router.register(r'order-options', OrderOptionViewSet)

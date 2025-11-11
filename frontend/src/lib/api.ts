@@ -5,7 +5,7 @@ export interface BaseQuestion {
   id: number;
   text: string;
   order: number;
-  question_type: 'multiple_choice' | 'order' | 'connect';
+  question_type: 'multiple_choice' | 'order' | 'connect' | 'number';
   image: string | null;
   video: string | null;
   hide_text: boolean;
@@ -55,9 +55,20 @@ export interface ConnectQuestionDetail extends ConnectQuestion {
   correct_connections: ConnectOptionConnection[];
 }
 
+// Number Question
+export interface NumberQuestion extends BaseQuestion {
+  question_type: 'number';
+  correct_answer: number;
+  tolerance: number;
+}
+
+export interface NumberQuestionDetail extends NumberQuestion {
+  // No additional fields, same as base
+}
+
 // Union type for all question types
-export type Question = MultipleChoiceQuestion | OrderQuestion | ConnectQuestion;
-export type QuestionDetail = MultipleChoiceQuestionDetail | OrderQuestionDetail | ConnectQuestionDetail;
+export type Question = MultipleChoiceQuestion | OrderQuestion | ConnectQuestion | NumberQuestion;
+export type QuestionDetail = MultipleChoiceQuestionDetail | OrderQuestionDetail | ConnectQuestionDetail | NumberQuestionDetail;
 
 // Options for different question types
 export interface Option {
@@ -131,6 +142,7 @@ export interface QuizDetail extends Quiz {
   multiple_choice_questions: MultipleChoiceQuestion[];
   order_questions: OrderQuestion[];
   connect_questions: ConnectQuestion[];
+  number_questions: NumberQuestion[];
   // Helper: get all questions as a unified list
   questions?: Question[]; // Computed property, not from API
 }
@@ -280,6 +292,7 @@ export function combineQuestions(quiz: QuizDetail): Question[] {
     ...(quiz.multiple_choice_questions || []),
     ...(quiz.order_questions || []),
     ...(quiz.connect_questions || []),
+    ...(quiz.number_questions || []),
   ];
   // Sort by order
   return questions.sort((a, b) => a.order - b.order);
@@ -292,6 +305,7 @@ export async function fetchQuestions(): Promise<Question[]> {
     fetch(`${API_BASE_URL}/quizzes/multiple-choice-questions/`, { credentials: 'include' }),
     fetch(`${API_BASE_URL}/quizzes/order-questions/`, { credentials: 'include' }),
     fetch(`${API_BASE_URL}/quizzes/connect-questions/`, { credentials: 'include' }),
+    fetch(`${API_BASE_URL}/quizzes/number-questions/`, { credentials: 'include' }),
   ]);
   
   const allQuestions: Question[] = [];
@@ -317,7 +331,7 @@ export async function fetchQuestions(): Promise<Question[]> {
   return allQuestions;
 }
 
-export async function fetchQuestion(id: number, questionType?: 'multiple_choice' | 'order' | 'connect'): Promise<QuestionDetail> {
+export async function fetchQuestion(id: number, questionType?: 'multiple_choice' | 'order' | 'connect' | 'number'): Promise<QuestionDetail> {
   // If question type is provided, use the specific endpoint for better performance
   if (questionType) {
     let endpoint = `${API_BASE_URL}/quizzes/multiple-choice-questions/${id}/`;
@@ -325,6 +339,8 @@ export async function fetchQuestion(id: number, questionType?: 'multiple_choice'
       endpoint = `${API_BASE_URL}/quizzes/order-questions/${id}/`;
     } else if (questionType === 'connect') {
       endpoint = `${API_BASE_URL}/quizzes/connect-questions/${id}/`;
+    } else if (questionType === 'number') {
+      endpoint = `${API_BASE_URL}/quizzes/number-questions/${id}/`;
     }
     
     const response = await fetch(endpoint, { credentials: 'include' });
@@ -345,6 +361,7 @@ export async function fetchQuestion(id: number, questionType?: 'multiple_choice'
     `${API_BASE_URL}/quizzes/multiple-choice-questions/${id}/`,
     `${API_BASE_URL}/quizzes/order-questions/${id}/`,
     `${API_BASE_URL}/quizzes/connect-questions/${id}/`,
+    `${API_BASE_URL}/quizzes/number-questions/${id}/`,
   ];
   
   // Try all endpoints in parallel for better performance
@@ -397,7 +414,7 @@ export async function fetchQuiz(id: number): Promise<QuizDetail> {
   return quiz;
 }
 
-export async function searchQuestions(params: { search?: string; quiz?: number; topic?: number; question_type?: 'multiple_choice' | 'order' | 'connect' }): Promise<Question[]> {
+export async function searchQuestions(params: { search?: string; quiz?: number; topic?: number; question_type?: 'multiple_choice' | 'order' | 'connect' | 'number' }): Promise<Question[]> {
   const qs = new URLSearchParams();
   if (params.search) qs.set('search', params.search);
   if (typeof params.quiz === 'number') qs.set('quiz', String(params.quiz));
@@ -409,7 +426,9 @@ export async function searchQuestions(params: { search?: string; quiz?: number; 
       ? 'multiple-choice-questions'
       : params.question_type === 'order'
       ? 'order-questions'
-      : 'connect-questions';
+      : params.question_type === 'connect'
+      ? 'connect-questions'
+      : 'number-questions';
     const response = await fetch(`${API_BASE_URL}/quizzes/${endpoint}/?${qs.toString()}`, {
       credentials: 'include',
     });
@@ -425,6 +444,7 @@ export async function searchQuestions(params: { search?: string; quiz?: number; 
       fetch(`${API_BASE_URL}/quizzes/multiple-choice-questions/?${qs.toString()}`, { credentials: 'include' }),
       fetch(`${API_BASE_URL}/quizzes/order-questions/?${qs.toString()}`, { credentials: 'include' }),
       fetch(`${API_BASE_URL}/quizzes/connect-questions/?${qs.toString()}`, { credentials: 'include' }),
+      fetch(`${API_BASE_URL}/quizzes/number-questions/?${qs.toString()}`, { credentials: 'include' }),
     ]);
     
     const allQuestions: Question[] = [];
@@ -451,7 +471,7 @@ export async function searchQuestions(params: { search?: string; quiz?: number; 
   }
 }
 
-export async function assignQuestionToQuiz(questionId: number, quizId: number | null, questionType?: 'multiple_choice' | 'order' | 'connect'): Promise<Question> {
+export async function assignQuestionToQuiz(questionId: number, quizId: number | null, questionType?: 'multiple_choice' | 'order' | 'connect' | 'number'): Promise<Question> {
   const csrftoken = getCsrfToken();
   
   // Determine endpoint based on question type
@@ -460,6 +480,8 @@ export async function assignQuestionToQuiz(questionId: number, quizId: number | 
     endpoint = `${API_BASE_URL}/quizzes/order-questions/`;
   } else if (questionType === 'connect') {
     endpoint = `${API_BASE_URL}/quizzes/connect-questions/`;
+  } else if (questionType === 'number') {
+    endpoint = `${API_BASE_URL}/quizzes/number-questions/`;
   } else if (questionType === 'multiple_choice') {
     endpoint = `${API_BASE_URL}/quizzes/multiple-choice-questions/`;
   }
@@ -600,6 +622,8 @@ export async function createQuestion(payload: Partial<Question>): Promise<Questi
     endpoint = `${API_BASE_URL}/quizzes/order-questions/`;
   } else if (questionType === 'connect') {
     endpoint = `${API_BASE_URL}/quizzes/connect-questions/`;
+  } else if (questionType === 'number') {
+    endpoint = `${API_BASE_URL}/quizzes/number-questions/`;
   }
   
   const response = await fetch(endpoint, {
@@ -618,7 +642,7 @@ export async function createQuestion(payload: Partial<Question>): Promise<Questi
   return await response.json();
 }
 
-export async function updateQuestion(id: number, payload: Partial<Question> & { imageFile?: File }, questionType?: 'multiple_choice' | 'order' | 'connect'): Promise<Question> {
+export async function updateQuestion(id: number, payload: Partial<Question> & { imageFile?: File }, questionType?: 'multiple_choice' | 'order' | 'connect' | 'number'): Promise<Question> {
   const csrftoken = getCsrfToken();
   
   // If questionType not provided, try to infer from payload or fetch first
@@ -627,6 +651,8 @@ export async function updateQuestion(id: number, payload: Partial<Question> & { 
     endpoint = `${API_BASE_URL}/quizzes/order-questions/`;
   } else if (questionType === 'connect') {
     endpoint = `${API_BASE_URL}/quizzes/connect-questions/`;
+  } else if (questionType === 'number') {
+    endpoint = `${API_BASE_URL}/quizzes/number-questions/`;
   } else if (questionType === 'multiple_choice' || payload.question_type === 'multiple_choice') {
     endpoint = `${API_BASE_URL}/quizzes/multiple-choice-questions/`;
   }

@@ -48,6 +48,7 @@ class Quiz(OrganizationModel):
         questions.extend(self.multiplechoicequestion_questions.all())
         questions.extend(self.orderquestion_questions.all())
         questions.extend(self.connectquestion_questions.all())
+        questions.extend(self.numberquestion_questions.all())
         return sorted(questions, key=lambda q: (q.order, q.created_at))
 
 
@@ -58,6 +59,7 @@ class BaseQuestion(OrganizationModel):
         ('multiple_choice', 'Multiple Choice'),
         ('order', 'Order'),
         ('connect', 'Connect'),
+        ('number', 'Number'),
     ]
     
     text = models.TextField()
@@ -233,6 +235,29 @@ class ConnectOptionConnection(OrganizationModel):
     
     def __str__(self):
         return f"{self.question.text[:30]}... - {self.from_option.text[:20]}... → {self.to_option.text[:20]}..."
+
+
+class NumberQuestion(BaseQuestion):
+    """Question where students need to enter a number as the answer."""
+    
+    correct_answer = models.FloatField(
+        help_text="The correct numeric answer"
+    )
+    tolerance = models.FloatField(
+        default=0.0,
+        help_text="Tolerance for the answer (e.g., 0.1 means answer is correct if within ±0.1 of correct_answer)"
+    )
+    
+    class Meta(BaseQuestion.Meta):
+        pass
+    
+    def save(self, *args, **kwargs):
+        """Automatically set question_type on save."""
+        self.question_type = 'number'
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f"{self.topic.name} - {self.text[:50]}... (answer: {self.correct_answer})"
 
 
 # Backward compatibility alias

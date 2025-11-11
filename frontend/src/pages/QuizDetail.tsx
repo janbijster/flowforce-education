@@ -114,11 +114,11 @@ export default function QuizDetail() {
                 // Combine all question types into a unified list
                 const allQuestions = quiz.questions || combineQuestions(quiz);
                 return allQuestions.map((q: Question) => (
-                  <TableRow key={q.id}>
+                  <TableRow key={`${q.question_type}:${q.id}`}>
                     <TableCell className="max-w-[480px] truncate">
                       <div className="flex items-center gap-2">
                         <span className="text-xs px-2 py-0.5 rounded bg-muted text-muted-foreground">
-                          {q.question_type === 'multiple_choice' ? 'MC' : q.question_type === 'order' ? 'Order' : 'Connect'}
+                          {q.question_type === 'multiple_choice' ? 'MC' : q.question_type === 'order' ? 'Order' : q.question_type === 'connect' ? 'Connect' : 'Number'}
                         </span>
                         <span>{q.text}</span>
                       </div>
@@ -131,7 +131,9 @@ export default function QuizDetail() {
                         ? (q as any).options_count || 0
                         : q.question_type === 'order'
                         ? (q as any).order_options_count || 0
-                        : (q as any).connect_options_count || 0}
+                        : q.question_type === 'connect'
+                        ? (q as any).connect_options_count || 0
+                        : 0}
                     </TableCell>
                   </TableRow>
                 ));

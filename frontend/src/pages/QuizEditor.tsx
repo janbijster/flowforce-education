@@ -127,6 +127,7 @@ export default function QuizEditor() {
             multiple_choice_questions: [],
             order_questions: [],
             connect_questions: [],
+            number_questions: [],
           });
           setInitialQuestionIds([]);
           setInitialQuestionKeys(new Set());
@@ -227,6 +228,8 @@ export default function QuizEditor() {
       updatedQuiz.order_questions = [...(updatedQuiz.order_questions || []), question as any];
     } else if (question.question_type === 'connect') {
       updatedQuiz.connect_questions = [...(updatedQuiz.connect_questions || []), question as any];
+    } else if (question.question_type === 'number') {
+      updatedQuiz.number_questions = [...(updatedQuiz.number_questions || []), question as any];
     }
     // Update combined questions list
     updatedQuiz.questions = combineQuestions(updatedQuiz);
@@ -244,6 +247,8 @@ export default function QuizEditor() {
       updatedQuiz.order_questions = (updatedQuiz.order_questions || []).filter(q => q.id !== question.id);
     } else if (question.question_type === 'connect') {
       updatedQuiz.connect_questions = (updatedQuiz.connect_questions || []).filter(q => q.id !== question.id);
+    } else if (question.question_type === 'number') {
+      updatedQuiz.number_questions = (updatedQuiz.number_questions || []).filter(q => q.id !== question.id);
     }
     // Update combined questions list
     updatedQuiz.questions = combineQuestions(updatedQuiz);
@@ -274,6 +279,7 @@ export default function QuizEditor() {
     updatedQuiz.multiple_choice_questions = curr.filter(q => q.question_type === 'multiple_choice') as any;
     updatedQuiz.order_questions = curr.filter(q => q.question_type === 'order') as any;
     updatedQuiz.connect_questions = curr.filter(q => q.question_type === 'connect') as any;
+    updatedQuiz.number_questions = curr.filter(q => q.question_type === 'number') as any;
     updatedQuiz.questions = curr;
     setQuiz(updatedQuiz);
     setDragId(null);
@@ -545,7 +551,7 @@ export default function QuizEditor() {
               </TableHeader>
               <TableBody>
                 {filteredLeft.map((q) => (
-                    <TableRow key={q.id}>
+                    <TableRow key={`${q.question_type}:${q.id}`}>
                       <TableCell className="max-w-[360px] truncate">
                         <div className="flex items-center gap-2">
                           <QuestionTypeBadge questionType={q.question_type} />
@@ -562,7 +568,9 @@ export default function QuizEditor() {
                               ? 'multiple-choice' 
                               : q.question_type === 'order'
                               ? 'order'
-                              : 'connect';
+                              : q.question_type === 'connect'
+                              ? 'connect'
+                              : 'number';
                             navigate(`/questions/${typePath}/${q.id}/edit`); 
                           }}>Edit</Button>
                         </div>
@@ -592,7 +600,7 @@ export default function QuizEditor() {
                   const allQuestions = quiz ? (quiz.questions || combineQuestions(quiz)) : [];
                   return allQuestions.map((q, idx) => (
                     <TableRow
-                      key={q.id}
+                      key={`${q.question_type}:${q.id}`}
                       draggable
                       onDragStart={() => onDragStart(q.id)}
                       onDragOver={onDragOver}
@@ -615,7 +623,9 @@ export default function QuizEditor() {
                               ? 'multiple-choice' 
                               : q.question_type === 'order'
                               ? 'order'
-                              : 'connect';
+                              : q.question_type === 'connect'
+                              ? 'connect'
+                              : 'number';
                             navigate(`/questions/${typePath}/${q.id}/edit`); 
                           }}>Edit</Button>
                           <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleRemove(q); }}>Remove</Button>

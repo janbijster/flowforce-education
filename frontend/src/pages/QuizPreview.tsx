@@ -24,6 +24,7 @@ export default function QuizPreview() {
   const [selectedOptions, setSelectedOptions] = useState<Record<string, number | null>>({});
   const [selectedOrders, setSelectedOrders] = useState<Record<string, number[]>>({});
   const [selectedConnections, setSelectedConnections] = useState<Record<string, Array<[number, number]>>>({});
+  const [selectedNumbers, setSelectedNumbers] = useState<Record<string, number | null>>({});
   const [showAnswers, setShowAnswers] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -89,6 +90,15 @@ export default function QuizPreview() {
     setSelectedConnections((prev) => ({
       ...prev,
       [key]: connections,
+    }));
+  };
+
+  const handleNumberChange = (question: QuestionDetail, value: number) => {
+    if (showAnswers) return;
+    const key = `${question.question_type}:${question.id}`;
+    setSelectedNumbers((prev) => ({
+      ...prev,
+      [key]: value,
     }));
   };
 
@@ -164,9 +174,11 @@ export default function QuizPreview() {
                   selectedOption={selectedOptions[`${question.question_type}:${question.id}`] || null}
                   selectedOrder={selectedOrders[`${question.question_type}:${question.id}`] || null}
                   selectedConnections={selectedConnections[`${question.question_type}:${question.id}`] || null}
+                  selectedNumber={selectedNumbers[`${question.question_type}:${question.id}`] || null}
                   onOptionSelect={(optionId) => handleOptionSelect(question, optionId)}
                   onOrderChange={(optionIds) => handleOrderChange(question, optionIds)}
                   onConnectionChange={(connections) => handleConnectionChange(question, connections)}
+                  onNumberChange={(value) => handleNumberChange(question, value)}
                   showCorrectAnswer={showAnswers}
                 />
               </div>

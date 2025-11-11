@@ -16,6 +16,7 @@ import {
   MultipleChoiceQuestionDetail,
   OrderQuestionDetail,
   ConnectQuestionDetail,
+  NumberQuestionDetail,
   Option,
   OrderOption,
   ConnectOption,
@@ -70,11 +71,13 @@ export default function QuestionEditor() {
   const isCreate = id === "new" || !id;
 
   const [question, setQuestion] = useState<QuestionDetail | null>(null);
-  const [questionType, setQuestionType] = useState<'multiple_choice' | 'order' | 'connect'>('multiple_choice');
+  const [questionType, setQuestionType] = useState<'multiple_choice' | 'order' | 'connect' | 'number'>('multiple_choice');
   const [text, setText] = useState("");
   const [questionImage, setQuestionImage] = useState<string | null>(null);
   const [questionImageFile, setQuestionImageFile] = useState<File | null>(null);
   const [questionHideText, setQuestionHideText] = useState(false);
+  const [correctAnswer, setCorrectAnswer] = useState<number>(0);
+  const [tolerance, setTolerance] = useState<number>(0);
   const [options, setOptions] = useState<EditableOption[]>([]);
   const [optionImageFiles, setOptionImageFiles] = useState<Map<number | string, File>>(new Map());
   const [orderOptions, setOrderOptions] = useState<EditableOrderOption[]>([]);
@@ -102,6 +105,8 @@ export default function QuestionEditor() {
     topic: number | null;
     image: string | null;
     hide_text: boolean;
+    correct_answer?: number;
+    tolerance?: number;
     options: EditableOption[];
     orderOptions?: EditableOrderOption[];
     connectOptions?: EditableConnectOption[];
@@ -133,6 +138,8 @@ export default function QuestionEditor() {
           setText("");
           setQuestionType('multiple_choice');
           setQuestionHideText(false);
+          setCorrectAnswer(0);
+          setTolerance(0);
           setOptions([]);
           setOrderOptions([]);
           setConnectOptions([]);
@@ -153,6 +160,8 @@ export default function QuestionEditor() {
             ? 'order' as const
             : type === 'connect'
             ? 'connect' as const
+            : type === 'number'
+            ? 'number' as const
             : undefined;
           const q = await fetchQuestion(Number(id), questionType);
           setQuestion(q);
@@ -165,7 +174,20 @@ export default function QuestionEditor() {
           setQuestionImage(imageUrl);
           setQuestionImageFile(null);
           
-          if (q.question_type === 'multiple_choice') {
+          if (q.question_type === 'number') {
+            const numQ = q as NumberQuestionDetail;
+            setCorrectAnswer(numQ.correct_answer || 0);
+            setTolerance(numQ.tolerance || 0);
+            initialValues.current = {
+              text: q.text,
+              topic: q.topic,
+              image: imageUrl,
+              hide_text: q.hide_text || false,
+              options: [],
+              correct_answer: numQ.correct_answer || 0,
+              tolerance: numQ.tolerance || 0,
+            };
+          } else if (q.question_type === 'multiple_choice') {
             const opts = ((q as MultipleChoiceQuestionDetail).options || []).map(opt => ({ ...opt }));
           setOptions(opts);
           initialValues.current = {
@@ -318,7 +340,11 @@ export default function QuestionEditor() {
     const hideTextChanged = questionHideText !== initialValues.current.hide_text;
     
     let optionsChanged = false;
-    if (questionType === 'multiple_choice') {
+    if (questionType === 'number') {
+      const correctAnswerChanged = correctAnswer !== (initialValues.current.correct_answer ?? 0);
+      const toleranceChanged = tolerance !== (initialValues.current.tolerance ?? 0);
+      optionsChanged = correctAnswerChanged || toleranceChanged;
+    } else if (questionType === 'multiple_choice') {
       optionsChanged =
         options.length !== initialValues.current.options.length ||
         options.some((opt, idx) => {
@@ -421,7 +447,7 @@ export default function QuestionEditor() {
     }
 
     setHasUnsavedChanges(textChanged || topicChanged || imageChanged || hideTextChanged || optionsChanged);
-  }, [text, selectedTopic, questionImage, questionImageFile, questionHideText, options, orderOptions, connectOptions, connectConnections, questionType, question, optionImageFiles, orderOptionImageFiles]);
+  }, [text, selectedTopic, questionImage, questionImageFile, questionHideText, correctAnswer, tolerance, options, orderOptions, connectOptions, connectConnections, questionType, question, optionImageFiles, orderOptionImageFiles]);
 
   // Warn before leaving with unsaved changes
   useEffect(() => {
@@ -463,7 +489,9 @@ export default function QuestionEditor() {
         ? 'multiple-choice' 
         : question.question_type === 'order'
         ? 'order'
-        : 'connect';
+        : question.question_type === 'connect'
+        ? 'connect'
+        : 'number';
       navigate(`/questions/${typePath}/${question.id}`);
     } else {
       navigate("/questions");
@@ -477,6 +505,7 @@ export default function QuestionEditor() {
       id: uniqueId,
       text: "",
       is_correct: false,
+      image: null,
       hide_text: false,
       organization: user.organization.id,
       question: question?.id || 0,
@@ -489,7 +518,7 @@ export default function QuestionEditor() {
     setOptions(options.filter(opt => opt.id !== optionId));
   };
 
-  const handleUpdateOption = (optionId: number | string, field: 'text' | 'is_correct' | 'image' | 'hide_text', value: string | boolean) => {
+  const handleUpdateOption = (optionId: number | string, field: 'text' | 'is_correct' | 'image' | 'hide_text', value: string | boolean | null) => {
     setOptions(options.map(opt =>
       opt.id === optionId ? { ...opt, [field]: value } : opt
     ));
@@ -505,6 +534,7 @@ export default function QuestionEditor() {
     const newOption: EditableOrderOption = {
       id: uniqueId,
       text: "",
+      image: null,
       correct_order: currentMaxOrder + 1,
       hide_text: false,
       organization: user.organization.id,
@@ -557,6 +587,7 @@ export default function QuestionEditor() {
     const newOption: EditableConnectOption = {
       id: uniqueId,
       text: "",
+      image: null,
       position_x: 0.5,
       position_y: 0.5,
       width: 100,
@@ -635,32 +666,44 @@ export default function QuestionEditor() {
           isSavingRef.current = false;
           return;
         }
+      } else if (questionType === 'number') {
+        // Number questions don't need additional validation beyond text and topic
       }
 
       let questionId: number;
 
       if (isCreate) {
         // Create new question
-        const created = await createQuestion({
+        const questionPayload: any = {
           text: text.trim(),
           question_type: questionType,
           organization: user.organization.id,
           topic: selectedTopic,
           learning_objectives: [],
           hide_text: questionHideText,
-        });
+        };
+        
+        // Add number-specific fields
+        if (questionType === 'number') {
+          questionPayload.correct_answer = correctAnswer;
+          questionPayload.tolerance = tolerance;
+        }
+        
+        const created = await createQuestion(questionPayload);
         questionId = created.id;
         
         // Update question image if provided
         if (questionImageFile || questionHideText !== false) {
           await updateQuestion(questionId, {
-            imageFile: questionImageFile,
+            imageFile: questionImageFile || undefined,
             hide_text: questionHideText,
           }, questionType);
         }
         
         // Create options based on question type
-        if (questionType === 'multiple_choice') {
+        if (questionType === 'number') {
+          // Number questions don't have options to create
+        } else if (questionType === 'multiple_choice') {
           for (const opt of options) {
             const imageFile = optionImageFiles.get(opt.id);
             await createOption({
@@ -733,7 +776,20 @@ export default function QuestionEditor() {
         setQuestionImageFile(null);
         
         // Load options based on question type
-        if (createdQuestion.question_type === 'multiple_choice') {
+        if (createdQuestion.question_type === 'number') {
+          const numQ = createdQuestion as NumberQuestionDetail;
+          setCorrectAnswer(numQ.correct_answer || 0);
+          setTolerance(numQ.tolerance || 0);
+          initialValues.current = {
+            text: createdQuestion.text,
+            topic: createdQuestion.topic,
+            image: imageUrl,
+            hide_text: createdQuestion.hide_text || false,
+            correct_answer: numQ.correct_answer || 0,
+            tolerance: numQ.tolerance || 0,
+            options: [],
+          };
+        } else if (createdQuestion.question_type === 'multiple_choice') {
           const opts = ((createdQuestion as MultipleChoiceQuestionDetail).options || []).map(opt => ({ ...opt }));
           setOptions(opts);
           setOptionImageFiles(new Map());
@@ -785,16 +841,26 @@ export default function QuestionEditor() {
           ? 'multiple-choice' 
           : createdQuestion.question_type === 'order'
           ? 'order'
-          : 'connect';
+          : createdQuestion.question_type === 'connect'
+          ? 'connect'
+          : 'number';
         navigate(`/questions/${typePath}/${questionId}/edit`, { replace: true });
       } else if (question) {
         // Update existing question (include image file if changed)
-        await updateQuestion(question.id, { 
+        const updatePayload: any = {
           text: text.trim(),
           topic: selectedTopic,
           hide_text: questionHideText,
           imageFile: questionImageFile || undefined,
-        }, question.question_type);
+        };
+        
+        // Add number-specific fields
+        if (question.question_type === 'number') {
+          updatePayload.correct_answer = correctAnswer;
+          updatePayload.tolerance = tolerance;
+        }
+        
+        await updateQuestion(question.id, updatePayload, question.question_type);
 
         // Handle options based on question type
         if (question.question_type === 'multiple_choice') {
@@ -1009,7 +1075,20 @@ export default function QuestionEditor() {
         setQuestionImageFile(null);
         
         // Load options based on question type
-        if (updatedQuestion.question_type === 'multiple_choice') {
+        if (updatedQuestion.question_type === 'number') {
+          const numQ = updatedQuestion as NumberQuestionDetail;
+          setCorrectAnswer(numQ.correct_answer || 0);
+          setTolerance(numQ.tolerance || 0);
+          initialValues.current = {
+            text: updatedQuestion.text,
+            topic: updatedQuestion.topic,
+            image: imageUrl,
+            hide_text: updatedQuestion.hide_text || false,
+            correct_answer: numQ.correct_answer || 0,
+            tolerance: numQ.tolerance || 0,
+            options: [],
+          };
+        } else if (updatedQuestion.question_type === 'multiple_choice') {
           const opts = ((updatedQuestion as MultipleChoiceQuestionDetail).options || []).map(opt => ({ ...opt }));
           setOptions(opts);
           setOptionImageFiles(new Map());
@@ -1060,7 +1139,9 @@ export default function QuestionEditor() {
           ? 'multiple-choice' 
           : updatedQuestion.question_type === 'order'
           ? 'order'
-          : 'connect';
+          : updatedQuestion.question_type === 'connect'
+          ? 'connect'
+          : 'number';
         navigate(`/questions/${typePath}/${question.id}/edit`, { replace: true });
       }
     } catch (e) {
@@ -1074,21 +1155,48 @@ export default function QuestionEditor() {
   };
 
   const setInitialQuestionData = (q: QuestionDetail) => {
-    const opts = (q.options || []).map(opt => ({ ...opt }));
-    // Update all state in one go to prevent double rendering
-    setText(q.text);
-    setSelectedTopic(q.topic);
-    setOptions(opts);
-    initialValues.current = {
-      text: q.text,
-      topic: q.topic,
-      options: opts.map(opt => ({ ...opt })),
-    };
+    // This function is not used for number questions, but kept for backward compatibility
+    if (q.question_type === 'multiple_choice') {
+      const opts = ((q as MultipleChoiceQuestionDetail).options || []).map(opt => ({ ...opt }));
+      // Update all state in one go to prevent double rendering
+      setText(q.text);
+      setSelectedTopic(q.topic);
+      setOptions(opts);
+      initialValues.current = {
+        text: q.text,
+        topic: q.topic,
+        image: null,
+        hide_text: false,
+        options: opts.map(opt => ({ ...opt })),
+      };
+    }
   };
 
   // Create a QuestionDetail-like object for preview
   const previewQuestion: QuestionDetail | null = (question || (isCreate && text && selectedTopic)) ? (
-    questionType === 'multiple_choice' ? {
+    questionType === 'number' ? {
+      id: question?.id || 0,
+      text: text || "",
+      order: question?.order || 0,
+      question_type: 'number' as const,
+      image: questionImage || question?.image || null,
+      video: question?.video || null,
+      hide_text: questionHideText,
+      organization: user?.organization.id || 0,
+      quiz: question?.quiz || null,
+      topic: selectedTopic || 0,
+      learning_objectives: [],
+      topic_name: topics.find(t => t.id === selectedTopic)?.name || "",
+      lesson_name: lessons.find(l => l.id === selectedLesson)?.name || "",
+      module_name: modules.find(m => m.id === selectedModule)?.name || "",
+      course_name: courses.find(c => c.id === selectedCourse)?.name || "",
+      quiz_name: null,
+      learning_objectives_count: 0,
+      created_at: question?.created_at || "",
+      updated_at: question?.updated_at || "",
+      correct_answer: correctAnswer,
+      tolerance: tolerance,
+    } : questionType === 'multiple_choice' ? {
       id: question?.id || 0,
       text: text || "",
       order: question?.order || 0,
@@ -1252,7 +1360,7 @@ export default function QuestionEditor() {
                   className="w-full rounded-md border px-3 py-2 text-sm"
                   value={questionType}
                   onChange={(e) => {
-                    const newType = e.target.value as 'multiple_choice' | 'order' | 'connect';
+                    const newType = e.target.value as 'multiple_choice' | 'order' | 'connect' | 'number';
                     setQuestionType(newType);
                     // Pre-fill text for order questions
                     if (newType === 'order' && isCreate && !text.trim()) {
@@ -1264,6 +1372,7 @@ export default function QuestionEditor() {
                   <option value="multiple_choice">Multiple Choice</option>
                   <option value="order">Order</option>
                   <option value="connect">Connect</option>
+                  <option value="number">Number</option>
                 </select>
                 {!isCreate && (
                   <div className="mt-2 flex items-center gap-2">
@@ -1582,6 +1691,42 @@ export default function QuestionEditor() {
                     )}
                   </TableBody>
                 </Table>
+              </div>
+            </div>
+          )}
+          
+          {questionType === 'number' && (
+            <div className="rounded-md border p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Correct Answer <span className="text-destructive">*</span>
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                  value={correctAnswer}
+                  onChange={(e) => setCorrectAnswer(parseFloat(e.target.value) || 0)}
+                  placeholder="Enter the correct numeric answer"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Tolerance
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                  value={tolerance}
+                  onChange={(e) => setTolerance(parseFloat(e.target.value) || 0)}
+                  placeholder="Tolerance (e.g., 0.1 for ±0.1)"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  The answer is correct if within ±tolerance of the correct answer. Leave 0 for exact match.
+                </p>
               </div>
             </div>
           )}

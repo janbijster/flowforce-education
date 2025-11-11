@@ -10,12 +10,14 @@ export function QuestionTypeBadge({ questionType, className = "" }: QuestionType
     multiple_choice: 'MC',
     order: 'Order',
     connect: 'Connect',
+    number: 'Number',
   };
   
   const typeColors = {
     multiple_choice: 'bg-blue-100 text-blue-700',
     order: 'bg-purple-100 text-purple-700',
     connect: 'bg-green-100 text-green-700',
+    number: 'bg-orange-100 text-orange-700',
   };
   
   return (

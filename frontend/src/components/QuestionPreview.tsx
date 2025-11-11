@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { QuestionDetail, MultipleChoiceQuestionDetail, OrderQuestionDetail, ConnectQuestionDetail, Option, OrderOption } from "@/lib/api";
+import { useState, useEffect } from "react";
+import { QuestionDetail, MultipleChoiceQuestionDetail, OrderQuestionDetail, ConnectQuestionDetail, NumberQuestionDetail, Option, OrderOption } from "@/lib/api";
 import { QuestionTypeBadge } from "./QuestionTypeBadge";
 import { ChevronUpIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import { Button } from "./ui/button";
@@ -9,9 +9,11 @@ interface QuestionPreviewProps {
   selectedOption?: number | null;
   selectedOrder?: number[] | null; // For OrderQuestion: array of option IDs in order
   selectedConnections?: Array<[number, number]> | null; // For ConnectQuestion: array of [from, to] pairs
+  selectedNumber?: number | null; // For NumberQuestion: the entered number
   onOptionSelect?: (optionId: number) => void;
   onOrderChange?: (optionIds: number[]) => void;
   onConnectionChange?: (connections: Array<[number, number]>) => void;
+  onNumberChange?: (value: number) => void; // For NumberQuestion: callback when number changes
   showCorrectAnswer?: boolean;
   onEditLayout?: () => void; // For Connect questions: callback to open layout editor
 }
@@ -244,6 +246,77 @@ function OrderPreview({
   );
 }
 
+function NumberPreview({
+  question,
+  selectedNumber,
+  onNumberChange,
+  showCorrectAnswer = false,
+}: {
+  question: NumberQuestionDetail;
+  selectedNumber?: number | null;
+  onNumberChange?: (value: number) => void;
+  showCorrectAnswer?: boolean;
+}) {
+  const [inputValue, setInputValue] = useState<string>(selectedNumber?.toString() || '');
+  
+  useEffect(() => {
+    if (selectedNumber !== null && selectedNumber !== undefined) {
+      setInputValue(selectedNumber.toString());
+    } else {
+      setInputValue('');
+    }
+  }, [selectedNumber]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue)) {
+      onNumberChange?.(numValue);
+    } else if (value === '' || value === '-') {
+      onNumberChange?.(0);
+    }
+  };
+
+  const isCorrect = selectedNumber !== null && selectedNumber !== undefined && !isNaN(selectedNumber) && (() => {
+    const diff = Math.abs(selectedNumber - question.correct_answer);
+    return diff <= question.tolerance;
+  })();
+
+  return (
+    <div className="space-y-2">
+      <p className="text-base font-medium mb-2">Enter your answer:</p>
+      <div className="space-y-2">
+        <input
+          type="number"
+          step="any"
+          className={`w-full rounded-md border px-3 py-2 text-sm ${
+            showCorrectAnswer 
+              ? (isCorrect ? "bg-green-50 border-green-500" : "bg-red-50 border-red-500")
+              : ""
+          }`}
+          value={inputValue}
+          onChange={handleInputChange}
+          placeholder="Enter a number"
+          disabled={showCorrectAnswer}
+        />
+        {showCorrectAnswer && (
+          <div className="text-sm">
+            {isCorrect ? (
+              <span className="text-green-600 font-medium">Correct! The answer is {question.correct_answer}</span>
+            ) : (
+              <span className="text-red-600 font-medium">
+                Incorrect. The correct answer is {question.correct_answer}
+                {question.tolerance > 0 && ` (±${question.tolerance})`}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ConnectPreview({
   question,
   selectedConnections,
@@ -469,9 +542,11 @@ export function QuestionPreview({
   selectedOption,
   selectedOrder,
   selectedConnections,
+  selectedNumber,
   onOptionSelect,
   onOrderChange,
   onConnectionChange,
+  onNumberChange,
   showCorrectAnswer = false,
   onEditLayout,
 }: QuestionPreviewProps) {
@@ -545,6 +620,15 @@ export function QuestionPreview({
               showCorrectAnswer={showCorrectAnswer}
             />
           </>
+        )}
+        
+        {question.question_type === 'number' && (
+          <NumberPreview
+            question={question as NumberQuestionDetail}
+            selectedNumber={selectedNumber}
+            onNumberChange={onNumberChange}
+            showCorrectAnswer={showCorrectAnswer}
+          />
         )}
       </div>
     </div>

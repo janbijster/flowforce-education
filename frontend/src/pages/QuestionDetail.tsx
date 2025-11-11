@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchQuestion, QuestionDetail as QuestionDetailType, MultipleChoiceQuestionDetail, OrderQuestionDetail, ConnectQuestionDetail } from "@/lib/api";
+import { fetchQuestion, QuestionDetail as QuestionDetailType, MultipleChoiceQuestionDetail, OrderQuestionDetail, ConnectQuestionDetail, NumberQuestionDetail } from "@/lib/api";
 import { QuestionPreview } from "@/components/QuestionPreview";
 import { QuestionTypeBadge } from "@/components/QuestionTypeBadge";
 
@@ -33,6 +33,8 @@ export default function QuestionDetail() {
           ? 'order' as const
           : type === 'connect'
           ? 'connect' as const
+          : type === 'number'
+          ? 'number' as const
           : undefined;
         const data = await fetchQuestion(Number(id), questionType);
         setQuestion(data);
@@ -82,7 +84,9 @@ export default function QuestionDetail() {
               ? 'multiple-choice' 
               : question.question_type === 'order'
               ? 'order'
-              : 'connect';
+              : question.question_type === 'connect'
+              ? 'connect'
+              : 'number';
             navigate(`/questions/${typePath}/${question.id}/edit`);
           }} variant="outline">
             Edit
@@ -239,6 +243,22 @@ export default function QuestionDetail() {
           <QuestionPreview question={question} showCorrectAnswer={true} />
         </div>
       </div>
+      
+      {question.question_type === 'number' && (
+        <div className="mt-6 rounded-md border p-4">
+          <h2 className="text-lg font-semibold mb-4">Answer Information</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Correct Answer</p>
+              <p className="mt-1 text-lg font-semibold">{(question as NumberQuestionDetail).correct_answer}</p>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Tolerance</p>
+              <p className="mt-1">{(question as NumberQuestionDetail).tolerance}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
