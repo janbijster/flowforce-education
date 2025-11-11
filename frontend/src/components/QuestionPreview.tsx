@@ -29,8 +29,8 @@ function MultipleChoicePreview({
   onOptionSelect?: (optionId: number) => void;
   showCorrectAnswer?: boolean;
 }) {
-  const getImageUrl = (url: string | null) => {
-    if (!url) return null;
+  const getImageUrl = (url: string | null): string | undefined => {
+    if (!url) return undefined;
     return url.startsWith('http') ? url : `http://127.0.0.1:8000${url}`;
   };
 

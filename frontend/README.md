@@ -1,6 +1,10 @@
 # Flowforce Education - frontend
 
 
+## Prerequisites
+
+- Node.js 22 (use `nvm use 22` before running any npm commands)
+
 ## Stack
 
 - React + Vite + TypeScript
@@ -12,6 +16,7 @@
 ## Getting Started
 
 ```
+nvm use 22
 npm install
 npm run dev
 ```
