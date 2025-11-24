@@ -112,7 +112,7 @@ class MaterialViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'description', 'content']
     ordering_fields = ['title', 'order', 'created_at', 'material_type']
     ordering = ['order', 'created_at']
-    filterset_fields = ['organization', 'course', 'module', 'lesson', 'topic', 'material_type']
+    filterset_fields = ['organization', 'course', 'modules', 'lessons', 'topics', 'material_type']
     
     def get_serializer_class(self):
         if self.action == 'retrieve':

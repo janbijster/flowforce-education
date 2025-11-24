@@ -102,25 +102,19 @@ class Material(OrganizationModel):
         null=True,
         blank=True
     )
-    module = models.ForeignKey(
+    modules = models.ManyToManyField(
         Module,
-        on_delete=models.CASCADE,
         related_name='materials',
-        null=True,
         blank=True
     )
-    lesson = models.ForeignKey(
+    lessons = models.ManyToManyField(
         Lesson,
-        on_delete=models.CASCADE,
         related_name='materials',
-        null=True,
         blank=True
     )
-    topic = models.ForeignKey(
+    topics = models.ManyToManyField(
         Topic,
-        on_delete=models.CASCADE,
         related_name='materials',
-        null=True,
         blank=True
     )
     
@@ -149,24 +143,39 @@ class Material(OrganizationModel):
         ordering = ['order', 'created_at']
     
     def clean(self):
-        """Validate that at least one course hierarchy level is specified."""
-        from django.core.exceptions import ValidationError
-        if not any([self.course, self.module, self.lesson, self.topic]):
-            raise ValidationError('At least one of course, module, lesson, or topic must be specified.')
+        """Validate that at least one course hierarchy level is specified.
+        
+        Note: Full validation including ManyToMany fields happens in the serializer.
+        ManyToMany fields can only be checked after the object is saved.
+        """
+        # Basic validation - full validation happens in serializer
+        pass
     
     def save(self, *args, **kwargs):
-        """Validate before saving."""
+        """Save the material.
+        
+        Note: Validation of ManyToMany fields happens in the serializer.
+        """
         self.clean()
         super().save(*args, **kwargs)
     
     def __str__(self):
         location = []
-        if self.topic:
-            location.append(self.topic.name)
-        if self.lesson:
-            location.append(self.lesson.name)
-        if self.module:
-            location.append(self.module.name)
+        if self.topics.exists():
+            topic_names = ', '.join([t.name for t in self.topics.all()[:2]])
+            if self.topics.count() > 2:
+                topic_names += '...'
+            location.append(f"Topics: {topic_names}")
+        if self.lessons.exists():
+            lesson_names = ', '.join([l.name for l in self.lessons.all()[:2]])
+            if self.lessons.count() > 2:
+                lesson_names += '...'
+            location.append(f"Lessons: {lesson_names}")
+        if self.modules.exists():
+            module_names = ', '.join([m.name for m in self.modules.all()[:2]])
+            if self.modules.count() > 2:
+                module_names += '...'
+            location.append(f"Modules: {module_names}")
         if self.course:
             location.append(self.course.name)
         location_str = ' - '.join(reversed(location)) if location else 'Unassigned'

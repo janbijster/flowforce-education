@@ -32,7 +32,8 @@ class TopicAdmin(admin.ModelAdmin):
 
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
-    list_display = ['title', 'material_type', 'course', 'module', 'lesson', 'topic', 'organization', 'order', 'slide_count', 'created_at']
-    list_filter = ['organization', 'material_type', 'course', 'module', 'lesson', 'topic', 'created_at']
+    list_display = ['title', 'material_type', 'course', 'organization', 'order', 'slide_count', 'created_at']
+    list_filter = ['organization', 'material_type', 'course', 'created_at']
     search_fields = ['title', 'description', 'content']
+    filter_horizontal = ['modules', 'lessons', 'topics']
     ordering = ['order', 'created_at']

@@ -114,21 +114,30 @@ class MaterialSerializer(serializers.ModelSerializer):
     """Serializer for Material model."""
     
     course_name = serializers.CharField(source='course.name', read_only=True)
-    module_name = serializers.CharField(source='module.name', read_only=True)
-    lesson_name = serializers.CharField(source='lesson.name', read_only=True)
-    topic_name = serializers.CharField(source='topic.name', read_only=True)
+    modules_names = serializers.SerializerMethodField()
+    lessons_names = serializers.SerializerMethodField()
+    topics_names = serializers.SerializerMethodField()
     file_url = serializers.SerializerMethodField()
     
     class Meta:
         model = Material
         fields = [
             'id', 'title', 'description', 'order', 'material_type',
-            'organization', 'course', 'module', 'lesson', 'topic',
-            'course_name', 'module_name', 'lesson_name', 'topic_name',
+            'organization', 'course', 'modules', 'lessons', 'topics',
+            'course_name', 'modules_names', 'lessons_names', 'topics_names',
             'file', 'file_url', 'content', 'slide_count',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+    
+    def get_modules_names(self, obj):
+        return [m.name for m in obj.modules.all()]
+    
+    def get_lessons_names(self, obj):
+        return [l.name for l in obj.lessons.all()]
+    
+    def get_topics_names(self, obj):
+        return [t.name for t in obj.topics.all()]
     
     def get_file_url(self, obj):
         """Return the file URL if file exists."""
@@ -141,9 +150,14 @@ class MaterialSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         """Validate that at least one course hierarchy level is specified."""
-        if not any([data.get('course'), data.get('module'), data.get('lesson'), data.get('topic')]):
+        has_course = data.get('course') is not None
+        has_modules = data.get('modules') and len(data.get('modules', [])) > 0
+        has_lessons = data.get('lessons') and len(data.get('lessons', [])) > 0
+        has_topics = data.get('topics') and len(data.get('topics', [])) > 0
+        
+        if not any([has_course, has_modules, has_lessons, has_topics]):
             raise serializers.ValidationError(
-                'At least one of course, module, lesson, or topic must be specified.'
+                'At least one of course, modules, lessons, or topics must be specified.'
             )
         return data
 
