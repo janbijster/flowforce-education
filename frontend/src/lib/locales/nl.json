@@ -1,0 +1,37 @@
+{
+  "common": {
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "view": "Bekijken",
+    "new": "Nieuw",
+    "loading": "Laden...",
+    "error": "Fout",
+    "back": "Terug",
+    "download": "Downloaden"
+  },
+  "nav": {
+    "students": "Studenten",
+    "studentGroups": "Studentgroepen",
+    "quizzes": "Quizzen",
+    "questions": "Vragen",
+    "materials": "Materialen",
+    "browseMaterials": "Materialen bekijken",
+    "materialsOverview": "Materialen overzicht"
+  },
+  "materials": {
+    "title": "Titel",
+    "description": "Beschrijving",
+    "type": "Type",
+    "course": "Cursus",
+    "modules": "Modules",
+    "lessons": "Lessen",
+    "topics": "Onderwerpen",
+    "content": "Inhoud",
+    "file": "Bestand",
+    "reader": "Reader",
+    "presentation": "Presentatie"
+  }
+}
+

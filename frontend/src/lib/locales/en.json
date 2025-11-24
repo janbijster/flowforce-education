@@ -1,0 +1,37 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "new": "New",
+    "loading": "Loading...",
+    "error": "Error",
+    "back": "Back",
+    "download": "Download"
+  },
+  "nav": {
+    "students": "Students",
+    "studentGroups": "Student Groups",
+    "quizzes": "Quizzes",
+    "questions": "Questions",
+    "materials": "Materials",
+    "browseMaterials": "Browse Materials",
+    "materialsOverview": "Materials Overview"
+  },
+  "materials": {
+    "title": "Title",
+    "description": "Description",
+    "type": "Type",
+    "course": "Course",
+    "modules": "Modules",
+    "lessons": "Lessons",
+    "topics": "Topics",
+    "content": "Content",
+    "file": "File",
+    "reader": "Reader",
+    "presentation": "Presentation"
+  }
+}
+
