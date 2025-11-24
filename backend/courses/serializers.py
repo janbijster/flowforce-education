@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Course, Module, Lesson, Topic, LearningObjective
+from .models import Course, Module, Lesson, Topic, LearningObjective, Material
 
 
 class LearningObjectiveSerializer(serializers.ModelSerializer):
@@ -130,3 +130,57 @@ class CourseDetailSerializer(CourseSerializer):
     
     class Meta(CourseSerializer.Meta):
         fields = CourseSerializer.Meta.fields + ['modules']
+
+
+# Learning Materials Serializers
+class MaterialSerializer(serializers.ModelSerializer):
+    """Serializer for Material model."""
+    
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    module_name = serializers.CharField(source='module.name', read_only=True)
+    lesson_name = serializers.CharField(source='lesson.name', read_only=True)
+    topic_name = serializers.CharField(source='topic.name', read_only=True)
+    learning_objectives_count = serializers.SerializerMethodField()
+    file_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Material
+        fields = [
+            'id', 'title', 'description', 'order', 'material_type',
+            'organization', 'course', 'module', 'lesson', 'topic',
+            'learning_objectives',
+            'course_name', 'module_name', 'lesson_name', 'topic_name',
+            'learning_objectives_count',
+            'file', 'file_url', 'content', 'slide_count',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+    
+    def get_learning_objectives_count(self, obj):
+        return obj.learning_objectives.count()
+    
+    def get_file_url(self, obj):
+        """Return the file URL if file exists."""
+        if obj.file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.file.url)
+            return obj.file.url
+        return None
+    
+    def validate(self, data):
+        """Validate that at least one course hierarchy level is specified."""
+        if not any([data.get('course'), data.get('module'), data.get('lesson'), data.get('topic')]):
+            raise serializers.ValidationError(
+                'At least one of course, module, lesson, or topic must be specified.'
+            )
+        return data
+
+
+class MaterialDetailSerializer(MaterialSerializer):
+    """Detailed serializer for Material with learning objectives."""
+    
+    learning_objectives = LearningObjectiveSerializer(many=True, read_only=True)
+    
+    class Meta(MaterialSerializer.Meta):
+        fields = MaterialSerializer.Meta.fields

@@ -2,13 +2,14 @@ from rest_framework import viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Course, Module, Lesson, Topic, LearningObjective
+from .models import Course, Module, Lesson, Topic, LearningObjective, Material
 from .serializers import (
     CourseSerializer, CourseDetailSerializer,
     ModuleSerializer, ModuleDetailSerializer,
     LessonSerializer, LessonDetailSerializer,
     TopicSerializer, TopicDetailSerializer,
-    LearningObjectiveSerializer
+    LearningObjectiveSerializer,
+    MaterialSerializer, MaterialDetailSerializer
 )
 
 
@@ -131,3 +132,26 @@ class LearningObjectiveViewSet(viewsets.ModelViewSet):
         topics = learning_objective.topics.all()
         serializer = TopicSerializer(topics, many=True)
         return Response(serializer.data)
+
+
+class MaterialViewSet(viewsets.ModelViewSet):
+    """ViewSet for Material model."""
+    
+    queryset = Material.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'description', 'content']
+    ordering_fields = ['title', 'order', 'created_at', 'material_type']
+    ordering = ['order', 'created_at']
+    filterset_fields = ['organization', 'course', 'module', 'lesson', 'topic', 'learning_objectives', 'material_type']
+    
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return MaterialDetailSerializer
+        return MaterialSerializer
+    
+    def get_serializer_context(self):
+        """Add request to serializer context for file URL generation."""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
