@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from organizations.models import Organization
-from courses.models import Course, Module, Lesson, Topic, LearningObjective
+from courses.models import Course, Module, Lesson, Topic
 
 
 class Command(BaseCommand):
@@ -26,11 +26,7 @@ class Command(BaseCommand):
             # Create topics
             topics = self.create_topics(org, lessons)
             
-            # Create learning objectives
-            learning_objectives = self.create_learning_objectives(org, topics)
-            
-            # Link learning objectives to topics
-            self.link_learning_objectives_to_topics(learning_objectives, topics)
+            # Topics now serve as learning objectives, no separate model needed
         
         self.stdout.write(
             self.style.SUCCESS('Successfully created BHV dummy content!')
@@ -230,7 +226,8 @@ class Command(BaseCommand):
         
         return topics
 
-    def create_learning_objectives(self, org, topics):
+    # Removed: Topics now serve as learning objectives, no separate model needed
+    def _removed_create_learning_objectives(self, org, topics):
         """Create learning objectives for each topic."""
         learning_objectives_data = [
             # Bewustzijn controleren
@@ -338,7 +335,8 @@ class Command(BaseCommand):
         
         return learning_objectives
 
-    def link_learning_objectives_to_topics(self, learning_objectives, topics):
+    # Removed: Topics now serve as learning objectives, no separate model needed
+    def _removed_link_learning_objectives_to_topics(self, learning_objectives, topics):
         """Link learning objectives to their respective topics."""
         for lo_name, lo in learning_objectives.items():
             # Find topics that should be linked to this learning objective

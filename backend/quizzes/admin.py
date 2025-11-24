@@ -53,10 +53,9 @@ class MultipleChoiceQuestionAdmin(admin.ModelAdmin):
     list_display = ['text', 'question_type', 'topic', 'organization', 'order', 'created_at']
     list_filter = ['organization', 'question_type', 'topic__lesson__module__course', 'created_at']
     search_fields = ['text']
-    filter_horizontal = ['learning_objectives']
     inlines = [OptionInline]
     readonly_fields = ['question_type']
-    fields = ['organization', 'text', 'question_type', 'image', 'video', 'order', 'quiz', 'topic', 'learning_objectives']
+    fields = ['organization', 'text', 'question_type', 'image', 'video', 'order', 'quiz', 'topic']
 
 
 class OrderOptionInline(admin.TabularInline):
@@ -70,10 +69,9 @@ class OrderQuestionAdmin(admin.ModelAdmin):
     list_display = ['text', 'question_type', 'topic', 'organization', 'order', 'created_at']
     list_filter = ['organization', 'question_type', 'topic__lesson__module__course', 'created_at']
     search_fields = ['text']
-    filter_horizontal = ['learning_objectives']
     inlines = [OrderOptionInline]
     readonly_fields = ['question_type']
-    fields = ['organization', 'text', 'question_type', 'image', 'video', 'order', 'quiz', 'topic', 'learning_objectives']
+    fields = ['organization', 'text', 'question_type', 'image', 'video', 'order', 'quiz', 'topic']
 
 
 class ConnectOptionInline(admin.TabularInline):
@@ -93,10 +91,9 @@ class ConnectQuestionAdmin(admin.ModelAdmin):
     list_display = ['text', 'question_type', 'topic', 'organization', 'order', 'created_at']
     list_filter = ['organization', 'question_type', 'topic__lesson__module__course', 'created_at']
     search_fields = ['text']
-    filter_horizontal = ['learning_objectives']
     inlines = [ConnectOptionInline, ConnectOptionConnectionInline]
     readonly_fields = ['question_type']
-    fields = ['organization', 'text', 'question_type', 'image', 'video', 'order', 'quiz', 'topic', 'learning_objectives']
+    fields = ['organization', 'text', 'question_type', 'image', 'video', 'order', 'quiz', 'topic']
 
 
 @admin.register(Option)
@@ -131,6 +128,5 @@ class NumberQuestionAdmin(admin.ModelAdmin):
     list_display = ['text', 'question_type', 'topic', 'correct_answer', 'tolerance', 'organization', 'order', 'created_at']
     list_filter = ['organization', 'question_type', 'topic__lesson__module__course', 'created_at']
     search_fields = ['text']
-    filter_horizontal = ['learning_objectives']
     readonly_fields = ['question_type']
-    fields = ['organization', 'text', 'question_type', 'image', 'video', 'hide_text', 'order', 'quiz', 'topic', 'learning_objectives', 'correct_answer', 'tolerance']
+    fields = ['organization', 'text', 'question_type', 'image', 'video', 'hide_text', 'order', 'quiz', 'topic', 'correct_answer', 'tolerance']

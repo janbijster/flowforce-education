@@ -55,7 +55,10 @@ class Lesson(OrganizationModel):
 
 
 class Topic(OrganizationModel):
-    """Topic model representing a collection of learning objectives within a lesson."""
+    """Topic model representing learning objectives within a lesson.
+    
+    Topics serve as learning objectives in the system.
+    """
     
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
@@ -71,25 +74,6 @@ class Topic(OrganizationModel):
     
     def __str__(self):
         return f"{self.lesson.module.course.name} - {self.lesson.module.name} - {self.lesson.name} - {self.name}"
-
-
-class LearningObjective(OrganizationModel):
-    """Learning Objective model representing specific learning goals."""
-    
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    topics = models.ManyToManyField(
-        Topic,
-        related_name='learning_objectives',
-        blank=True
-    )
-    
-    class Meta:
-        ordering = ['name']
-        unique_together = ['organization', 'name']
-    
-    def __str__(self):
-        return self.name
 
 
 class Material(OrganizationModel):
@@ -137,13 +121,6 @@ class Material(OrganizationModel):
         on_delete=models.CASCADE,
         related_name='materials',
         null=True,
-        blank=True
-    )
-    
-    # Link to learning objectives
-    learning_objectives = models.ManyToManyField(
-        LearningObjective,
-        related_name='materials',
         blank=True
     )
     

@@ -68,20 +68,15 @@ class BaseQuestionSerializer(serializers.ModelSerializer):
     lesson_name = serializers.CharField(source='topic.lesson.name', read_only=True)
     module_name = serializers.CharField(source='topic.lesson.module.name', read_only=True)
     course_name = serializers.CharField(source='topic.lesson.module.course.name', read_only=True)
-    learning_objectives_count = serializers.SerializerMethodField()
     
     class Meta:
         fields = [
             'id', 'text', 'order', 'question_type', 'image', 'video', 'hide_text',
-            'organization', 'quiz', 'topic', 'learning_objectives',
+            'organization', 'quiz', 'topic',
             'quiz_name', 'topic_name', 'lesson_name', 'module_name', 'course_name',
-            'learning_objectives_count',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'question_type', 'created_at', 'updated_at']
-    
-    def get_learning_objectives_count(self, obj):
-        return obj.learning_objectives.count()
 
 
 class MultipleChoiceQuestionSerializer(BaseQuestionSerializer):

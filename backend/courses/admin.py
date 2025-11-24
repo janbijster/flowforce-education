@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course, Module, Lesson, Topic, LearningObjective, Material
+from .models import Course, Module, Lesson, Topic, Material
 
 
 @admin.register(Course)
@@ -30,18 +30,9 @@ class TopicAdmin(admin.ModelAdmin):
     search_fields = ['name', 'description']
 
 
-@admin.register(LearningObjective)
-class LearningObjectiveAdmin(admin.ModelAdmin):
-    list_display = ['name', 'organization', 'created_at']
-    list_filter = ['organization', 'created_at']
-    search_fields = ['name', 'description']
-    filter_horizontal = ['topics']
-
-
 @admin.register(Material)
 class MaterialAdmin(admin.ModelAdmin):
     list_display = ['title', 'material_type', 'course', 'module', 'lesson', 'topic', 'organization', 'order', 'slide_count', 'created_at']
     list_filter = ['organization', 'material_type', 'course', 'module', 'lesson', 'topic', 'created_at']
     search_fields = ['title', 'description', 'content']
-    filter_horizontal = ['learning_objectives']
     ordering = ['order', 'created_at']

@@ -87,11 +87,6 @@ class BaseQuestion(OrganizationModel):
         on_delete=models.CASCADE,
         related_name='%(class)s_questions'
     )
-    learning_objectives = models.ManyToManyField(
-        'courses.LearningObjective',
-        related_name='%(class)s_questions',
-        blank=True
-    )
     
     class Meta:
         abstract = True

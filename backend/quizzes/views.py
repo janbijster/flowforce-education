@@ -137,7 +137,7 @@ class MultipleChoiceQuestionViewSet(viewsets.ModelViewSet):
     search_fields = ['text']
     ordering_fields = ['text', 'created_at', 'order']
     ordering = ['order', 'created_at']
-    filterset_fields = ['organization', 'topic', 'learning_objectives', 'quiz']
+    filterset_fields = ['organization', 'topic', 'quiz']
     
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -174,7 +174,7 @@ class OrderQuestionViewSet(viewsets.ModelViewSet):
     search_fields = ['text']
     ordering_fields = ['text', 'created_at', 'order']
     ordering = ['order', 'created_at']
-    filterset_fields = ['organization', 'topic', 'learning_objectives', 'quiz']
+    filterset_fields = ['organization', 'topic', 'quiz']
     
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -199,7 +199,7 @@ class ConnectQuestionViewSet(viewsets.ModelViewSet):
     search_fields = ['text']
     ordering_fields = ['text', 'created_at', 'order']
     ordering = ['order', 'created_at']
-    filterset_fields = ['organization', 'topic', 'learning_objectives', 'quiz']
+    filterset_fields = ['organization', 'topic', 'quiz']
     
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -298,7 +298,7 @@ class NumberQuestionViewSet(viewsets.ModelViewSet):
     search_fields = ['text']
     ordering_fields = ['text', 'created_at', 'order']
     ordering = ['order', 'created_at']
-    filterset_fields = ['organization', 'topic', 'learning_objectives', 'quiz']
+    filterset_fields = ['organization', 'topic', 'quiz']
     
     def get_serializer_class(self):
         if self.action == 'retrieve':

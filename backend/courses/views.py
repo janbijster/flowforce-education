@@ -2,13 +2,12 @@ from rest_framework import viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Course, Module, Lesson, Topic, LearningObjective, Material
+from .models import Course, Module, Lesson, Topic, Material
 from .serializers import (
     CourseSerializer, CourseDetailSerializer,
     ModuleSerializer, ModuleDetailSerializer,
     LessonSerializer, LessonDetailSerializer,
     TopicSerializer, TopicDetailSerializer,
-    LearningObjectiveSerializer,
     MaterialSerializer, MaterialDetailSerializer
 )
 
@@ -104,36 +103,6 @@ class TopicViewSet(viewsets.ModelViewSet):
             return TopicDetailSerializer
         return TopicSerializer
     
-    @action(detail=True, methods=['get'])
-    def learning_objectives(self, request, pk=None):
-        """Get all learning objectives for this topic."""
-        topic = self.get_object()
-        learning_objectives = LearningObjective.objects.filter(topics=topic)
-        serializer = LearningObjectiveSerializer(learning_objectives, many=True)
-        return Response(serializer.data)
-
-
-class LearningObjectiveViewSet(viewsets.ModelViewSet):
-    """ViewSet for LearningObjective model."""
-    
-    queryset = LearningObjective.objects.all()
-    serializer_class = LearningObjectiveSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['name', 'description']
-    ordering_fields = ['name', 'created_at']
-    ordering = ['name']
-    filterset_fields = ['organization', 'topics']
-    
-    @action(detail=True, methods=['get'])
-    def topics(self, request, pk=None):
-        """Get all topics for this learning objective."""
-        learning_objective = self.get_object()
-        topics = learning_objective.topics.all()
-        serializer = TopicSerializer(topics, many=True)
-        return Response(serializer.data)
-
-
 class MaterialViewSet(viewsets.ModelViewSet):
     """ViewSet for Material model."""
     
@@ -143,7 +112,7 @@ class MaterialViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'description', 'content']
     ordering_fields = ['title', 'order', 'created_at', 'material_type']
     ordering = ['order', 'created_at']
-    filterset_fields = ['organization', 'course', 'module', 'lesson', 'topic', 'learning_objectives', 'material_type']
+    filterset_fields = ['organization', 'course', 'module', 'lesson', 'topic', 'material_type']
     
     def get_serializer_class(self):
         if self.action == 'retrieve':

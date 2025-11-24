@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from organizations.models import Organization
-from courses.models import Course, Module, Lesson, Topic, LearningObjective
+from courses.models import Course, Module, Lesson, Topic
 from quizzes.models import Quiz, Question, Option
 
 
@@ -94,39 +94,32 @@ class Command(BaseCommand):
             {
                 'text': 'Wat zijn de tekenen van bewusteloosheid?',
                 'quiz': 'Basisopleiding BHV - Compleet Examen',
-                'topic': bewustzijn_topic,
-                'learning_objectives': ['Herkennen van bewusteloosheid']
+                'topic': bewustzijn_topic
             },
             {
                 'text': 'Welke stappen neem je bij een bewusteloos slachtoffer?',
                 'quiz': 'Basisopleiding BHV - Compleet Examen',
-                'topic': bewustzijn_topic,
-                'learning_objectives': ['Stappen bij bewusteloos slachtoffer']
+                'topic': bewustzijn_topic
             },
             {
                 'text': 'Hoe diep moeten borstcompressies zijn bij reanimatie?',
                 'quiz': 'Levensreddende Eerste Hulp - Module Quiz',
-                'topic': reanimatie_topic,
-                'learning_objectives': ['Correcte borstcompressies']
+                'topic': reanimatie_topic
             },
             {
                 'text': 'Wanneer moet je een AED gebruiken?',
                 'quiz': 'Levensreddende Eerste Hulp - Module Quiz',
-                'topic': reanimatie_topic,
-                'learning_objectives': ['AED gebruik']
+                'topic': reanimatie_topic
             },
             {
                 'text': 'Hoe vaak per minuut voer je borstcompressies uit?',
                 'quiz': 'Bewustzijn en Reanimatie - Topic Quiz',
-                'topic': reanimatie_topic,
-                'learning_objectives': ['Correcte borstcompressies']
+                'topic': reanimatie_topic
             }
         ]
         
         questions = {}
         for q_data in questions_data:
-            lo_names = q_data['learning_objectives']
-            
             question, created = Question.objects.get_or_create(
                 organization=org,
                 text=q_data['text'],
@@ -135,17 +128,6 @@ class Command(BaseCommand):
                     'topic': q_data['topic']
                 }
             )
-            
-            # Link learning objectives
-            for lo_name in lo_names:
-                try:
-                    lo = LearningObjective.objects.get(
-                        organization=org,
-                        name=lo_name
-                    )
-                    question.learning_objectives.add(lo)
-                except LearningObjective.DoesNotExist:
-                    self.stdout.write(f'Warning: Learning objective "{lo_name}" not found')
             
             questions[q_data['text']] = question
             if created:
