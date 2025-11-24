@@ -12,13 +12,11 @@ export interface BaseQuestion {
   organization: number;
   quiz: number | null;
   topic: number;
-  learning_objectives: number[];
   topic_name: string;
   lesson_name: string;
   module_name: string;
   course_name: string;
   quiz_name: string | null;
-  learning_objectives_count: number;
   created_at: string;
   updated_at: string;
 }
@@ -191,7 +189,6 @@ export interface Topic {
   lesson_name: string;
   module_name: string;
   course_name: string;
-  learning_objectives_count: number;
   created_at: string;
   updated_at: string;
 }

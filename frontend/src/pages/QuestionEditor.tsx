@@ -724,7 +724,6 @@ export default function QuestionEditor() {
           question_type: questionType,
           organization: user.organization.id,
           topic: selectedTopic,
-          learning_objectives: [],
           hide_text: questionHideText,
         };
         
@@ -1337,13 +1336,11 @@ export default function QuestionEditor() {
       organization: user?.organization.id || 0,
       quiz: question?.quiz || null,
       topic: selectedTopic || 0,
-      learning_objectives: [],
       topic_name: topics.find(t => t.id === selectedTopic)?.name || "",
       lesson_name: lessons.find(l => l.id === selectedLesson)?.name || "",
       module_name: modules.find(m => m.id === selectedModule)?.name || "",
       course_name: courses.find(c => c.id === selectedCourse)?.name || "",
       quiz_name: null,
-      learning_objectives_count: 0,
       created_at: question?.created_at || "",
       updated_at: question?.updated_at || "",
       correct_answer: correctAnswer,
@@ -1359,7 +1356,6 @@ export default function QuestionEditor() {
       organization: user?.organization.id || 0,
       quiz: question?.quiz || null,
       topic: selectedTopic || 0,
-      learning_objectives: [],
       topic_name: topics.find(t => t.id === selectedTopic)?.name || "",
       lesson_name: lessons.find(l => l.id === selectedLesson)?.name || "",
       module_name: modules.find(m => m.id === selectedModule)?.name || "",
@@ -1368,7 +1364,6 @@ export default function QuestionEditor() {
       options_count: question && (question as MultipleChoiceQuestionDetail).options 
         ? (question as MultipleChoiceQuestionDetail).options.length 
         : options.length,
-      learning_objectives_count: 0,
       created_at: question?.created_at || "",
       updated_at: question?.updated_at || "",
       options: (() => {
@@ -1403,14 +1398,12 @@ export default function QuestionEditor() {
       organization: user?.organization.id || 0,
       quiz: question?.quiz || null,
       topic: selectedTopic || 0,
-      learning_objectives: [],
       topic_name: topics.find(t => t.id === selectedTopic)?.name || "",
       lesson_name: lessons.find(l => l.id === selectedLesson)?.name || "",
       module_name: modules.find(m => m.id === selectedModule)?.name || "",
       course_name: courses.find(c => c.id === selectedCourse)?.name || "",
       quiz_name: null,
       order_options_count: orderOptions.length,
-      learning_objectives_count: 0,
       created_at: question?.created_at || "",
       updated_at: question?.updated_at || "",
       order_options: question && (question as OrderQuestionDetail).order_options
@@ -1455,7 +1448,6 @@ export default function QuestionEditor() {
       organization: user?.organization.id || 0,
       quiz: question?.quiz || null,
       topic: selectedTopic || 0,
-      learning_objectives: [],
       topic_name: topics.find(t => t.id === selectedTopic)?.name || "",
       lesson_name: lessons.find(l => l.id === selectedLesson)?.name || "",
       module_name: modules.find(m => m.id === selectedModule)?.name || "",
@@ -1463,7 +1455,6 @@ export default function QuestionEditor() {
       quiz_name: null,
       connect_options_count: connectOptions.length,
       connections_count: connectConnections.length,
-      learning_objectives_count: 0,
       created_at: question?.created_at || "",
       updated_at: question?.updated_at || "",
       connect_options: question && (question as ConnectQuestionDetail).connect_options
