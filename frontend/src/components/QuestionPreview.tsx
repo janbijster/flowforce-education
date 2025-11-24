@@ -93,15 +93,15 @@ function MultipleChoicePreview({
                     readOnly
                   />
                   <div className="flex-1">
-                    {!option.hide_text && (
-                      <span className="text-sm">{option.text}</span>
-                    )}
                     {option.image && (
                       <img 
                         src={getImageUrl(option.image)} 
                         alt={option.hide_text ? option.text : option.text} 
-                        className="mt-2 max-w-full max-h-40 object-contain rounded"
+                        className="mb-2 max-w-full max-h-40 object-contain rounded"
                       />
+                    )}
+                    {!option.hide_text && (
+                      <span className="text-sm">{option.text}</span>
                     )}
                     {showCorrectAnswer && isCorrect && (
                       <span className="ml-2 text-xs text-green-600 font-medium">(Correct)</span>
@@ -218,15 +218,15 @@ function OrderPreview({
                     {index + 1}.
                   </span>
                   <div className="flex-1">
-                    {!option.hide_text && (
-                      <span className="text-sm">{option.text}</span>
-                    )}
                     {option.image && (
                       <img 
                         src={option.image.startsWith('http') ? option.image : `http://127.0.0.1:8000${option.image}`} 
                         alt={option.hide_text ? option.text : option.text} 
-                        className="mt-2 max-w-full max-h-40 object-contain rounded"
+                        className="mb-2 max-w-full max-h-40 object-contain rounded"
                       />
+                    )}
+                    {!option.hide_text && (
+                      <span className="text-sm">{option.text}</span>
                     )}
                   </div>
                   {showCorrectAnswer && (
@@ -527,16 +527,16 @@ function ConnectPreview({
                 }}
                 onClick={() => handleOptionClick(option.id)}
               >
-                {!option.hide_text && (
-                  <div className="text-xs font-medium select-none">{option.text || 'Untitled'}</div>
-                )}
                 {option.image && (
                   <img
                     src={option.image.startsWith('http') ? option.image : `http://127.0.0.1:8000${option.image}`}
                     alt={option.hide_text ? option.text : (option.text || 'Untitled')}
-                    className="mt-1 w-full h-auto rounded object-contain"
+                    className="mb-1 w-full h-auto rounded object-contain"
                     style={{ maxHeight: `${(option.height || 60) - 40}px` }}
                   />
+                )}
+                {!option.hide_text && (
+                  <div className="text-xs font-medium select-none">{option.text || 'Untitled'}</div>
                 )}
               </div>
             );
@@ -597,15 +597,15 @@ export function QuestionPreview({
         </div>
         <div className="mb-4">
           <p className="text-base font-medium mb-1">Question:</p>
-          {!question.hide_text && (
-            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{question.text}</p>
-          )}
           {question.image && (
             <img 
               src={question.image.startsWith('http') ? question.image : `http://127.0.0.1:8000${question.image}`} 
               alt={question.hide_text ? question.text : "Question"} 
-              className="mt-2 max-w-full max-h-40 object-contain rounded" 
+              className="mb-2 max-w-full max-h-80 object-contain rounded" 
             />
+          )}
+          {!question.hide_text && (
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{question.text}</p>
           )}
           {question.video && (
             <video src={question.video} controls className="mt-2 max-w-full rounded" />
