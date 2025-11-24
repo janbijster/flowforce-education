@@ -16,20 +16,30 @@ interface NavItemWithChildren extends NavItem {
 
 export const mainMenu: NavItemWithChildren[] = [
     {
-        title: 'Student Groups',
-        to: '/student-groups',
-    },
-    {
         title: 'Students',
-        to: '/students',
+        items: [
+            {
+                title: 'Student Groups',
+                to: '/student-groups',
+            },
+            {
+                title: 'Students',
+                to: '/students',
+            },
+        ],
     },
     {
         title: 'Quizzes',
-        to: '/quizzes',
-    },
-    {
-        title: 'Questions',
-        to: '/questions',
+        items: [
+            {
+                title: 'Quizzes',
+                to: '/quizzes',
+            },
+            {
+                title: 'Questions',
+                to: '/questions',
+            },
+        ],
     },
     {
         title: 'Materials',
