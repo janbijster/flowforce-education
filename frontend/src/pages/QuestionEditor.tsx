@@ -254,6 +254,7 @@ export default function QuestionEditor() {
           } else if (q.question_type === 'connect') {
             const opts = ((q as ConnectQuestionDetail).connect_options || []).map(opt => ({ 
               ...opt,
+              connectable: opt.connectable !== undefined ? opt.connectable : true,
               width: opt.width || 100,
               height: opt.height || 60,
             }));
@@ -464,7 +465,8 @@ export default function QuestionEditor() {
             opt.text.trim() !== initOpt.text.trim() ||
             opt.position_x !== initOpt.position_x ||
             opt.position_y !== initOpt.position_y ||
-            opt.hide_text !== initOpt.hide_text
+            opt.hide_text !== initOpt.hide_text ||
+            (opt.connectable !== undefined ? opt.connectable : true) !== (initOpt.connectable !== undefined ? initOpt.connectable : true)
           );
         }) ||
         initialConnectOptions.some((initOpt, idx) => {
@@ -474,7 +476,8 @@ export default function QuestionEditor() {
             opt.text.trim() !== initOpt.text.trim() ||
             opt.position_x !== initOpt.position_x ||
             opt.position_y !== initOpt.position_y ||
-            opt.hide_text !== initOpt.hide_text
+            opt.hide_text !== initOpt.hide_text ||
+            (opt.connectable !== undefined ? opt.connectable : true) !== (initOpt.connectable !== undefined ? initOpt.connectable : true)
           );
         });
       
@@ -635,6 +638,7 @@ export default function QuestionEditor() {
       id: uniqueId,
       text: "",
       image: null,
+      connectable: true,
       position_x: 0.5,
       position_y: 0.5,
       width: 100,
@@ -655,7 +659,7 @@ export default function QuestionEditor() {
     );
   };
 
-  const handleUpdateConnectOption = (optionId: number | string, field: 'text' | 'image' | 'width' | 'height' | 'hide_text', value: string | number | boolean) => {
+  const handleUpdateConnectOption = (optionId: number | string, field: 'text' | 'image' | 'connectable' | 'width' | 'height' | 'hide_text', value: string | number | boolean) => {
     setConnectOptions(connectOptions.map(opt =>
       opt.id === optionId ? { ...opt, [field]: value } : opt
     ));
@@ -784,6 +788,7 @@ export default function QuestionEditor() {
               width: opt.width || 100,
               height: opt.height || 60,
               hide_text: opt.hide_text || false,
+              connectable: opt.connectable !== undefined ? opt.connectable : true,
               organization: user.organization.id,
               question: questionId,
               imageFile: imageFile || undefined,
@@ -878,6 +883,7 @@ export default function QuestionEditor() {
         } else if (createdQuestion.question_type === 'connect') {
           const opts = ((createdQuestion as ConnectQuestionDetail).connect_options || []).map(opt => ({ 
             ...opt,
+            connectable: opt.connectable !== undefined ? opt.connectable : true,
             width: opt.width || 100,
             height: opt.height || 60,
           }));
@@ -1085,6 +1091,7 @@ export default function QuestionEditor() {
                 width: opt.width || 100,
                 height: opt.height || 60,
                 hide_text: opt.hide_text || false,
+                connectable: opt.connectable !== undefined ? opt.connectable : true,
                 organization: user.organization.id,
                 question: question.id,
                 imageFile: imageFile || undefined,
@@ -1102,6 +1109,7 @@ export default function QuestionEditor() {
                             opt.width !== initOpt.width ||
                             opt.height !== initOpt.height ||
                             opt.hide_text !== initOpt.hide_text ||
+                            opt.connectable !== (initOpt.connectable !== undefined ? initOpt.connectable : true) ||
                             imageFile !== undefined;
               if (changed) {
                 await updateConnectOption(opt.id, {
@@ -1111,6 +1119,7 @@ export default function QuestionEditor() {
                   width: opt.width || 100,
                   height: opt.height || 60,
                   hide_text: opt.hide_text || false,
+                  connectable: opt.connectable !== undefined ? opt.connectable : true,
                   imageFile: imageFile || undefined,
                 });
               }
@@ -1251,6 +1260,7 @@ export default function QuestionEditor() {
         } else if (updatedQuestion.question_type === 'connect') {
           const opts = ((updatedQuestion as ConnectQuestionDetail).connect_options || []).map(opt => ({ 
             ...opt,
+            connectable: opt.connectable !== undefined ? opt.connectable : true,
             width: opt.width || 100,
             height: opt.height || 60,
           }));
@@ -1465,6 +1475,7 @@ export default function QuestionEditor() {
             id: typeof opt.id === 'number' ? opt.id : 0,
             text: opt.text,
             image: opt.image || null,
+            connectable: opt.connectable !== undefined ? opt.connectable : true,
             hide_text: opt.hide_text || false,
             position_x: opt.position_x,
             position_y: opt.position_y,
@@ -1953,6 +1964,7 @@ export default function QuestionEditor() {
                     <TableRow>
                       <TableHead>{t("questions.optionText")}</TableHead>
                       <TableHead>{t("questions.position")}</TableHead>
+                      <TableHead className="w-32">{t("questions.connectable")}</TableHead>
                       <TableHead className="w-24">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -2003,6 +2015,17 @@ export default function QuestionEditor() {
                             ({option.position_x.toFixed(2)}, {option.position_y.toFixed(2)})
                           </TableCell>
                           <TableCell>
+                            <label className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={option.connectable !== undefined ? option.connectable : true}
+                                onChange={(e) => handleUpdateConnectOption(option.id, 'connectable', e.target.checked)}
+                                className="rounded"
+                              />
+                              <span className="text-xs">{t("questions.connectable")}</span>
+                            </label>
+                          </TableCell>
+                          <TableCell>
                             <Button
                               size="sm"
                               variant="outline"
@@ -2015,7 +2038,7 @@ export default function QuestionEditor() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={3} className="text-center text-muted-foreground">
+                        <TableCell colSpan={4} className="text-center text-muted-foreground">
                           {t("questions.noOptionsClickAddConnect")}
                         </TableCell>
                       </TableRow>

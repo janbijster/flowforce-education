@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import {
   Sheet,
@@ -35,6 +36,7 @@ export function ConnectQuestionLayoutEditor({
   open,
   onOpenChange,
 }: ConnectQuestionLayoutEditorProps) {
+  const { t } = useTranslation();
   const [selectedOptionId, setSelectedOptionId] = useState<number | string | null>(null);
   const [connectingFrom, setConnectingFrom] = useState<number | string | null>(null);
   const [draggingOptionId, setDraggingOptionId] = useState<number | string | null>(null);
@@ -58,7 +60,24 @@ export function ConnectQuestionLayoutEditor({
   const handleOptionClick = (optionId: number | string, e: React.MouseEvent) => {
     e.stopPropagation();
     
+    // Check if the option is connectable
+    const option = options.find(opt => opt.id === optionId);
+    if (option && option.connectable === false) {
+      // Still allow selection for editing, but don't allow connections
+      if (!connectingFrom) {
+        setSelectedOptionId(optionId);
+      }
+      return;
+    }
+    
     if (connectingFrom) {
+      // Check if the source option is connectable
+      const fromOption = options.find(opt => opt.id === connectingFrom);
+      if (fromOption && fromOption.connectable === false) {
+        setConnectingFrom(null);
+        return;
+      }
+      
       // Complete connection
       if (connectingFrom !== optionId) {
         const fromId = typeof connectingFrom === 'number' ? connectingFrom : connectingFrom;
@@ -158,7 +177,7 @@ export function ConnectQuestionLayoutEditor({
     );
   };
 
-  const handleUpdateOption = (field: 'text' | 'position_x' | 'position_y' | 'width' | 'height' | 'hide_text', value: string | number | boolean) => {
+  const handleUpdateOption = (field: 'text' | 'position_x' | 'position_y' | 'width' | 'height' | 'hide_text' | 'connectable', value: string | number | boolean) => {
     if (!selectedOptionId) return;
     onOptionsChange(
       options.map(opt =>
@@ -293,6 +312,17 @@ export function ConnectQuestionLayoutEditor({
                     />
                   </div>
                 )}
+                <div>
+                  <label className="flex items-center gap-2 text-xs">
+                    <input
+                      type="checkbox"
+                      checked={selectedOption.connectable !== undefined ? selectedOption.connectable : true}
+                      onChange={(e) => handleUpdateOption('connectable', e.target.checked)}
+                      className="rounded"
+                    />
+                    <span>{t("questions.connectable")}</span>
+                  </label>
+                </div>
               </div>
             )}
 
@@ -443,13 +473,16 @@ export function ConnectQuestionLayoutEditor({
                   const pixelPos = getPixelPosition(option);
                   const isSelected = selectedOptionId === option.id;
                   const isConnectingFrom = connectingFrom === option.id;
+                  const isConnectable = option.connectable !== undefined ? option.connectable : true;
                   
                   return (
                     <div
                       key={option.id}
                       className={`absolute cursor-move rounded-md border p-2 bg-background shadow-sm min-w-[100px] select-none ${
                         isSelected ? 'ring-2 ring-primary' : ''
-                      } ${isConnectingFrom ? 'ring-2 ring-primary ring-offset-2' : ''}`}
+                      } ${isConnectingFrom ? 'ring-2 ring-primary ring-offset-2' : ''} ${
+                        !isConnectable ? 'opacity-50' : ''
+                      }`}
                       style={{
                         left: `${pixelPos.x}px`,
                         top: `${pixelPos.y}px`,
@@ -476,9 +509,12 @@ export function ConnectQuestionLayoutEditor({
                           size="sm"
                           variant="outline"
                           className="h-6 text-xs px-2"
+                          disabled={!isConnectable}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleStartConnection(option.id, e);
+                            if (isConnectable) {
+                              handleStartConnection(option.id, e);
+                            }
                           }}
                         >
                           Connect

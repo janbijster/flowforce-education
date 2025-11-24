@@ -220,7 +220,12 @@ export default function QuestionDetail() {
                   <div className="space-y-2">
                     {(question as ConnectQuestionDetail).connect_options?.map((option) => (
                       <div key={option.id} className="p-2 border rounded">
-                        <p className="text-sm">{option.text}</p>
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm">{option.text}</p>
+                          {option.connectable === false && (
+                            <span className="text-xs text-muted-foreground">{t("questions.notConnectable")}</span>
+                          )}
+                        </div>
                         <p className="text-xs text-muted-foreground">{t("questions.position")}: ({option.position_x.toFixed(2)}, {option.position_y.toFixed(2)})</p>
                       </div>
                     ))}

@@ -186,7 +186,9 @@
     "connectOptionsConnections": "Verbindingsopties & verbindingen",
     "correctConnections": "Juiste verbindingen:",
     "answerInformation": "Antwoord informatie",
-    "toleranceLabel": "Tolerantie"
+    "toleranceLabel": "Tolerantie",
+    "connectable": "Verbindbaar",
+    "notConnectable": "Niet Verbindbaar"
   },
   "students": {
     "students": "Studenten",

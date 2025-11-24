@@ -97,6 +97,7 @@ export interface ConnectOption {
   id: number;
   text: string;
   image: string | null;
+  connectable: boolean;
   hide_text: boolean;
   position_x: number;
   position_y: number;

@@ -77,7 +77,7 @@ class OrderQuestionAdmin(admin.ModelAdmin):
 class ConnectOptionInline(admin.TabularInline):
     model = ConnectOption
     extra = 4
-    fields = ['text', 'image', 'position_x', 'position_y']
+    fields = ['text', 'image', 'connectable', 'position_x', 'position_y']
 
 
 class ConnectOptionConnectionInline(admin.TabularInline):

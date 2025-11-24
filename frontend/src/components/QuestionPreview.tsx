@@ -394,7 +394,18 @@ function ConnectPreview({
   const handleOptionClick = (optionId: number) => {
     if (showCorrectAnswer || !onConnectionChange) return;
     
+    // Check if the option is connectable
+    const option = question.connect_options.find(opt => opt.id === optionId);
+    if (option && option.connectable === false) return;
+    
     if (connectingFrom) {
+      // Check if the source option is connectable
+      const fromOption = question.connect_options.find(opt => opt.id === connectingFrom);
+      if (fromOption && fromOption.connectable === false) {
+        setConnectingFrom(null);
+        return;
+      }
+      
       // Complete connection
       if (connectingFrom !== optionId) {
         // Check if connection already exists
@@ -516,11 +527,14 @@ function ConnectPreview({
             const pixelPos = getPixelPosition(option);
             const isConnectingFrom = connectingFrom === option.id;
             const hasConnection = currentConnections.some(([from, to]) => from === option.id || to === option.id);
+            const isConnectable = option.connectable !== undefined ? option.connectable : true;
             
             return (
               <div
                 key={option.id}
-                className={`absolute cursor-pointer rounded-md border p-2 bg-background shadow-sm text-center select-none ${
+                className={`absolute rounded-md border p-2 bg-background shadow-sm text-center select-none ${
+                  isConnectable ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+                } ${
                   isConnectingFrom ? 'ring-2 ring-primary ring-offset-2' : ''
                 } ${hasConnection ? 'border-primary' : ''}`}
                 style={{

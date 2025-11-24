@@ -39,7 +39,7 @@ class ConnectOptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConnectOption
         fields = [
-            'id', 'text', 'image', 'hide_text', 'position_x', 'position_y', 'width', 'height', 'organization', 'question',
+            'id', 'text', 'image', 'connectable', 'hide_text', 'position_x', 'position_y', 'width', 'height', 'organization', 'question',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']

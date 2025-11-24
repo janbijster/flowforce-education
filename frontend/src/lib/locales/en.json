@@ -186,7 +186,9 @@
     "connectOptionsConnections": "Connect Options & Connections",
     "correctConnections": "Correct Connections:",
     "answerInformation": "Answer Information",
-    "toleranceLabel": "Tolerance"
+    "toleranceLabel": "Tolerance",
+    "connectable": "Connectable",
+    "notConnectable": "Not Connectable"
   },
   "students": {
     "students": "Students",

@@ -6,33 +6,6 @@ info:
     levels
 paths:
   /api/organizations/organizations/:
-    post:
-      operationId: organizations_organizations_create
-      description: ViewSet for Organization model.
-      tags:
-      - organizations
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrganizationRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/OrganizationRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/OrganizationRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Organization'
-          description: ''
     get:
       operationId: organizations_organizations_list
       description: ViewSet for Organization model.
@@ -67,9 +40,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedOrganizationList'
           description: ''
+    post:
+      operationId: organizations_organizations_create
+      description: ViewSet for Organization model.
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+          description: ''
   /api/organizations/organizations/{id}/:
-    patch:
-      operationId: organizations_organizations_partial_update
+    put:
+      operationId: organizations_organizations_update
       description: ViewSet for Organization model.
       parameters:
       - in: path
@@ -84,13 +84,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedOrganizationRequest'
+              $ref: '#/components/schemas/OrganizationRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedOrganizationRequest'
+              $ref: '#/components/schemas/OrganizationRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedOrganizationRequest'
+              $ref: '#/components/schemas/OrganizationRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -141,8 +142,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Organization'
           description: ''
-    put:
-      operationId: organizations_organizations_update
+    patch:
+      operationId: organizations_organizations_partial_update
       description: ViewSet for Organization model.
       parameters:
       - in: path
@@ -157,14 +158,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrganizationRequest'
+              $ref: '#/components/schemas/PatchedOrganizationRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OrganizationRequest'
+              $ref: '#/components/schemas/PatchedOrganizationRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OrganizationRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedOrganizationRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -199,33 +199,6 @@ paths:
                 $ref: '#/components/schemas/Organization'
           description: ''
   /api/organizations/users/:
-    post:
-      operationId: organizations_users_create
-      description: ViewSet for User model.
-      tags:
-      - organizations
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/UserRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/UserRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-          description: ''
     get:
       operationId: organizations_users_list
       description: ViewSet for User model.
@@ -272,9 +245,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedUserList'
           description: ''
+    post:
+      operationId: organizations_users_create
+      description: ViewSet for User model.
+      tags:
+      - organizations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
   /api/organizations/users/{id}/:
-    patch:
-      operationId: organizations_users_partial_update
+    put:
+      operationId: organizations_users_update
       description: ViewSet for User model.
       parameters:
       - in: path
@@ -289,13 +289,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
+              $ref: '#/components/schemas/UserRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
+              $ref: '#/components/schemas/UserRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
+              $ref: '#/components/schemas/UserRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -346,8 +347,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
-    put:
-      operationId: organizations_users_update
+    patch:
+      operationId: organizations_users_partial_update
       description: ViewSet for User model.
       parameters:
       - in: path
@@ -362,14 +363,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRequest'
+              $ref: '#/components/schemas/PatchedUserRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/UserRequest'
+              $ref: '#/components/schemas/PatchedUserRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UserRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedUserRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -381,33 +381,6 @@ paths:
                 $ref: '#/components/schemas/User'
           description: ''
   /api/courses/courses/:
-    post:
-      operationId: courses_courses_create
-      description: ViewSet for Course model.
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CourseRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/CourseRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/CourseRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-          description: ''
     get:
       operationId: courses_courses_list
       description: ViewSet for Course model.
@@ -446,9 +419,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedCourseList'
           description: ''
+    post:
+      operationId: courses_courses_create
+      description: ViewSet for Course model.
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
   /api/courses/courses/{id}/:
-    patch:
-      operationId: courses_courses_partial_update
+    put:
+      operationId: courses_courses_update
       description: ViewSet for Course model.
       parameters:
       - in: path
@@ -463,13 +463,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCourseRequest'
+              $ref: '#/components/schemas/CourseRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCourseRequest'
+              $ref: '#/components/schemas/CourseRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCourseRequest'
+              $ref: '#/components/schemas/CourseRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -520,8 +521,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-    put:
-      operationId: courses_courses_update
+    patch:
+      operationId: courses_courses_partial_update
       description: ViewSet for Course model.
       parameters:
       - in: path
@@ -536,14 +537,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CourseRequest'
+              $ref: '#/components/schemas/PatchedCourseRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CourseRequest'
+              $ref: '#/components/schemas/PatchedCourseRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CourseRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedCourseRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -578,33 +578,6 @@ paths:
                 $ref: '#/components/schemas/Course'
           description: ''
   /api/courses/modules/:
-    post:
-      operationId: courses_modules_create
-      description: ViewSet for Module model.
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ModuleRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ModuleRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ModuleRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Module'
-          description: ''
     get:
       operationId: courses_modules_list
       description: ViewSet for Module model.
@@ -647,9 +620,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedModuleList'
           description: ''
+    post:
+      operationId: courses_modules_create
+      description: ViewSet for Module model.
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModuleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModuleRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Module'
+          description: ''
   /api/courses/modules/{id}/:
-    patch:
-      operationId: courses_modules_partial_update
+    put:
+      operationId: courses_modules_update
       description: ViewSet for Module model.
       parameters:
       - in: path
@@ -664,13 +664,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedModuleRequest'
+              $ref: '#/components/schemas/ModuleRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedModuleRequest'
+              $ref: '#/components/schemas/ModuleRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedModuleRequest'
+              $ref: '#/components/schemas/ModuleRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -721,8 +722,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ModuleDetail'
           description: ''
-    put:
-      operationId: courses_modules_update
+    patch:
+      operationId: courses_modules_partial_update
       description: ViewSet for Module model.
       parameters:
       - in: path
@@ -737,14 +738,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ModuleRequest'
+              $ref: '#/components/schemas/PatchedModuleRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ModuleRequest'
+              $ref: '#/components/schemas/PatchedModuleRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ModuleRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedModuleRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -779,33 +779,6 @@ paths:
                 $ref: '#/components/schemas/Module'
           description: ''
   /api/courses/lessons/:
-    post:
-      operationId: courses_lessons_create
-      description: ViewSet for Lesson model.
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LessonRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/LessonRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/LessonRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Lesson'
-          description: ''
     get:
       operationId: courses_lessons_list
       description: ViewSet for Lesson model.
@@ -848,9 +821,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedLessonList'
           description: ''
+    post:
+      operationId: courses_lessons_create
+      description: ViewSet for Lesson model.
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+          description: ''
   /api/courses/lessons/{id}/:
-    patch:
-      operationId: courses_lessons_partial_update
+    put:
+      operationId: courses_lessons_update
       description: ViewSet for Lesson model.
       parameters:
       - in: path
@@ -865,13 +865,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedLessonRequest'
+              $ref: '#/components/schemas/LessonRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedLessonRequest'
+              $ref: '#/components/schemas/LessonRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedLessonRequest'
+              $ref: '#/components/schemas/LessonRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -922,8 +923,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/LessonDetail'
           description: ''
-    put:
-      operationId: courses_lessons_update
+    patch:
+      operationId: courses_lessons_partial_update
       description: ViewSet for Lesson model.
       parameters:
       - in: path
@@ -938,14 +939,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LessonRequest'
+              $ref: '#/components/schemas/PatchedLessonRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/LessonRequest'
+              $ref: '#/components/schemas/PatchedLessonRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/LessonRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedLessonRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -980,33 +980,6 @@ paths:
                 $ref: '#/components/schemas/Lesson'
           description: ''
   /api/courses/topics/:
-    post:
-      operationId: courses_topics_create
-      description: ViewSet for Topic model.
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TopicRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/TopicRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/TopicRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Topic'
-          description: ''
     get:
       operationId: courses_topics_list
       description: ViewSet for Topic model.
@@ -1049,9 +1022,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedTopicList'
           description: ''
+    post:
+      operationId: courses_topics_create
+      description: ViewSet for Topic model.
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TopicRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TopicRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TopicRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Topic'
+          description: ''
   /api/courses/topics/{id}/:
-    patch:
-      operationId: courses_topics_partial_update
+    put:
+      operationId: courses_topics_update
       description: ViewSet for Topic model.
       parameters:
       - in: path
@@ -1066,13 +1066,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedTopicRequest'
+              $ref: '#/components/schemas/TopicRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedTopicRequest'
+              $ref: '#/components/schemas/TopicRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedTopicRequest'
+              $ref: '#/components/schemas/TopicRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1123,8 +1124,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/TopicDetail'
           description: ''
-    put:
-      operationId: courses_topics_update
+    patch:
+      operationId: courses_topics_partial_update
       description: ViewSet for Topic model.
       parameters:
       - in: path
@@ -1139,14 +1140,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TopicRequest'
+              $ref: '#/components/schemas/PatchedTopicRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TopicRequest'
+              $ref: '#/components/schemas/PatchedTopicRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TopicRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedTopicRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1158,33 +1158,6 @@ paths:
                 $ref: '#/components/schemas/Topic'
           description: ''
   /api/courses/materials/:
-    post:
-      operationId: courses_materials_create
-      description: ViewSet for Material model.
-      tags:
-      - courses
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MaterialRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/MaterialRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/MaterialRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Material'
-          description: ''
     get:
       operationId: courses_materials_list
       description: ViewSet for Material model.
@@ -1261,9 +1234,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedMaterialList'
           description: ''
+    post:
+      operationId: courses_materials_create
+      description: ViewSet for Material model.
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaterialRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MaterialRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MaterialRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Material'
+          description: ''
   /api/courses/materials/{id}/:
-    patch:
-      operationId: courses_materials_partial_update
+    put:
+      operationId: courses_materials_update
       description: ViewSet for Material model.
       parameters:
       - in: path
@@ -1278,13 +1278,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedMaterialRequest'
+              $ref: '#/components/schemas/MaterialRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedMaterialRequest'
+              $ref: '#/components/schemas/MaterialRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedMaterialRequest'
+              $ref: '#/components/schemas/MaterialRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1335,8 +1336,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/MaterialDetail'
           description: ''
-    put:
-      operationId: courses_materials_update
+    patch:
+      operationId: courses_materials_partial_update
       description: ViewSet for Material model.
       parameters:
       - in: path
@@ -1351,14 +1352,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MaterialRequest'
+              $ref: '#/components/schemas/PatchedMaterialRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/MaterialRequest'
+              $ref: '#/components/schemas/PatchedMaterialRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/MaterialRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedMaterialRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1370,33 +1370,6 @@ paths:
                 $ref: '#/components/schemas/Material'
           description: ''
   /api/quizzes/quizzes/:
-    post:
-      operationId: quizzes_quizzes_create
-      description: ViewSet for Quiz model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/QuizRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/QuizRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/QuizRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Quiz'
-          description: ''
     get:
       operationId: quizzes_quizzes_list
       description: ViewSet for Quiz model.
@@ -1443,9 +1416,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedQuizList'
           description: ''
+    post:
+      operationId: quizzes_quizzes_create
+      description: ViewSet for Quiz model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuizRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
   /api/quizzes/quizzes/{id}/:
-    patch:
-      operationId: quizzes_quizzes_partial_update
+    put:
+      operationId: quizzes_quizzes_update
       description: ViewSet for Quiz model.
       parameters:
       - in: path
@@ -1460,13 +1460,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
+              $ref: '#/components/schemas/QuizRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
+              $ref: '#/components/schemas/QuizRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
+              $ref: '#/components/schemas/QuizRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1517,8 +1518,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuizDetail'
           description: ''
-    put:
-      operationId: quizzes_quizzes_update
+    patch:
+      operationId: quizzes_quizzes_partial_update
       description: ViewSet for Quiz model.
       parameters:
       - in: path
@@ -1533,14 +1534,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
+              $ref: '#/components/schemas/PatchedQuizRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
+              $ref: '#/components/schemas/PatchedQuizRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedQuizRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1614,33 +1614,6 @@ paths:
                 $ref: '#/components/schemas/Quiz'
           description: ''
   /api/quizzes/questions/:
-    post:
-      operationId: quizzes_questions_create
-      description: ViewSet for MultipleChoiceQuestion model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MultipleChoiceQuestion'
-          description: ''
     get:
       operationId: quizzes_questions_list
       description: ViewSet for MultipleChoiceQuestion model.
@@ -1687,9 +1660,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedMultipleChoiceQuestionList'
           description: ''
+    post:
+      operationId: quizzes_questions_create
+      description: ViewSet for MultipleChoiceQuestion model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
+          description: ''
   /api/quizzes/questions/{id}/:
-    patch:
-      operationId: quizzes_questions_partial_update
+    put:
+      operationId: quizzes_questions_update
       description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
@@ -1704,13 +1704,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1761,8 +1762,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/MultipleChoiceQuestionDetail'
           description: ''
-    put:
-      operationId: quizzes_questions_update
+    patch:
+      operationId: quizzes_questions_partial_update
       description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
@@ -1777,14 +1778,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1842,33 +1842,6 @@ paths:
                 $ref: '#/components/schemas/MultipleChoiceQuestion'
           description: ''
   /api/quizzes/multiple-choice-questions/:
-    post:
-      operationId: quizzes_multiple_choice_questions_create
-      description: ViewSet for MultipleChoiceQuestion model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MultipleChoiceQuestion'
-          description: ''
     get:
       operationId: quizzes_multiple_choice_questions_list
       description: ViewSet for MultipleChoiceQuestion model.
@@ -1915,9 +1888,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedMultipleChoiceQuestionList'
           description: ''
+    post:
+      operationId: quizzes_multiple_choice_questions_create
+      description: ViewSet for MultipleChoiceQuestion model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultipleChoiceQuestion'
+          description: ''
   /api/quizzes/multiple-choice-questions/{id}/:
-    patch:
-      operationId: quizzes_multiple_choice_questions_partial_update
+    put:
+      operationId: quizzes_multiple_choice_questions_update
       description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
@@ -1932,13 +1932,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1989,8 +1990,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/MultipleChoiceQuestionDetail'
           description: ''
-    put:
-      operationId: quizzes_multiple_choice_questions_update
+    patch:
+      operationId: quizzes_multiple_choice_questions_partial_update
       description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
@@ -2005,14 +2006,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2070,33 +2070,6 @@ paths:
                 $ref: '#/components/schemas/MultipleChoiceQuestion'
           description: ''
   /api/quizzes/order-questions/:
-    post:
-      operationId: quizzes_order_questions_create
-      description: ViewSet for OrderQuestion model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrderQuestionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/OrderQuestionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/OrderQuestionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrderQuestion'
-          description: ''
     get:
       operationId: quizzes_order_questions_list
       description: ViewSet for OrderQuestion model.
@@ -2143,9 +2116,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedOrderQuestionList'
           description: ''
+    post:
+      operationId: quizzes_order_questions_create
+      description: ViewSet for OrderQuestion model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderQuestion'
+          description: ''
   /api/quizzes/order-questions/{id}/:
-    patch:
-      operationId: quizzes_order_questions_partial_update
+    put:
+      operationId: quizzes_order_questions_update
       description: ViewSet for OrderQuestion model.
       parameters:
       - in: path
@@ -2160,13 +2160,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
+              $ref: '#/components/schemas/OrderQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
+              $ref: '#/components/schemas/OrderQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
+              $ref: '#/components/schemas/OrderQuestionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2217,8 +2218,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrderQuestionDetail'
           description: ''
-    put:
-      operationId: quizzes_order_questions_update
+    patch:
+      operationId: quizzes_order_questions_partial_update
       description: ViewSet for OrderQuestion model.
       parameters:
       - in: path
@@ -2233,14 +2234,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderQuestionRequest'
+              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OrderQuestionRequest'
+              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OrderQuestionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2275,33 +2275,6 @@ paths:
                 $ref: '#/components/schemas/OrderQuestion'
           description: ''
   /api/quizzes/connect-questions/:
-    post:
-      operationId: quizzes_connect_questions_create
-      description: ViewSet for ConnectQuestion model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConnectQuestionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ConnectQuestionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ConnectQuestionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConnectQuestion'
-          description: ''
     get:
       operationId: quizzes_connect_questions_list
       description: ViewSet for ConnectQuestion model.
@@ -2348,9 +2321,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedConnectQuestionList'
           description: ''
+    post:
+      operationId: quizzes_connect_questions_create
+      description: ViewSet for ConnectQuestion model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectQuestion'
+          description: ''
   /api/quizzes/connect-questions/{id}/:
-    patch:
-      operationId: quizzes_connect_questions_partial_update
+    put:
+      operationId: quizzes_connect_questions_update
       description: ViewSet for ConnectQuestion model.
       parameters:
       - in: path
@@ -2365,13 +2365,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
+              $ref: '#/components/schemas/ConnectQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
+              $ref: '#/components/schemas/ConnectQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2422,8 +2423,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConnectQuestionDetail'
           description: ''
-    put:
-      operationId: quizzes_connect_questions_update
+    patch:
+      operationId: quizzes_connect_questions_partial_update
       description: ViewSet for ConnectQuestion model.
       parameters:
       - in: path
@@ -2438,14 +2439,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConnectQuestionRequest'
+              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ConnectQuestionRequest'
+              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ConnectQuestionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2503,33 +2503,6 @@ paths:
                 $ref: '#/components/schemas/ConnectQuestion'
           description: ''
   /api/quizzes/number-questions/:
-    post:
-      operationId: quizzes_number_questions_create
-      description: ViewSet for NumberQuestion model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NumberQuestionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/NumberQuestionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/NumberQuestionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NumberQuestion'
-          description: ''
     get:
       operationId: quizzes_number_questions_list
       description: ViewSet for NumberQuestion model.
@@ -2576,9 +2549,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedNumberQuestionList'
           description: ''
+    post:
+      operationId: quizzes_number_questions_create
+      description: ViewSet for NumberQuestion model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NumberQuestionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NumberQuestionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NumberQuestionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NumberQuestion'
+          description: ''
   /api/quizzes/number-questions/{id}/:
-    patch:
-      operationId: quizzes_number_questions_partial_update
+    put:
+      operationId: quizzes_number_questions_update
       description: ViewSet for NumberQuestion model.
       parameters:
       - in: path
@@ -2593,13 +2593,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
+              $ref: '#/components/schemas/NumberQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
+              $ref: '#/components/schemas/NumberQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
+              $ref: '#/components/schemas/NumberQuestionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2650,8 +2651,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/NumberQuestionDetail'
           description: ''
-    put:
-      operationId: quizzes_number_questions_update
+    patch:
+      operationId: quizzes_number_questions_partial_update
       description: ViewSet for NumberQuestion model.
       parameters:
       - in: path
@@ -2666,14 +2667,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NumberQuestionRequest'
+              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/NumberQuestionRequest'
+              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/NumberQuestionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2685,33 +2685,6 @@ paths:
                 $ref: '#/components/schemas/NumberQuestion'
           description: ''
   /api/quizzes/options/:
-    post:
-      operationId: quizzes_options_create
-      description: ViewSet for Option model (MultipleChoiceQuestion).
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OptionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/OptionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/OptionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Option'
-          description: ''
     get:
       operationId: quizzes_options_list
       description: ViewSet for Option model (MultipleChoiceQuestion).
@@ -2758,9 +2731,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedOptionList'
           description: ''
+    post:
+      operationId: quizzes_options_create
+      description: ViewSet for Option model (MultipleChoiceQuestion).
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OptionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Option'
+          description: ''
   /api/quizzes/options/{id}/:
-    patch:
-      operationId: quizzes_options_partial_update
+    put:
+      operationId: quizzes_options_update
       description: ViewSet for Option model (MultipleChoiceQuestion).
       parameters:
       - in: path
@@ -2775,13 +2775,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedOptionRequest'
+              $ref: '#/components/schemas/OptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedOptionRequest'
+              $ref: '#/components/schemas/OptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedOptionRequest'
+              $ref: '#/components/schemas/OptionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2832,8 +2833,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/OptionDetail'
           description: ''
-    put:
-      operationId: quizzes_options_update
+    patch:
+      operationId: quizzes_options_partial_update
       description: ViewSet for Option model (MultipleChoiceQuestion).
       parameters:
       - in: path
@@ -2848,14 +2849,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OptionRequest'
+              $ref: '#/components/schemas/PatchedOptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OptionRequest'
+              $ref: '#/components/schemas/PatchedOptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OptionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedOptionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2867,33 +2867,6 @@ paths:
                 $ref: '#/components/schemas/Option'
           description: ''
   /api/quizzes/order-options/:
-    post:
-      operationId: quizzes_order_options_create
-      description: ViewSet for OrderOption model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrderOptionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/OrderOptionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/OrderOptionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrderOption'
-          description: ''
     get:
       operationId: quizzes_order_options_list
       description: ViewSet for OrderOption model.
@@ -2936,9 +2909,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedOrderOptionList'
           description: ''
+    post:
+      operationId: quizzes_order_options_create
+      description: ViewSet for OrderOption model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderOptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/OrderOptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/OrderOptionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderOption'
+          description: ''
   /api/quizzes/order-options/{id}/:
-    patch:
-      operationId: quizzes_order_options_partial_update
+    put:
+      operationId: quizzes_order_options_update
       description: ViewSet for OrderOption model.
       parameters:
       - in: path
@@ -2953,13 +2953,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedOrderOptionRequest'
+              $ref: '#/components/schemas/OrderOptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedOrderOptionRequest'
+              $ref: '#/components/schemas/OrderOptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedOrderOptionRequest'
+              $ref: '#/components/schemas/OrderOptionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3010,8 +3011,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrderOptionDetail'
           description: ''
-    put:
-      operationId: quizzes_order_options_update
+    patch:
+      operationId: quizzes_order_options_partial_update
       description: ViewSet for OrderOption model.
       parameters:
       - in: path
@@ -3026,14 +3027,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderOptionRequest'
+              $ref: '#/components/schemas/PatchedOrderOptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OrderOptionRequest'
+              $ref: '#/components/schemas/PatchedOrderOptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OrderOptionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedOrderOptionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3045,33 +3045,6 @@ paths:
                 $ref: '#/components/schemas/OrderOption'
           description: ''
   /api/quizzes/connect-options/:
-    post:
-      operationId: quizzes_connect_options_create
-      description: ViewSet for ConnectOption model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConnectOptionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ConnectOptionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ConnectOptionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConnectOption'
-          description: ''
     get:
       operationId: quizzes_connect_options_list
       description: ViewSet for ConnectOption model.
@@ -3114,9 +3087,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedConnectOptionList'
           description: ''
+    post:
+      operationId: quizzes_connect_options_create
+      description: ViewSet for ConnectOption model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectOption'
+          description: ''
   /api/quizzes/connect-options/{id}/:
-    patch:
-      operationId: quizzes_connect_options_partial_update
+    put:
+      operationId: quizzes_connect_options_update
       description: ViewSet for ConnectOption model.
       parameters:
       - in: path
@@ -3131,13 +3131,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionRequest'
+              $ref: '#/components/schemas/ConnectOptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionRequest'
+              $ref: '#/components/schemas/ConnectOptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionRequest'
+              $ref: '#/components/schemas/ConnectOptionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3188,8 +3189,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConnectOptionDetail'
           description: ''
-    put:
-      operationId: quizzes_connect_options_update
+    patch:
+      operationId: quizzes_connect_options_partial_update
       description: ViewSet for ConnectOption model.
       parameters:
       - in: path
@@ -3204,14 +3205,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConnectOptionRequest'
+              $ref: '#/components/schemas/PatchedConnectOptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ConnectOptionRequest'
+              $ref: '#/components/schemas/PatchedConnectOptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ConnectOptionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedConnectOptionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3223,33 +3223,6 @@ paths:
                 $ref: '#/components/schemas/ConnectOption'
           description: ''
   /api/quizzes/connect-option-connections/:
-    post:
-      operationId: quizzes_connect_option_connections_create
-      description: ViewSet for ConnectOptionConnection model.
-      tags:
-      - quizzes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConnectOptionConnection'
-          description: ''
     get:
       operationId: quizzes_connect_option_connections_list
       description: ViewSet for ConnectOptionConnection model.
@@ -3300,9 +3273,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedConnectOptionConnectionList'
           description: ''
+    post:
+      operationId: quizzes_connect_option_connections_create
+      description: ViewSet for ConnectOptionConnection model.
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectOptionConnection'
+          description: ''
   /api/quizzes/connect-option-connections/{id}/:
-    patch:
-      operationId: quizzes_connect_option_connections_partial_update
+    put:
+      operationId: quizzes_connect_option_connections_update
       description: ViewSet for ConnectOptionConnection model.
       parameters:
       - in: path
@@ -3317,13 +3317,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3374,8 +3375,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConnectOptionConnection'
           description: ''
-    put:
-      operationId: quizzes_connect_option_connections_update
+    patch:
+      operationId: quizzes_connect_option_connections_partial_update
       description: ViewSet for ConnectOptionConnection model.
       parameters:
       - in: path
@@ -3390,14 +3391,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3409,33 +3409,6 @@ paths:
                 $ref: '#/components/schemas/ConnectOptionConnection'
           description: ''
   /api/students/student-groups/:
-    post:
-      operationId: students_student_groups_create
-      description: ViewSet for StudentGroup model.
-      tags:
-      - students
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StudentGroupRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/StudentGroupRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/StudentGroupRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StudentGroup'
-          description: ''
     get:
       operationId: students_student_groups_list
       description: ViewSet for StudentGroup model.
@@ -3490,9 +3463,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedStudentGroupList'
           description: ''
+    post:
+      operationId: students_student_groups_create
+      description: ViewSet for StudentGroup model.
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentGroupRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentGroupRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentGroupRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGroup'
+          description: ''
   /api/students/student-groups/{id}/:
-    patch:
-      operationId: students_student_groups_partial_update
+    put:
+      operationId: students_student_groups_update
       description: ViewSet for StudentGroup model.
       parameters:
       - in: path
@@ -3507,13 +3507,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedStudentGroupRequest'
+              $ref: '#/components/schemas/StudentGroupRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedStudentGroupRequest'
+              $ref: '#/components/schemas/StudentGroupRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedStudentGroupRequest'
+              $ref: '#/components/schemas/StudentGroupRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3564,8 +3565,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/StudentGroupDetail'
           description: ''
-    put:
-      operationId: students_student_groups_update
+    patch:
+      operationId: students_student_groups_partial_update
       description: ViewSet for StudentGroup model.
       parameters:
       - in: path
@@ -3580,14 +3581,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StudentGroupRequest'
+              $ref: '#/components/schemas/PatchedStudentGroupRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/StudentGroupRequest'
+              $ref: '#/components/schemas/PatchedStudentGroupRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/StudentGroupRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedStudentGroupRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3622,33 +3622,6 @@ paths:
                 $ref: '#/components/schemas/StudentGroup'
           description: ''
   /api/students/students/:
-    post:
-      operationId: students_students_create
-      description: ViewSet for Student model.
-      tags:
-      - students
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StudentRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/StudentRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/StudentRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Student'
-          description: ''
     get:
       operationId: students_students_list
       description: ViewSet for Student model.
@@ -3695,9 +3668,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedStudentList'
           description: ''
+    post:
+      operationId: students_students_create
+      description: ViewSet for Student model.
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: ''
   /api/students/students/{id}/:
-    patch:
-      operationId: students_students_partial_update
+    put:
+      operationId: students_students_update
       description: ViewSet for Student model.
       parameters:
       - in: path
@@ -3712,13 +3712,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedStudentRequest'
+              $ref: '#/components/schemas/StudentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedStudentRequest'
+              $ref: '#/components/schemas/StudentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedStudentRequest'
+              $ref: '#/components/schemas/StudentRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3769,8 +3770,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/StudentDetail'
           description: ''
-    put:
-      operationId: students_students_update
+    patch:
+      operationId: students_students_partial_update
       description: ViewSet for Student model.
       parameters:
       - in: path
@@ -3785,14 +3786,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StudentRequest'
+              $ref: '#/components/schemas/PatchedStudentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/StudentRequest'
+              $ref: '#/components/schemas/PatchedStudentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/StudentRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedStudentRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3855,33 +3855,6 @@ paths:
                 $ref: '#/components/schemas/Student'
           description: ''
   /api/students/student-question-answers/:
-    post:
-      operationId: students_student_question_answers_create
-      description: ViewSet for StudentQuestionAnswer model.
-      tags:
-      - students
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
-        required: true
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StudentQuestionAnswer'
-          description: ''
     get:
       operationId: students_student_question_answers_list
       description: ViewSet for StudentQuestionAnswer model.
@@ -3940,9 +3913,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedStudentQuestionAnswerList'
           description: ''
+    post:
+      operationId: students_student_question_answers_create
+      description: ViewSet for StudentQuestionAnswer model.
+      tags:
+      - students
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentQuestionAnswer'
+          description: ''
   /api/students/student-question-answers/{id}/:
-    patch:
-      operationId: students_student_question_answers_partial_update
+    put:
+      operationId: students_student_question_answers_update
       description: ViewSet for StudentQuestionAnswer model.
       parameters:
       - in: path
@@ -3957,13 +3957,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -4014,8 +4015,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/StudentQuestionAnswer'
           description: ''
-    put:
-      operationId: students_student_question_answers_update
+    patch:
+      operationId: students_student_question_answers_partial_update
       description: ViewSet for StudentQuestionAnswer model.
       parameters:
       - in: path
@@ -4030,14 +4031,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -4063,6 +4063,9 @@ components:
           type: string
           format: uri
           nullable: true
+        connectable:
+          type: boolean
+          description: If True, connections can be made to and from this option
         hide_text:
           type: boolean
           description: If True, hide the text and use it as alt-text for the image
@@ -4173,6 +4176,9 @@ components:
           type: string
           format: uri
           nullable: true
+        connectable:
+          type: boolean
+          description: If True, connections can be made to and from this option
         hide_text:
           type: boolean
           description: If True, hide the text and use it as alt-text for the image
@@ -4237,6 +4243,9 @@ components:
           type: string
           format: binary
           nullable: true
+        connectable:
+          type: boolean
+          description: If True, connections can be made to and from this option
         hide_text:
           type: boolean
           description: If True, hide the text and use it as alt-text for the image
@@ -6358,6 +6367,9 @@ components:
           type: string
           format: binary
           nullable: true
+        connectable:
+          type: boolean
+          description: If True, connections can be made to and from this option
         hide_text:
           type: boolean
           description: If True, hide the text and use it as alt-text for the image
