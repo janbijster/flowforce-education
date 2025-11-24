@@ -193,6 +193,33 @@ export interface Topic {
   updated_at: string;
 }
 
+export interface Material {
+  id: number;
+  title: string;
+  description: string | null;
+  order: number;
+  material_type: 'reader' | 'presentation';
+  organization: number;
+  course: number | null;
+  modules: number[];
+  lessons: number[];
+  topics: number[];
+  course_name: string | null;
+  modules_names: string[];
+  lessons_names: string[];
+  topics_names: string[];
+  file: string | null;
+  file_url: string | null;
+  content: string | null;
+  slide_count: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MaterialDetail extends Material {
+  // Same as base for now, but can be extended if needed
+}
+
 export interface StudentGroup {
   id: number;
   name: string;
@@ -607,6 +634,170 @@ export async function fetchTopics(lessonId?: number): Promise<Topic[]> {
   }
   const data = await response.json();
   return data.results || data;
+}
+
+// Material API functions
+export async function fetchMaterials(params?: {
+  course?: number;
+  modules?: number[];
+  lessons?: number[];
+  topics?: number[];
+  material_type?: 'reader' | 'presentation';
+}): Promise<Material[]> {
+  const qs = new URLSearchParams();
+  if (params?.course) qs.set('course', String(params.course));
+  if (params?.modules && params.modules.length > 0) {
+    params.modules.forEach(m => qs.append('modules', String(m)));
+  }
+  if (params?.lessons && params.lessons.length > 0) {
+    params.lessons.forEach(l => qs.append('lessons', String(l)));
+  }
+  if (params?.topics && params.topics.length > 0) {
+    params.topics.forEach(t => qs.append('topics', String(t)));
+  }
+  if (params?.material_type) qs.set('material_type', params.material_type);
+  
+  const queryString = qs.toString();
+  const url = `${API_BASE_URL}/courses/materials/${queryString ? `?${queryString}` : ''}`;
+  const response = await fetch(url, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch materials');
+  }
+  const data = await response.json();
+  return data.results || data;
+}
+
+export async function fetchMaterial(id: number): Promise<MaterialDetail> {
+  const response = await fetch(`${API_BASE_URL}/courses/materials/${id}/`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch material');
+  }
+  return await response.json();
+}
+
+export async function createMaterial(payload: Partial<Material> & { file?: File }): Promise<Material> {
+  const csrftoken = getCsrfToken();
+  const { file, ...jsonPayload } = payload;
+  
+  if (file) {
+    const formData = new FormData();
+    Object.entries(jsonPayload).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        if (Array.isArray(value)) {
+          // For ManyToMany fields, append each item separately
+          value.forEach(item => formData.append(key, String(item)));
+        } else if (typeof value === 'object') {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, String(value));
+        }
+      }
+    });
+    formData.append('file', file);
+    
+    const response = await fetch(`${API_BASE_URL}/courses/materials/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || errorData.message || 'Failed to create material');
+    }
+    return await response.json();
+  } else {
+    const response = await fetch(`${API_BASE_URL}/courses/materials/`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: JSON.stringify(jsonPayload),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || errorData.message || 'Failed to create material');
+    }
+    return await response.json();
+  }
+}
+
+export async function updateMaterial(id: number, payload: Partial<Material> & { file?: File }): Promise<Material> {
+  const csrftoken = getCsrfToken();
+  const { file, ...jsonPayload } = payload;
+  
+  if (file) {
+    const formData = new FormData();
+    Object.entries(jsonPayload).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        if (Array.isArray(value)) {
+          // For ManyToMany fields, append each item separately
+          value.forEach(item => formData.append(key, String(item)));
+        } else if (typeof value === 'object') {
+          formData.append(key, JSON.stringify(value));
+        } else {
+          formData.append(key, String(value));
+        }
+      }
+    });
+    formData.append('file', file);
+    
+    const response = await fetch(`${API_BASE_URL}/courses/materials/${id}/`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || errorData.message || 'Failed to update material');
+    }
+    return await response.json();
+  } else {
+    const response = await fetch(`${API_BASE_URL}/courses/materials/${id}/`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+      },
+      body: JSON.stringify(jsonPayload),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || errorData.message || 'Failed to update material');
+    }
+    return await response.json();
+  }
+}
+
+export async function deleteMaterial(id: number): Promise<void> {
+  const csrftoken = getCsrfToken();
+  const response = await fetch(`${API_BASE_URL}/courses/materials/${id}/`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {}),
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to delete material');
+  }
 }
 
 export async function createQuestion(payload: Partial<Question>): Promise<Question> {

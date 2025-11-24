@@ -31,6 +31,19 @@ export const mainMenu: NavItemWithChildren[] = [
         title: 'Questions',
         to: '/questions',
     },
+    {
+        title: 'Materials',
+        items: [
+            {
+                title: 'Browse Materials',
+                to: '/materials',
+            },
+            {
+                title: 'Materials Overview',
+                to: '/materials/overview',
+            },
+        ],
+    },
 ]
 
 export const sideMenu: NavItemWithChildren[] = []

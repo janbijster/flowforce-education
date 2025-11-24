@@ -20,6 +20,10 @@ import StudentDetail from "./pages/StudentDetail";
 import StudentEditor from "./pages/StudentEditor";
 import StudentGroupProgress from "./pages/StudentGroupProgress";
 import QuizPreview from "./pages/QuizPreview";
+import MaterialsBase from "./pages/MaterialsBase";
+import MaterialsOverview from "./pages/MaterialsOverview";
+import MaterialForm from "./pages/MaterialForm";
+import MaterialView from "./pages/MaterialView";
 
 export const router = createBrowserRouter([
     {
@@ -109,6 +113,26 @@ export const router = createBrowserRouter([
             {
                 path: "students/:studentId/groups/:groupId",
                 element: <StudentGroupProgress />,
+            },
+            {
+                path: "materials",
+                element: <MaterialsBase />,
+            },
+            {
+                path: "materials/overview",
+                element: <MaterialsOverview />,
+            },
+            {
+                path: "materials/new",
+                element: <MaterialForm />,
+            },
+            {
+                path: "materials/:id",
+                element: <MaterialView />,
+            },
+            {
+                path: "materials/:id/edit",
+                element: <MaterialForm />,
             },
         ],
     },
