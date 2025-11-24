@@ -68,8 +68,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedOrganizationList'
           description: ''
   /api/organizations/organizations/{id}/:
-    put:
-      operationId: organizations_organizations_update
+    patch:
+      operationId: organizations_organizations_partial_update
       description: ViewSet for Organization model.
       parameters:
       - in: path
@@ -84,14 +84,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrganizationRequest'
+              $ref: '#/components/schemas/PatchedOrganizationRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OrganizationRequest'
+              $ref: '#/components/schemas/PatchedOrganizationRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OrganizationRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedOrganizationRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -142,8 +141,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Organization'
           description: ''
-    patch:
-      operationId: organizations_organizations_partial_update
+    put:
+      operationId: organizations_organizations_update
       description: ViewSet for Organization model.
       parameters:
       - in: path
@@ -158,13 +157,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedOrganizationRequest'
+              $ref: '#/components/schemas/OrganizationRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedOrganizationRequest'
+              $ref: '#/components/schemas/OrganizationRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedOrganizationRequest'
+              $ref: '#/components/schemas/OrganizationRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -273,8 +273,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedUserList'
           description: ''
   /api/organizations/users/{id}/:
-    put:
-      operationId: organizations_users_update
+    patch:
+      operationId: organizations_users_partial_update
       description: ViewSet for User model.
       parameters:
       - in: path
@@ -289,14 +289,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRequest'
+              $ref: '#/components/schemas/PatchedUserRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/UserRequest'
+              $ref: '#/components/schemas/PatchedUserRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UserRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedUserRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -347,8 +346,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
-    patch:
-      operationId: organizations_users_partial_update
+    put:
+      operationId: organizations_users_update
       description: ViewSet for User model.
       parameters:
       - in: path
@@ -363,13 +362,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
+              $ref: '#/components/schemas/UserRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
+              $ref: '#/components/schemas/UserRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedUserRequest'
+              $ref: '#/components/schemas/UserRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -447,8 +447,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedCourseList'
           description: ''
   /api/courses/courses/{id}/:
-    put:
-      operationId: courses_courses_update
+    patch:
+      operationId: courses_courses_partial_update
       description: ViewSet for Course model.
       parameters:
       - in: path
@@ -463,14 +463,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CourseRequest'
+              $ref: '#/components/schemas/PatchedCourseRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/CourseRequest'
+              $ref: '#/components/schemas/PatchedCourseRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/CourseRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedCourseRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -521,8 +520,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/CourseDetail'
           description: ''
-    patch:
-      operationId: courses_courses_partial_update
+    put:
+      operationId: courses_courses_update
       description: ViewSet for Course model.
       parameters:
       - in: path
@@ -537,13 +536,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedCourseRequest'
+              $ref: '#/components/schemas/CourseRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedCourseRequest'
+              $ref: '#/components/schemas/CourseRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedCourseRequest'
+              $ref: '#/components/schemas/CourseRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -648,8 +648,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedModuleList'
           description: ''
   /api/courses/modules/{id}/:
-    put:
-      operationId: courses_modules_update
+    patch:
+      operationId: courses_modules_partial_update
       description: ViewSet for Module model.
       parameters:
       - in: path
@@ -664,14 +664,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ModuleRequest'
+              $ref: '#/components/schemas/PatchedModuleRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ModuleRequest'
+              $ref: '#/components/schemas/PatchedModuleRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ModuleRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedModuleRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -722,8 +721,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ModuleDetail'
           description: ''
-    patch:
-      operationId: courses_modules_partial_update
+    put:
+      operationId: courses_modules_update
       description: ViewSet for Module model.
       parameters:
       - in: path
@@ -738,13 +737,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedModuleRequest'
+              $ref: '#/components/schemas/ModuleRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedModuleRequest'
+              $ref: '#/components/schemas/ModuleRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedModuleRequest'
+              $ref: '#/components/schemas/ModuleRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -849,8 +849,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedLessonList'
           description: ''
   /api/courses/lessons/{id}/:
-    put:
-      operationId: courses_lessons_update
+    patch:
+      operationId: courses_lessons_partial_update
       description: ViewSet for Lesson model.
       parameters:
       - in: path
@@ -865,14 +865,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LessonRequest'
+              $ref: '#/components/schemas/PatchedLessonRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/LessonRequest'
+              $ref: '#/components/schemas/PatchedLessonRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/LessonRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedLessonRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -923,8 +922,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/LessonDetail'
           description: ''
-    patch:
-      operationId: courses_lessons_partial_update
+    put:
+      operationId: courses_lessons_update
       description: ViewSet for Lesson model.
       parameters:
       - in: path
@@ -939,13 +938,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedLessonRequest'
+              $ref: '#/components/schemas/LessonRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedLessonRequest'
+              $ref: '#/components/schemas/LessonRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedLessonRequest'
+              $ref: '#/components/schemas/LessonRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1050,8 +1050,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedTopicList'
           description: ''
   /api/courses/topics/{id}/:
-    put:
-      operationId: courses_topics_update
+    patch:
+      operationId: courses_topics_partial_update
       description: ViewSet for Topic model.
       parameters:
       - in: path
@@ -1066,14 +1066,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TopicRequest'
+              $ref: '#/components/schemas/PatchedTopicRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TopicRequest'
+              $ref: '#/components/schemas/PatchedTopicRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TopicRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedTopicRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1124,8 +1123,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/TopicDetail'
           description: ''
-    patch:
-      operationId: courses_topics_partial_update
+    put:
+      operationId: courses_topics_update
       description: ViewSet for Topic model.
       parameters:
       - in: path
@@ -1140,36 +1139,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedTopicRequest'
+              $ref: '#/components/schemas/TopicRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedTopicRequest'
+              $ref: '#/components/schemas/TopicRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedTopicRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Topic'
-          description: ''
-  /api/courses/topics/{id}/learning_objectives/:
-    get:
-      operationId: courses_topics_learning_objectives_retrieve
-      description: Get all learning objectives for this topic.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this topic.
+              $ref: '#/components/schemas/TopicRequest'
         required: true
-      tags:
-      - courses
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1180,23 +1157,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/Topic'
           description: ''
-  /api/courses/learning-objectives/:
+  /api/courses/materials/:
     post:
-      operationId: courses_learning_objectives_create
-      description: ViewSet for LearningObjective model.
+      operationId: courses_materials_create
+      description: ViewSet for Material model.
       tags:
       - courses
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LearningObjectiveRequest'
+              $ref: '#/components/schemas/MaterialRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/LearningObjectiveRequest'
+              $ref: '#/components/schemas/MaterialRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/LearningObjectiveRequest'
+              $ref: '#/components/schemas/MaterialRequest'
         required: true
       security:
       - cookieAuth: []
@@ -1206,12 +1183,42 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LearningObjective'
+                $ref: '#/components/schemas/Material'
           description: ''
     get:
-      operationId: courses_learning_objectives_list
-      description: ViewSet for LearningObjective model.
+      operationId: courses_materials_list
+      description: ViewSet for Material model.
       parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+      - in: query
+        name: lessons
+        schema:
+          type: array
+          items:
+            type: integer
+        explode: true
+        style: form
+      - in: query
+        name: material_type
+        schema:
+          type: string
+          enum:
+          - presentation
+          - reader
+        description: |-
+          * `reader` - Reader
+          * `presentation` - Presentation
+      - in: query
+        name: modules
+        schema:
+          type: array
+          items:
+            type: integer
+        explode: true
+        style: form
       - name: ordering
         required: false
         in: query
@@ -1252,18 +1259,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedLearningObjectiveList'
+                $ref: '#/components/schemas/PaginatedMaterialList'
           description: ''
-  /api/courses/learning-objectives/{id}/:
-    put:
-      operationId: courses_learning_objectives_update
-      description: ViewSet for LearningObjective model.
+  /api/courses/materials/{id}/:
+    patch:
+      operationId: courses_materials_partial_update
+      description: ViewSet for Material model.
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this learning objective.
+        description: A unique integer value identifying this material.
         required: true
       tags:
       - courses
@@ -1271,14 +1278,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LearningObjectiveRequest'
+              $ref: '#/components/schemas/PatchedMaterialRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/LearningObjectiveRequest'
+              $ref: '#/components/schemas/PatchedMaterialRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/LearningObjectiveRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedMaterialRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1287,17 +1293,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LearningObjective'
+                $ref: '#/components/schemas/Material'
           description: ''
     delete:
-      operationId: courses_learning_objectives_destroy
-      description: ViewSet for LearningObjective model.
+      operationId: courses_materials_destroy
+      description: ViewSet for Material model.
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this learning objective.
+        description: A unique integer value identifying this material.
         required: true
       tags:
       - courses
@@ -1308,14 +1314,14 @@ paths:
         '204':
           description: No response body
     get:
-      operationId: courses_learning_objectives_retrieve
-      description: ViewSet for LearningObjective model.
+      operationId: courses_materials_retrieve
+      description: ViewSet for Material model.
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this learning objective.
+        description: A unique integer value identifying this material.
         required: true
       tags:
       - courses
@@ -1327,17 +1333,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LearningObjective'
+                $ref: '#/components/schemas/MaterialDetail'
           description: ''
-    patch:
-      operationId: courses_learning_objectives_partial_update
-      description: ViewSet for LearningObjective model.
+    put:
+      operationId: courses_materials_update
+      description: ViewSet for Material model.
       parameters:
       - in: path
         name: id
         schema:
           type: integer
-        description: A unique integer value identifying this learning objective.
+        description: A unique integer value identifying this material.
         required: true
       tags:
       - courses
@@ -1345,36 +1351,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedLearningObjectiveRequest'
+              $ref: '#/components/schemas/MaterialRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedLearningObjectiveRequest'
+              $ref: '#/components/schemas/MaterialRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedLearningObjectiveRequest'
-      security:
-      - cookieAuth: []
-      - tokenAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LearningObjective'
-          description: ''
-  /api/courses/learning-objectives/{id}/topics/:
-    get:
-      operationId: courses_learning_objectives_topics_retrieve
-      description: Get all topics for this learning objective.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this learning objective.
+              $ref: '#/components/schemas/MaterialRequest'
         required: true
-      tags:
-      - courses
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1383,7 +1367,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LearningObjective'
+                $ref: '#/components/schemas/Material'
           description: ''
   /api/quizzes/quizzes/:
     post:
@@ -1460,8 +1444,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedQuizList'
           description: ''
   /api/quizzes/quizzes/{id}/:
-    put:
-      operationId: quizzes_quizzes_update
+    patch:
+      operationId: quizzes_quizzes_partial_update
       description: ViewSet for Quiz model.
       parameters:
       - in: path
@@ -1476,14 +1460,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
+              $ref: '#/components/schemas/PatchedQuizRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
+              $ref: '#/components/schemas/PatchedQuizRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/QuizRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedQuizRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1534,8 +1517,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuizDetail'
           description: ''
-    patch:
-      operationId: quizzes_quizzes_partial_update
+    put:
+      operationId: quizzes_quizzes_update
       description: ViewSet for Quiz model.
       parameters:
       - in: path
@@ -1550,13 +1533,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
+              $ref: '#/components/schemas/QuizRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
+              $ref: '#/components/schemas/QuizRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedQuizRequest'
+              $ref: '#/components/schemas/QuizRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1661,14 +1645,6 @@ paths:
       operationId: quizzes_questions_list
       description: ViewSet for MultipleChoiceQuestion model.
       parameters:
-      - in: query
-        name: learning_objectives
-        schema:
-          type: array
-          items:
-            type: integer
-        explode: true
-        style: form
       - name: ordering
         required: false
         in: query
@@ -1712,8 +1688,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedMultipleChoiceQuestionList'
           description: ''
   /api/quizzes/questions/{id}/:
-    put:
-      operationId: quizzes_questions_update
+    patch:
+      operationId: quizzes_questions_partial_update
       description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
@@ -1728,14 +1704,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1786,8 +1761,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/MultipleChoiceQuestionDetail'
           description: ''
-    patch:
-      operationId: quizzes_questions_partial_update
+    put:
+      operationId: quizzes_questions_update
       description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
@@ -1802,13 +1777,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -1897,14 +1873,6 @@ paths:
       operationId: quizzes_multiple_choice_questions_list
       description: ViewSet for MultipleChoiceQuestion model.
       parameters:
-      - in: query
-        name: learning_objectives
-        schema:
-          type: array
-          items:
-            type: integer
-        explode: true
-        style: form
       - name: ordering
         required: false
         in: query
@@ -1948,8 +1916,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedMultipleChoiceQuestionList'
           description: ''
   /api/quizzes/multiple-choice-questions/{id}/:
-    put:
-      operationId: quizzes_multiple_choice_questions_update
+    patch:
+      operationId: quizzes_multiple_choice_questions_partial_update
       description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
@@ -1964,14 +1932,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2022,8 +1989,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/MultipleChoiceQuestionDetail'
           description: ''
-    patch:
-      operationId: quizzes_multiple_choice_questions_partial_update
+    put:
+      operationId: quizzes_multiple_choice_questions_update
       description: ViewSet for MultipleChoiceQuestion model.
       parameters:
       - in: path
@@ -2038,13 +2005,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedMultipleChoiceQuestionRequest'
+              $ref: '#/components/schemas/MultipleChoiceQuestionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2133,14 +2101,6 @@ paths:
       operationId: quizzes_order_questions_list
       description: ViewSet for OrderQuestion model.
       parameters:
-      - in: query
-        name: learning_objectives
-        schema:
-          type: array
-          items:
-            type: integer
-        explode: true
-        style: form
       - name: ordering
         required: false
         in: query
@@ -2184,8 +2144,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedOrderQuestionList'
           description: ''
   /api/quizzes/order-questions/{id}/:
-    put:
-      operationId: quizzes_order_questions_update
+    patch:
+      operationId: quizzes_order_questions_partial_update
       description: ViewSet for OrderQuestion model.
       parameters:
       - in: path
@@ -2200,14 +2160,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderQuestionRequest'
+              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OrderQuestionRequest'
+              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OrderQuestionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2258,8 +2217,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrderQuestionDetail'
           description: ''
-    patch:
-      operationId: quizzes_order_questions_partial_update
+    put:
+      operationId: quizzes_order_questions_update
       description: ViewSet for OrderQuestion model.
       parameters:
       - in: path
@@ -2274,13 +2233,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
+              $ref: '#/components/schemas/OrderQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
+              $ref: '#/components/schemas/OrderQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedOrderQuestionRequest'
+              $ref: '#/components/schemas/OrderQuestionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2346,14 +2306,6 @@ paths:
       operationId: quizzes_connect_questions_list
       description: ViewSet for ConnectQuestion model.
       parameters:
-      - in: query
-        name: learning_objectives
-        schema:
-          type: array
-          items:
-            type: integer
-        explode: true
-        style: form
       - name: ordering
         required: false
         in: query
@@ -2397,8 +2349,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedConnectQuestionList'
           description: ''
   /api/quizzes/connect-questions/{id}/:
-    put:
-      operationId: quizzes_connect_questions_update
+    patch:
+      operationId: quizzes_connect_questions_partial_update
       description: ViewSet for ConnectQuestion model.
       parameters:
       - in: path
@@ -2413,14 +2365,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConnectQuestionRequest'
+              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ConnectQuestionRequest'
+              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ConnectQuestionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2471,8 +2422,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConnectQuestionDetail'
           description: ''
-    patch:
-      operationId: quizzes_connect_questions_partial_update
+    put:
+      operationId: quizzes_connect_questions_update
       description: ViewSet for ConnectQuestion model.
       parameters:
       - in: path
@@ -2487,13 +2438,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
+              $ref: '#/components/schemas/ConnectQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
+              $ref: '#/components/schemas/ConnectQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedConnectQuestionRequest'
+              $ref: '#/components/schemas/ConnectQuestionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2582,14 +2534,6 @@ paths:
       operationId: quizzes_number_questions_list
       description: ViewSet for NumberQuestion model.
       parameters:
-      - in: query
-        name: learning_objectives
-        schema:
-          type: array
-          items:
-            type: integer
-        explode: true
-        style: form
       - name: ordering
         required: false
         in: query
@@ -2633,8 +2577,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedNumberQuestionList'
           description: ''
   /api/quizzes/number-questions/{id}/:
-    put:
-      operationId: quizzes_number_questions_update
+    patch:
+      operationId: quizzes_number_questions_partial_update
       description: ViewSet for NumberQuestion model.
       parameters:
       - in: path
@@ -2649,14 +2593,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NumberQuestionRequest'
+              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/NumberQuestionRequest'
+              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/NumberQuestionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2707,8 +2650,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/NumberQuestionDetail'
           description: ''
-    patch:
-      operationId: quizzes_number_questions_partial_update
+    put:
+      operationId: quizzes_number_questions_update
       description: ViewSet for NumberQuestion model.
       parameters:
       - in: path
@@ -2723,13 +2666,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
+              $ref: '#/components/schemas/NumberQuestionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
+              $ref: '#/components/schemas/NumberQuestionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedNumberQuestionRequest'
+              $ref: '#/components/schemas/NumberQuestionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2815,8 +2759,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedOptionList'
           description: ''
   /api/quizzes/options/{id}/:
-    put:
-      operationId: quizzes_options_update
+    patch:
+      operationId: quizzes_options_partial_update
       description: ViewSet for Option model (MultipleChoiceQuestion).
       parameters:
       - in: path
@@ -2831,14 +2775,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OptionRequest'
+              $ref: '#/components/schemas/PatchedOptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OptionRequest'
+              $ref: '#/components/schemas/PatchedOptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OptionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedOptionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2889,8 +2832,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/OptionDetail'
           description: ''
-    patch:
-      operationId: quizzes_options_partial_update
+    put:
+      operationId: quizzes_options_update
       description: ViewSet for Option model (MultipleChoiceQuestion).
       parameters:
       - in: path
@@ -2905,13 +2848,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedOptionRequest'
+              $ref: '#/components/schemas/OptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedOptionRequest'
+              $ref: '#/components/schemas/OptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedOptionRequest'
+              $ref: '#/components/schemas/OptionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -2993,8 +2937,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedOrderOptionList'
           description: ''
   /api/quizzes/order-options/{id}/:
-    put:
-      operationId: quizzes_order_options_update
+    patch:
+      operationId: quizzes_order_options_partial_update
       description: ViewSet for OrderOption model.
       parameters:
       - in: path
@@ -3009,14 +2953,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderOptionRequest'
+              $ref: '#/components/schemas/PatchedOrderOptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OrderOptionRequest'
+              $ref: '#/components/schemas/PatchedOrderOptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OrderOptionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedOrderOptionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3067,8 +3010,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrderOptionDetail'
           description: ''
-    patch:
-      operationId: quizzes_order_options_partial_update
+    put:
+      operationId: quizzes_order_options_update
       description: ViewSet for OrderOption model.
       parameters:
       - in: path
@@ -3083,13 +3026,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedOrderOptionRequest'
+              $ref: '#/components/schemas/OrderOptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedOrderOptionRequest'
+              $ref: '#/components/schemas/OrderOptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedOrderOptionRequest'
+              $ref: '#/components/schemas/OrderOptionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3171,8 +3115,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedConnectOptionList'
           description: ''
   /api/quizzes/connect-options/{id}/:
-    put:
-      operationId: quizzes_connect_options_update
+    patch:
+      operationId: quizzes_connect_options_partial_update
       description: ViewSet for ConnectOption model.
       parameters:
       - in: path
@@ -3187,14 +3131,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConnectOptionRequest'
+              $ref: '#/components/schemas/PatchedConnectOptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ConnectOptionRequest'
+              $ref: '#/components/schemas/PatchedConnectOptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ConnectOptionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedConnectOptionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3245,8 +3188,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConnectOptionDetail'
           description: ''
-    patch:
-      operationId: quizzes_connect_options_partial_update
+    put:
+      operationId: quizzes_connect_options_update
       description: ViewSet for ConnectOption model.
       parameters:
       - in: path
@@ -3261,13 +3204,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionRequest'
+              $ref: '#/components/schemas/ConnectOptionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionRequest'
+              $ref: '#/components/schemas/ConnectOptionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionRequest'
+              $ref: '#/components/schemas/ConnectOptionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3357,8 +3301,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedConnectOptionConnectionList'
           description: ''
   /api/quizzes/connect-option-connections/{id}/:
-    put:
-      operationId: quizzes_connect_option_connections_update
+    patch:
+      operationId: quizzes_connect_option_connections_partial_update
       description: ViewSet for ConnectOptionConnection model.
       parameters:
       - in: path
@@ -3373,14 +3317,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3431,8 +3374,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConnectOptionConnection'
           description: ''
-    patch:
-      operationId: quizzes_connect_option_connections_partial_update
+    put:
+      operationId: quizzes_connect_option_connections_update
       description: ViewSet for ConnectOptionConnection model.
       parameters:
       - in: path
@@ -3447,13 +3390,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedConnectOptionConnectionRequest'
+              $ref: '#/components/schemas/ConnectOptionConnectionRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3547,8 +3491,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedStudentGroupList'
           description: ''
   /api/students/student-groups/{id}/:
-    put:
-      operationId: students_student_groups_update
+    patch:
+      operationId: students_student_groups_partial_update
       description: ViewSet for StudentGroup model.
       parameters:
       - in: path
@@ -3563,14 +3507,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StudentGroupRequest'
+              $ref: '#/components/schemas/PatchedStudentGroupRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/StudentGroupRequest'
+              $ref: '#/components/schemas/PatchedStudentGroupRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/StudentGroupRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedStudentGroupRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3621,8 +3564,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/StudentGroupDetail'
           description: ''
-    patch:
-      operationId: students_student_groups_partial_update
+    put:
+      operationId: students_student_groups_update
       description: ViewSet for StudentGroup model.
       parameters:
       - in: path
@@ -3637,13 +3580,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedStudentGroupRequest'
+              $ref: '#/components/schemas/StudentGroupRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedStudentGroupRequest'
+              $ref: '#/components/schemas/StudentGroupRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedStudentGroupRequest'
+              $ref: '#/components/schemas/StudentGroupRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3752,8 +3696,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedStudentList'
           description: ''
   /api/students/students/{id}/:
-    put:
-      operationId: students_students_update
+    patch:
+      operationId: students_students_partial_update
       description: ViewSet for Student model.
       parameters:
       - in: path
@@ -3768,14 +3712,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StudentRequest'
+              $ref: '#/components/schemas/PatchedStudentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/StudentRequest'
+              $ref: '#/components/schemas/PatchedStudentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/StudentRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedStudentRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3826,8 +3769,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/StudentDetail'
           description: ''
-    patch:
-      operationId: students_students_partial_update
+    put:
+      operationId: students_students_update
       description: ViewSet for Student model.
       parameters:
       - in: path
@@ -3842,13 +3785,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedStudentRequest'
+              $ref: '#/components/schemas/StudentRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedStudentRequest'
+              $ref: '#/components/schemas/StudentRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedStudentRequest'
+              $ref: '#/components/schemas/StudentRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -3997,8 +3941,8 @@ paths:
                 $ref: '#/components/schemas/PaginatedStudentQuestionAnswerList'
           description: ''
   /api/students/student-question-answers/{id}/:
-    put:
-      operationId: students_student_question_answers_update
+    patch:
+      operationId: students_student_question_answers_partial_update
       description: ViewSet for StudentQuestionAnswer model.
       parameters:
       - in: path
@@ -4013,14 +3957,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
-        required: true
+              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -4071,8 +4014,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/StudentQuestionAnswer'
           description: ''
-    patch:
-      operationId: students_student_question_answers_partial_update
+    put:
+      operationId: students_student_question_answers_update
       description: ViewSet for StudentQuestionAnswer model.
       parameters:
       - in: path
@@ -4087,13 +4030,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedStudentQuestionAnswerRequest'
+              $ref: '#/components/schemas/StudentQuestionAnswerRequest'
+        required: true
       security:
       - cookieAuth: []
       - tokenAuth: []
@@ -4360,10 +4304,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
         quiz_name:
           type: string
           readOnly: true
@@ -4377,9 +4317,6 @@ components:
           type: string
           readOnly: true
         course_name:
-          type: string
-          readOnly: true
-        learning_objectives_count:
           type: string
           readOnly: true
         created_at:
@@ -4402,7 +4339,6 @@ components:
       - course_name
       - created_at
       - id
-      - learning_objectives_count
       - lesson_name
       - module_name
       - organization
@@ -4450,10 +4386,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
         quiz_name:
           type: string
           readOnly: true
@@ -4467,9 +4399,6 @@ components:
           type: string
           readOnly: true
         course_name:
-          type: string
-          readOnly: true
-        learning_objectives_count:
           type: string
           readOnly: true
         created_at:
@@ -4504,7 +4433,6 @@ components:
       - course_name
       - created_at
       - id
-      - learning_objectives_count
       - lesson_name
       - module_name
       - organization
@@ -4545,10 +4473,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
       required:
       - organization
       - text
@@ -4635,61 +4559,6 @@ components:
           type: string
         organization:
           type: integer
-      required:
-      - name
-      - organization
-    LearningObjective:
-      type: object
-      description: Serializer for LearningObjective model.
-      properties:
-        id:
-          type: integer
-          readOnly: true
-        name:
-          type: string
-          maxLength: 255
-        description:
-          type: string
-        organization:
-          type: integer
-        topics:
-          type: array
-          items:
-            type: integer
-        topics_count:
-          type: string
-          readOnly: true
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        updated_at:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - created_at
-      - id
-      - name
-      - organization
-      - topics_count
-      - updated_at
-    LearningObjectiveRequest:
-      type: object
-      description: Serializer for LearningObjective model.
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-        description:
-          type: string
-        organization:
-          type: integer
-        topics:
-          type: array
-          items:
-            type: integer
       required:
       - name
       - organization
@@ -4803,6 +4672,239 @@ components:
       - module
       - name
       - organization
+    Material:
+      type: object
+      description: Serializer for Material model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        material_type:
+          $ref: '#/components/schemas/MaterialTypeEnum'
+        organization:
+          type: integer
+        course:
+          type: integer
+          nullable: true
+        modules:
+          type: array
+          items:
+            type: integer
+        lessons:
+          type: array
+          items:
+            type: integer
+        topics:
+          type: array
+          items:
+            type: integer
+        course_name:
+          type: string
+          readOnly: true
+        modules_names:
+          type: string
+          readOnly: true
+        lessons_names:
+          type: string
+          readOnly: true
+        topics_names:
+          type: string
+          readOnly: true
+        file:
+          type: string
+          format: uri
+          nullable: true
+          description: Upload a file (PDF, DOCX, PPTX, etc.)
+        file_url:
+          type: string
+          readOnly: true
+        content:
+          type: string
+          description: Rich text content (HTML or Markdown)
+        slide_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+          description: Number of slides in the presentation
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course_name
+      - created_at
+      - file_url
+      - id
+      - lessons_names
+      - material_type
+      - modules_names
+      - organization
+      - title
+      - topics_names
+      - updated_at
+    MaterialDetail:
+      type: object
+      description: Detailed serializer for Material (same as base).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        material_type:
+          $ref: '#/components/schemas/MaterialTypeEnum'
+        organization:
+          type: integer
+        course:
+          type: integer
+          nullable: true
+        modules:
+          type: array
+          items:
+            type: integer
+        lessons:
+          type: array
+          items:
+            type: integer
+        topics:
+          type: array
+          items:
+            type: integer
+        course_name:
+          type: string
+          readOnly: true
+        modules_names:
+          type: string
+          readOnly: true
+        lessons_names:
+          type: string
+          readOnly: true
+        topics_names:
+          type: string
+          readOnly: true
+        file:
+          type: string
+          format: uri
+          nullable: true
+          description: Upload a file (PDF, DOCX, PPTX, etc.)
+        file_url:
+          type: string
+          readOnly: true
+        content:
+          type: string
+          description: Rich text content (HTML or Markdown)
+        slide_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+          description: Number of slides in the presentation
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course_name
+      - created_at
+      - file_url
+      - id
+      - lessons_names
+      - material_type
+      - modules_names
+      - organization
+      - title
+      - topics_names
+      - updated_at
+    MaterialRequest:
+      type: object
+      description: Serializer for Material model.
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        material_type:
+          $ref: '#/components/schemas/MaterialTypeEnum'
+        organization:
+          type: integer
+        course:
+          type: integer
+          nullable: true
+        modules:
+          type: array
+          items:
+            type: integer
+        lessons:
+          type: array
+          items:
+            type: integer
+        topics:
+          type: array
+          items:
+            type: integer
+        file:
+          type: string
+          format: binary
+          nullable: true
+          description: Upload a file (PDF, DOCX, PPTX, etc.)
+        content:
+          type: string
+          description: Rich text content (HTML or Markdown)
+        slide_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+          description: Number of slides in the presentation
+      required:
+      - material_type
+      - organization
+      - title
+    MaterialTypeEnum:
+      enum:
+      - reader
+      - presentation
+      type: string
+      description: |-
+        * `reader` - Reader
+        * `presentation` - Presentation
     Module:
       type: object
       description: Serializer for Module model.
@@ -4942,10 +5044,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
         quiz_name:
           type: string
           readOnly: true
@@ -4959,9 +5057,6 @@ components:
           type: string
           readOnly: true
         course_name:
-          type: string
-          readOnly: true
-        learning_objectives_count:
           type: string
           readOnly: true
         created_at:
@@ -4979,7 +5074,6 @@ components:
       - course_name
       - created_at
       - id
-      - learning_objectives_count
       - lesson_name
       - module_name
       - options_count
@@ -5027,10 +5121,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
         quiz_name:
           type: string
           readOnly: true
@@ -5044,9 +5134,6 @@ components:
           type: string
           readOnly: true
         course_name:
-          type: string
-          readOnly: true
-        learning_objectives_count:
           type: string
           readOnly: true
         created_at:
@@ -5069,7 +5156,6 @@ components:
       - course_name
       - created_at
       - id
-      - learning_objectives_count
       - lesson_name
       - module_name
       - options
@@ -5112,10 +5198,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
       required:
       - organization
       - text
@@ -5157,10 +5239,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
         quiz_name:
           type: string
           readOnly: true
@@ -5174,9 +5252,6 @@ components:
           type: string
           readOnly: true
         course_name:
-          type: string
-          readOnly: true
-        learning_objectives_count:
           type: string
           readOnly: true
         created_at:
@@ -5201,7 +5276,6 @@ components:
       - course_name
       - created_at
       - id
-      - learning_objectives_count
       - lesson_name
       - module_name
       - organization
@@ -5249,10 +5323,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
         quiz_name:
           type: string
           readOnly: true
@@ -5266,9 +5336,6 @@ components:
           type: string
           readOnly: true
         course_name:
-          type: string
-          readOnly: true
-        learning_objectives_count:
           type: string
           readOnly: true
         created_at:
@@ -5293,7 +5360,6 @@ components:
       - course_name
       - created_at
       - id
-      - learning_objectives_count
       - lesson_name
       - module_name
       - organization
@@ -5334,10 +5400,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
         correct_answer:
           type: number
           format: double
@@ -5630,10 +5692,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
         quiz_name:
           type: string
           readOnly: true
@@ -5647,9 +5705,6 @@ components:
           type: string
           readOnly: true
         course_name:
-          type: string
-          readOnly: true
-        learning_objectives_count:
           type: string
           readOnly: true
         created_at:
@@ -5667,7 +5722,6 @@ components:
       - course_name
       - created_at
       - id
-      - learning_objectives_count
       - lesson_name
       - module_name
       - order_options_count
@@ -5715,10 +5769,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
         quiz_name:
           type: string
           readOnly: true
@@ -5732,9 +5782,6 @@ components:
           type: string
           readOnly: true
         course_name:
-          type: string
-          readOnly: true
-        learning_objectives_count:
           type: string
           readOnly: true
         created_at:
@@ -5757,7 +5804,6 @@ components:
       - course_name
       - created_at
       - id
-      - learning_objectives_count
       - lesson_name
       - module_name
       - order_options
@@ -5800,10 +5846,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
       required:
       - organization
       - text
@@ -5948,29 +5990,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Course'
-    PaginatedLearningObjectiveList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/LearningObjective'
     PaginatedLessonList:
       type: object
       required:
@@ -5994,6 +6013,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Lesson'
+    PaginatedMaterialList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Material'
     PaginatedModuleList:
       type: object
       required:
@@ -6371,10 +6413,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
     PatchedCourseRequest:
       type: object
       description: Serializer for Course model.
@@ -6387,22 +6425,6 @@ components:
           type: string
         organization:
           type: integer
-    PatchedLearningObjectiveRequest:
-      type: object
-      description: Serializer for LearningObjective model.
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 255
-        description:
-          type: string
-        organization:
-          type: integer
-        topics:
-          type: array
-          items:
-            type: integer
     PatchedLessonRequest:
       type: object
       description: Serializer for Lesson model.
@@ -6417,6 +6439,55 @@ components:
           type: integer
         module:
           type: integer
+    PatchedMaterialRequest:
+      type: object
+      description: Serializer for Material model.
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        material_type:
+          $ref: '#/components/schemas/MaterialTypeEnum'
+        organization:
+          type: integer
+        course:
+          type: integer
+          nullable: true
+        modules:
+          type: array
+          items:
+            type: integer
+        lessons:
+          type: array
+          items:
+            type: integer
+        topics:
+          type: array
+          items:
+            type: integer
+        file:
+          type: string
+          format: binary
+          nullable: true
+          description: Upload a file (PDF, DOCX, PPTX, etc.)
+        content:
+          type: string
+          description: Rich text content (HTML or Markdown)
+        slide_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+          description: Number of slides in the presentation
     PatchedModuleRequest:
       type: object
       description: Serializer for Module model.
@@ -6462,10 +6533,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
     PatchedNumberQuestionRequest:
       type: object
       description: Serializer for NumberQuestion model.
@@ -6497,10 +6564,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
         correct_answer:
           type: number
           format: double
@@ -6587,10 +6650,6 @@ components:
           nullable: true
         topic:
           type: integer
-        learning_objectives:
-          type: array
-          items:
-            type: integer
     PatchedOrganizationRequest:
       type: object
       description: Serializer for Organization model.
@@ -7296,9 +7355,6 @@ components:
         course_name:
           type: string
           readOnly: true
-        learning_objectives_count:
-          type: string
-          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -7311,7 +7367,6 @@ components:
       - course_name
       - created_at
       - id
-      - learning_objectives_count
       - lesson
       - lesson_name
       - module_name
@@ -7320,7 +7375,8 @@ components:
       - updated_at
     TopicDetail:
       type: object
-      description: Detailed serializer for Topic with learning objectives.
+      description: Detailed serializer for Topic (same as base since learning objectives
+        are now Topics).
       properties:
         id:
           type: integer
@@ -7343,9 +7399,6 @@ components:
         course_name:
           type: string
           readOnly: true
-        learning_objectives_count:
-          type: string
-          readOnly: true
         created_at:
           type: string
           format: date-time
@@ -7354,17 +7407,10 @@ components:
           type: string
           format: date-time
           readOnly: true
-        learning_objectives:
-          type: array
-          items:
-            $ref: '#/components/schemas/LearningObjective'
-          readOnly: true
       required:
       - course_name
       - created_at
       - id
-      - learning_objectives
-      - learning_objectives_count
       - lesson
       - lesson_name
       - module_name
