@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { QuestionDetail, MultipleChoiceQuestionDetail, OrderQuestionDetail, ConnectQuestionDetail, NumberQuestionDetail, Option, OrderOption } from "@/lib/api";
 import { QuestionTypeBadge } from "./QuestionTypeBadge";
 import { ChevronUpIcon, ChevronDownIcon } from "@radix-ui/react-icons";
@@ -35,6 +36,7 @@ function MultipleChoicePreview({
   onOptionsSelect?: (optionIds: number[]) => void; // For multiple selection
   showCorrectAnswer?: boolean;
 }) {
+  const { t } = useTranslation();
   const getImageUrl = (url: string | null): string | undefined => {
     if (!url) return undefined;
     return url.startsWith('http') ? url : `http://127.0.0.1:8000${url}`;
@@ -64,7 +66,7 @@ function MultipleChoicePreview({
 
   return (
     <div className="space-y-2">
-      <p className="text-base font-medium mb-2">Options:</p>
+      <p className="text-base font-medium mb-2">{t("questions.options")}:</p>
       {question.options && question.options.length > 0 ? (
         <div className="space-y-2">
           {question.options.map((option: Option) => {
@@ -104,10 +106,10 @@ function MultipleChoicePreview({
                       <span className="text-sm">{option.text}</span>
                     )}
                     {showCorrectAnswer && isCorrect && (
-                      <span className="ml-2 text-xs text-green-600 font-medium">(Correct)</span>
+                      <span className="ml-2 text-xs text-green-600 font-medium">({t("questions.correct")})</span>
                     )}
                     {showCorrectAnswer && isSelected && !isCorrect && (
-                      <span className="ml-2 text-xs text-red-600 font-medium">(Incorrect)</span>
+                      <span className="ml-2 text-xs text-red-600 font-medium">({t("questions.incorrect")})</span>
                     )}
                   </div>
                 </div>
@@ -116,7 +118,7 @@ function MultipleChoicePreview({
           })}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">No options available</p>
+        <p className="text-sm text-muted-foreground">{t("questions.noOptionsAvailable")}</p>
       )}
     </div>
   );
@@ -133,6 +135,7 @@ function OrderPreview({
   onOrderChange?: (optionIds: number[]) => void;
   showCorrectAnswer?: boolean;
 }) {
+  const { t } = useTranslation();
   const correctOrder = question.order_options
     .sort((a, b) => a.correct_order - b.correct_order)
     .map(opt => opt.id);
@@ -186,7 +189,7 @@ function OrderPreview({
 
   return (
     <div className="space-y-2">
-      <p className="text-base font-medium mb-2">Order the items correctly:</p>
+      <p className="text-base font-medium mb-2">{t("questions.orderItems")}</p>
       {question.order_options && question.order_options.length > 0 ? (
         <div className="space-y-2">
           {currentOrder.map((optionId, index) => {
@@ -231,7 +234,7 @@ function OrderPreview({
                   </div>
                   {showCorrectAnswer && (
                     <span className="text-xs text-muted-foreground">
-                      (Correct: {option.correct_order})
+                      ({t("questions.correctOrder")} {option.correct_order})
                     </span>
                   )}
                   {!showCorrectAnswer && onOrderChange && (
@@ -268,7 +271,7 @@ function OrderPreview({
           })}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">No options available</p>
+        <p className="text-sm text-muted-foreground">{t("questions.noOptionsAvailable")}</p>
       )}
     </div>
   );
@@ -285,6 +288,7 @@ function NumberPreview({
   onNumberChange?: (value: number) => void;
   showCorrectAnswer?: boolean;
 }) {
+  const { t } = useTranslation();
   const [inputValue, setInputValue] = useState<string>(selectedNumber?.toString() || '');
   
   useEffect(() => {
@@ -313,7 +317,7 @@ function NumberPreview({
 
   return (
     <div className="space-y-2">
-      <p className="text-base font-medium mb-2">Enter your answer:</p>
+      <p className="text-base font-medium mb-2">{t("questions.enterAnswer")}</p>
       <div className="space-y-2">
         <input
           type="number"
@@ -325,16 +329,16 @@ function NumberPreview({
           }`}
           value={inputValue}
           onChange={handleInputChange}
-          placeholder="Enter a number"
+          placeholder={t("questions.enterNumber")}
           disabled={showCorrectAnswer}
         />
         {showCorrectAnswer && (
           <div className="text-sm">
             {isCorrect ? (
-              <span className="text-green-600 font-medium">Correct! The answer is {question.correct_answer}</span>
+              <span className="text-green-600 font-medium">{t("questions.correctAnswerIs")} {question.correct_answer}</span>
             ) : (
               <span className="text-red-600 font-medium">
-                Incorrect. The correct answer is {question.correct_answer}
+                {t("questions.incorrectAnswer")} {question.correct_answer}
                 {question.tolerance > 0 && ` (±${question.tolerance})`}
               </span>
             )}
@@ -356,6 +360,7 @@ function ConnectPreview({
   onConnectionChange?: (connections: Array<[number, number]>) => void;
   showCorrectAnswer?: boolean;
 }) {
+  const { t } = useTranslation();
   const [connectingFrom, setConnectingFrom] = useState<number | null>(null);
   const CANVAS_WIDTH = 600;
   const CANVAS_HEIGHT = 400;
@@ -431,7 +436,7 @@ function ConnectPreview({
 
   return (
     <div className="space-y-4">
-      <p className="text-base font-medium mb-2">Connect the items:</p>
+      <p className="text-base font-medium mb-2">{t("questions.connectItems")}</p>
       {question.connect_options && question.connect_options.length > 0 ? (
         <div className="relative bg-muted rounded-md p-4" style={{ width: CANVAS_WIDTH, height: CANVAS_HEIGHT }}>
           {/* SVG overlay for connections */}
@@ -543,13 +548,13 @@ function ConnectPreview({
           })}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">No options available</p>
+        <p className="text-sm text-muted-foreground">{t("questions.noOptionsAvailable")}</p>
       )}
       
       {connectingFrom && !showCorrectAnswer && (
         <div className="rounded-md border border-primary bg-primary/10 p-2">
           <p className="text-sm text-primary">
-            Click another option to connect to "{question.connect_options.find(opt => opt.id === connectingFrom)?.text || 'selected option'}"
+            {t("questions.clickToConnect")} "{question.connect_options.find(opt => opt.id === connectingFrom)?.text || t("questions.selectedOption")}"
           </p>
           <Button
             size="sm"
@@ -557,7 +562,7 @@ function ConnectPreview({
             className="mt-2"
             onClick={() => setConnectingFrom(null)}
           >
-            Cancel
+            {t("common.cancel")}
           </Button>
         </div>
       )}
@@ -580,10 +585,12 @@ export function QuestionPreview({
   showCorrectAnswer = false,
   onEditLayout,
 }: QuestionPreviewProps) {
+  const { t } = useTranslation();
+  
   if (!question) {
     return (
       <div className="rounded-md border p-6 text-center text-muted-foreground">
-        No question selected
+        {t("questions.noQuestionSelected")}
       </div>
     );
   }
@@ -592,11 +599,11 @@ export function QuestionPreview({
     <div className="rounded-md border p-6 space-y-4">
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-lg font-semibold">Preview</h3>
+          <h3 className="text-lg font-semibold">{t("questions.preview")}</h3>
           <QuestionTypeBadge questionType={question.question_type} />
         </div>
         <div className="mb-4">
-          <p className="text-base font-medium mb-1">Question:</p>
+          <p className="text-base font-medium mb-1">{t("questions.question")}:</p>
           {question.image && (
             <img 
               src={question.image.startsWith('http') ? question.image : `http://127.0.0.1:8000${question.image}`} 
@@ -641,7 +648,7 @@ export function QuestionPreview({
                   variant="outline"
                   onClick={onEditLayout}
                 >
-                  Edit Layout
+                  {t("questions.editLayout")}
                 </Button>
               </div>
             )}

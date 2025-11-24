@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import { fetchQuestions, fetchCourses, fetchModules, Question, Course, Module } 
 import { QuestionTypeBadge } from "@/components/QuestionTypeBadge";
 
 export default function Questions() {
+  const { t } = useTranslation();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
@@ -33,7 +35,7 @@ export default function Questions() {
         setQuestions(qs);
         setCourses(cs);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load questions");
+        setError(err instanceof Error ? err.message : t("errors.failedToLoadQuestions"));
       } finally {
         setLoading(false);
       }
@@ -55,7 +57,7 @@ export default function Questions() {
             return current;
           });
         } catch (e) {
-          setError(e instanceof Error ? e.message : "Failed to load modules");
+          setError(e instanceof Error ? e.message : t("errors.failedToLoadModules"));
         }
       } else {
         setModules([]);
@@ -94,10 +96,10 @@ export default function Questions() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>Questions</PageHeaderHeading>
+          <PageHeaderHeading>{t("questions.questions")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -119,19 +121,19 @@ export default function Questions() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>Questions</PageHeaderHeading>
-        <Button onClick={() => navigate("/questions/new")}>New Question</Button>
+        <PageHeaderHeading>{t("questions.questions")}</PageHeaderHeading>
+        <Button onClick={() => navigate("/questions/new")}>{t("questions.newQuestion")}</Button>
       </PageHeader>
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium mb-1">Filter by Course</label>
+          <label className="block text-sm font-medium mb-1">{t("questions.filterByCourse")}</label>
           <select
             className="w-full rounded-md border px-3 py-2 text-sm"
             value={selectedCourse ?? ""}
             onChange={(e) => setSelectedCourse(e.target.value ? Number(e.target.value) : null)}
           >
-            <option value="">All Courses</option>
+            <option value="">{t("questions.allCourses")}</option>
             {courses.map((course) => (
               <option key={course.id} value={course.id}>
                 {course.name}
@@ -140,14 +142,14 @@ export default function Questions() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Filter by Module</label>
+          <label className="block text-sm font-medium mb-1">{t("questions.filterByModule")}</label>
           <select
             className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
             value={selectedModule ?? ""}
             onChange={(e) => setSelectedModule(e.target.value ? Number(e.target.value) : null)}
             disabled={!selectedCourse || modules.length === 0}
           >
-            <option value="">All Modules</option>
+            <option value="">{t("questions.allModules")}</option>
             {modules.map((module) => (
               <option key={module.id} value={module.id}>
                 {module.name}
@@ -161,13 +163,13 @@ export default function Questions() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Question</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Course</TableHead>
-              <TableHead>Module</TableHead>
-              <TableHead>Topic</TableHead>
-              <TableHead>Options</TableHead>
-              <TableHead className="w-24">Action</TableHead>
+              <TableHead>{t("questions.question")}</TableHead>
+              <TableHead>{t("materials.type")}</TableHead>
+              <TableHead>{t("quizzes.course")}</TableHead>
+              <TableHead>{t("quizzes.module")}</TableHead>
+              <TableHead>{t("materials.topics")}</TableHead>
+              <TableHead>{t("questions.options")}</TableHead>
+              <TableHead className="w-24">{t("common.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -207,8 +209,8 @@ export default function Questions() {
                         : 'number';
                       navigate(`/questions/${typePath}/${question.id}`);
                     }}
-                  >
-                    View
+                    >
+                    {t("common.view")}
                   </Button>
                 </TableCell>
               </TableRow>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { appConfig } from "@/config/app";
@@ -20,8 +21,22 @@ import { Logo } from "../logo";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 export function Header() {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false)
     const location = useLocation();
+    
+    const getMenuTitle = (title: string): string => {
+        const titleMap: Record<string, string> = {
+            'Students': t('nav.students'),
+            'Student Groups': t('nav.studentGroups'),
+            'Quizzes': t('nav.quizzes'),
+            'Questions': t('nav.questions'),
+            'Materials': t('nav.materials'),
+            'Browse Materials': t('nav.browseMaterials'),
+            'Materials Overview': t('nav.materialsOverview'),
+        };
+        return titleMap[title] || title;
+    };
 
     return (
         <header className="supports-backdrop-blur:bg-background/60 sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur">
@@ -39,7 +54,7 @@ export function Header() {
                                         (menu.items.filter(subitem => subitem.to !== undefined).map(subitem => subitem.to))
                                             .includes(location.pathname) ? 'text-foreground' : 'text-foreground/60',
                                     )}>
-                                        {menu.title}
+                                        {getMenuTitle(menu.title)}
                                         <ChevronDownIcon className="ml-1 -mr-1 h-3 w-3 text-muted-foreground" />
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent className='w-48' align="start" forceMount>
@@ -50,12 +65,12 @@ export function Header() {
                                                         "hover:cursor-pointer",
                                                         { 'bg-muted': subitem.to === location.pathname }
                                                     )}>
-                                                        {subitem.title}
+                                                        {getMenuTitle(subitem.title)}
                                                     </DropdownMenuItem>
                                                 </NavLink>
                                             ) : (
                                                 subitem.label ? (
-                                                    <DropdownMenuLabel key={subindex}>{subitem.title}</DropdownMenuLabel>
+                                                    <DropdownMenuLabel key={subindex}>{getMenuTitle(subitem.title)}</DropdownMenuLabel>
                                                 ) : (
                                                     <DropdownMenuSeparator key={subindex} />
                                                 )
@@ -71,7 +86,7 @@ export function Header() {
                                         "text-sm font-medium transition-colors hover:text-primary",
                                         isActive ? "text-foreground" : "text-foreground/60"
                                     )}>
-                                    {menu.title}
+                                    {getMenuTitle(menu.title)}
                                 </NavLink>
                             )
                         )}
@@ -107,7 +122,7 @@ export function Header() {
                                                     (menu.items.filter(subitem => subitem.to !== undefined).map(subitem => subitem.to))
                                                         .includes(location.pathname) ? 'text-foreground' : 'text-foreground/60',
                                                 )}>
-                                                    <div className="flex">{menu.title}</div>
+                                                    <div className="flex">{getMenuTitle(menu.title)}</div>
                                                 </AccordionTrigger>
                                                 <AccordionContent className="pb-1 pl-4">
                                                     <div className="mt-1">
@@ -121,7 +136,7 @@ export function Header() {
                                                                         "block justify-start py-1 h-auto font-normal hover:text-primary",
                                                                         isActive ? 'text-foreground' : 'text-foreground/60',
                                                                     )}>
-                                                                    {submenu.title}
+                                                                    {getMenuTitle(submenu.title)}
                                                                 </NavLink>
                                                             ) : (
                                                                 submenu.label !== '' ? (
@@ -145,7 +160,7 @@ export function Header() {
                                                     "py-1 text-sm font-medium transition-colors hover:text-primary",
                                                     isActive ? "text-foreground" : "text-foreground/60"
                                                 )}>
-                                                {menu.title}
+                                                {getMenuTitle(menu.title)}
                                             </NavLink>
                                         )
                                     )}

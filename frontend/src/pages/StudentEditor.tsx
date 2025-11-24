@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,6 +14,7 @@ import {
 } from "@/lib/api";
 
 export default function StudentEditor() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -41,7 +43,7 @@ export default function StudentEditor() {
           setSelectedGroups(student.student_groups || []);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load data");
+        setError(err instanceof Error ? err.message : t("errors.failedToLoadData"));
       } finally {
         setLoading(false);
       }
@@ -57,25 +59,25 @@ export default function StudentEditor() {
 
     try {
       if (!firstName.trim()) {
-        setError("First name is required");
+        setError(t("students.firstNameRequired"));
         setSaving(false);
         return;
       }
 
       if (!lastName.trim()) {
-        setError("Last name is required");
+        setError(t("students.lastNameRequired"));
         setSaving(false);
         return;
       }
 
       if (!email.trim()) {
-        setError("Email is required");
+        setError(t("students.emailRequired"));
         setSaving(false);
         return;
       }
 
       if (selectedGroups.length === 0) {
-        setError("At least one student group is required");
+        setError(t("students.atLeastOneGroup"));
         setSaving(false);
         return;
       }
@@ -96,7 +98,7 @@ export default function StudentEditor() {
         navigate(`/students/${id}`);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save student");
+      setError(err instanceof Error ? err.message : t("students.failedToSaveStudent"));
     } finally {
       setSaving(false);
     }
@@ -106,10 +108,10 @@ export default function StudentEditor() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>{isCreate ? "Create Student" : "Edit Student"}</PageHeaderHeading>
+          <PageHeaderHeading>{isCreate ? t("students.createStudent") : t("students.editStudent")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -118,13 +120,13 @@ export default function StudentEditor() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>{isCreate ? "Create Student" : "Edit Student"}</PageHeaderHeading>
+        <PageHeaderHeading>{isCreate ? t("students.createStudent") : t("students.editStudent")}</PageHeaderHeading>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => navigate(isCreate ? "/students" : `/students/${id}`)}>
-            Back
+            {t("common.back")}
           </Button>
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save"}
+            {saving ? t("common.saving") : t("common.save")}
           </Button>
         </div>
       </PageHeader>
@@ -134,47 +136,47 @@ export default function StudentEditor() {
       <div className="rounded-md border p-4 space-y-4 max-w-2xl">
         <div>
           <label className="block text-sm font-medium mb-1">
-            First Name <span className="text-destructive">*</span>
+            {t("students.firstName")} <span className="text-destructive">*</span>
           </label>
           <input
             className="w-full rounded-md border px-3 py-2 text-sm"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            placeholder="Enter first name"
+            placeholder={t("students.enterFirstName")}
             required
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">
-            Last Name <span className="text-destructive">*</span>
+            {t("students.lastName")} <span className="text-destructive">*</span>
           </label>
           <input
             className="w-full rounded-md border px-3 py-2 text-sm"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            placeholder="Enter last name"
+            placeholder={t("students.enterLastName")}
             required
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">
-            Email <span className="text-destructive">*</span>
+            {t("common.email")} <span className="text-destructive">*</span>
           </label>
           <input
             type="email"
             className="w-full rounded-md border px-3 py-2 text-sm"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter email"
+            placeholder={t("students.enterEmail")}
             required
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">
-            Student Groups <span className="text-destructive">*</span>
+            {t("students.studentGroups")} <span className="text-destructive">*</span>
           </label>
           <select
             className="w-full rounded-md border px-3 py-2 text-sm min-h-[100px]"
@@ -194,11 +196,11 @@ export default function StudentEditor() {
             ))}
           </select>
           <p className="text-xs text-muted-foreground mt-1">
-            Hold Ctrl/Cmd to select multiple groups
+            {t("students.holdToSelectMultiple")}
           </p>
           {selectedGroups.length > 0 && (
             <p className="text-xs text-muted-foreground mt-1">
-              Selected: {selectedGroups.length} group{selectedGroups.length !== 1 ? 's' : ''}
+              {t("students.selected")} {selectedGroups.length} {selectedGroups.length !== 1 ? t("students.groups") : t("students.group")}
             </p>
           )}
         </div>

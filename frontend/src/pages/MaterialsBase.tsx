@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +14,7 @@ import {
 import { fetchCourses, fetchMaterials, Course, Material } from "@/lib/api";
 
 export default function MaterialsBase() {
+  const { t } = useTranslation();
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -26,7 +28,7 @@ export default function MaterialsBase() {
         const data = await fetchCourses();
         setCourses(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load courses");
+        setError(err instanceof Error ? err.message : t("errors.failedToLoadCourses"));
       } finally {
         setLoading(false);
       }
@@ -43,7 +45,7 @@ export default function MaterialsBase() {
           const data = await fetchMaterials({ course: selectedCourse });
           setMaterials(data);
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to load materials");
+          setError(err instanceof Error ? err.message : t("errors.failedToLoadMaterials"));
         } finally {
           setLoading(false);
         }
@@ -63,10 +65,10 @@ export default function MaterialsBase() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>Learning Materials</PageHeaderHeading>
+          <PageHeaderHeading>{t("materials.learningMaterials")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -88,13 +90,13 @@ export default function MaterialsBase() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>Learning Materials</PageHeaderHeading>
+        <PageHeaderHeading>{t("materials.learningMaterials")}</PageHeaderHeading>
       </PageHeader>
       
       <div className="space-y-4">
         <div className="flex gap-4 items-center">
           <label htmlFor="course-select" className="text-sm font-medium">
-            Select Course:
+            {t("materials.selectCourse")}:
           </label>
           <select
             id="course-select"
@@ -102,7 +104,7 @@ export default function MaterialsBase() {
             onChange={(e) => setSelectedCourse(e.target.value ? Number(e.target.value) : null)}
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
-            <option value="">-- Select a course --</option>
+            <option value="">{t("materials.selectCoursePlaceholder")}</option>
             {courses.map((course) => (
               <option key={course.id} value={course.id}>
                 {course.name}
@@ -115,7 +117,7 @@ export default function MaterialsBase() {
           <>
             {loading ? (
               <div className="flex items-center justify-center p-8">
-                <p className="text-muted-foreground">Loading materials...</p>
+                <p className="text-muted-foreground">{t("materials.loadingMaterials")}</p>
               </div>
             ) : error ? (
               <div className="flex items-center justify-center p-8">
@@ -123,18 +125,18 @@ export default function MaterialsBase() {
               </div>
             ) : materials.length === 0 ? (
               <div className="flex items-center justify-center p-8">
-                <p className="text-muted-foreground">No materials found for this course.</p>
+                <p className="text-muted-foreground">{t("materials.noMaterialsFound")}</p>
               </div>
             ) : (
               <div className="rounded-md border">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Modules</TableHead>
-                      <TableHead>Lessons</TableHead>
-                      <TableHead>Topics</TableHead>
+                      <TableHead>{t("materials.title")}</TableHead>
+                      <TableHead>{t("materials.type")}</TableHead>
+                      <TableHead>{t("materials.modules")}</TableHead>
+                      <TableHead>{t("materials.lessons")}</TableHead>
+                      <TableHead>{t("materials.topics")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

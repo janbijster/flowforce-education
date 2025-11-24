@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -9,6 +10,7 @@ import {
 import { useLanguage } from "@/hooks/useLanguage"
 
 export function LanguageToggle() {
+  const { t } = useTranslation();
   const { language, setLanguage } = useLanguage()
 
   return (
@@ -23,13 +25,13 @@ export function LanguageToggle() {
           className="cursor-pointer" 
           onClick={() => setLanguage("en")}
         >
-          English (EN)
+          {t("language.english")}
         </DropdownMenuItem>
         <DropdownMenuItem 
           className="cursor-pointer" 
           onClick={() => setLanguage("nl")}
         >
-          Nederlands (NL)
+          {t("language.nederlands")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +21,7 @@ import {
 } from "@/lib/api";
 
 export default function MaterialForm() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -121,7 +123,7 @@ export default function MaterialForm() {
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load data");
+        setError(err instanceof Error ? err.message : t("errors.failedToLoadData"));
       } finally {
         setLoading(false);
       }
@@ -141,17 +143,17 @@ export default function MaterialForm() {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      setError("Title is required");
+      setError(t("errors.titleRequired"));
       return;
     }
 
     if (!user?.organization) {
-      setError("Organization not found");
+      setError(t("errors.organizationNotFound"));
       return;
     }
 
     if (!selectedCourse) {
-      setError("Course is required");
+      setError(t("errors.courseRequired"));
       return;
     }
 
@@ -185,7 +187,7 @@ export default function MaterialForm() {
 
       navigate("/materials/overview");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save material");
+      setError(err instanceof Error ? err.message : t("errors.failedToSaveMaterial"));
     } finally {
       setSaving(false);
     }
@@ -219,10 +221,10 @@ export default function MaterialForm() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>{isCreate ? "New Material" : "Edit Material"}</PageHeaderHeading>
+          <PageHeaderHeading>{isCreate ? t("materials.newMaterial") : t("materials.editMaterial")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -231,16 +233,16 @@ export default function MaterialForm() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>{isCreate ? "New Material" : "Edit Material"}</PageHeaderHeading>
+        <PageHeaderHeading>{isCreate ? t("materials.newMaterial") : t("materials.editMaterial")}</PageHeaderHeading>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => navigate("/materials/overview")}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button 
             onClick={handleSave} 
             disabled={saving || !title.trim() || !selectedCourse}
           >
-            {saving ? "Saving..." : "Save"}
+            {saving ? t("common.saving") : t("common.save")}
           </Button>
         </div>
       </PageHeader>
@@ -254,10 +256,10 @@ export default function MaterialForm() {
       <div className="space-y-6">
         {/* Basic Information */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Basic Information</h2>
+          <h2 className="text-lg font-semibold">{t("materials.basicInformation")}</h2>
           
           <div>
-            <label className="block text-sm font-medium mb-1">Title *</label>
+            <label className="block text-sm font-medium mb-1">{t("materials.title")} *</label>
             <input
               type="text"
               value={title}
@@ -268,7 +270,7 @@ export default function MaterialForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Description</label>
+            <label className="block text-sm font-medium mb-1">{t("materials.description")}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -279,19 +281,19 @@ export default function MaterialForm() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Material Type *</label>
+              <label className="block text-sm font-medium mb-1">{t("materials.materialType")} *</label>
               <select
                 value={materialType}
                 onChange={(e) => setMaterialType(e.target.value as 'reader' | 'presentation')}
                 className="w-full rounded-md border px-3 py-2"
               >
-                <option value="reader">Reader</option>
-                <option value="presentation">Presentation</option>
+                <option value="reader">{t("materials.reader")}</option>
+                <option value="presentation">{t("materials.presentation")}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Order</label>
+              <label className="block text-sm font-medium mb-1">{t("common.order")}</label>
               <input
                 type="number"
                 value={order}
@@ -304,7 +306,7 @@ export default function MaterialForm() {
 
           {materialType === 'presentation' && (
             <div>
-              <label className="block text-sm font-medium mb-1">Slide Count</label>
+              <label className="block text-sm font-medium mb-1">{t("materials.slideCount")}</label>
               <input
                 type="number"
                 value={slideCount || ""}
@@ -318,17 +320,17 @@ export default function MaterialForm() {
 
         {/* Course Hierarchy */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Course Hierarchy</h2>
+          <h2 className="text-lg font-semibold">{t("materials.courseHierarchy")}</h2>
           
           <div>
-            <label className="block text-sm font-medium mb-1">Course *</label>
+            <label className="block text-sm font-medium mb-1">{t("materials.course")} *</label>
             <select
               value={selectedCourse || ""}
               onChange={(e) => setSelectedCourse(e.target.value ? Number(e.target.value) : null)}
               className="w-full rounded-md border px-3 py-2"
               required
             >
-              <option value="">-- Select a course --</option>
+              <option value="">{t("materials.selectCoursePlaceholder")}</option>
               {courses.map((course) => (
                 <option key={course.id} value={course.id}>
                   {course.name}
@@ -340,10 +342,10 @@ export default function MaterialForm() {
           {selectedCourse && (
             <>
               <div>
-                <label className="block text-sm font-medium mb-2">Modules</label>
+                <label className="block text-sm font-medium mb-2">{t("materials.modules")}</label>
                 <div className="max-h-40 overflow-y-auto border rounded-md p-2 space-y-1">
                   {modules.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No modules available</p>
+                    <p className="text-sm text-muted-foreground">{t("materials.noModulesAvailable")}</p>
                   ) : (
                     modules.map((module) => (
                       <label key={module.id} className="flex items-center space-x-2 cursor-pointer">
@@ -361,10 +363,10 @@ export default function MaterialForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Lessons</label>
+                <label className="block text-sm font-medium mb-2">{t("materials.lessons")}</label>
                 <div className="max-h-40 overflow-y-auto border rounded-md p-2 space-y-1">
                   {lessons.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No lessons available</p>
+                    <p className="text-sm text-muted-foreground">{t("materials.noLessonsAvailable")}</p>
                   ) : (
                     lessons.map((lesson) => (
                       <label key={lesson.id} className="flex items-center space-x-2 cursor-pointer">
@@ -382,10 +384,10 @@ export default function MaterialForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Topics</label>
+                <label className="block text-sm font-medium mb-2">{t("materials.topics")}</label>
                 <div className="max-h-40 overflow-y-auto border rounded-md p-2 space-y-1">
                   {topics.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">No topics available</p>
+                    <p className="text-sm text-muted-foreground">{t("materials.noTopicsAvailable")}</p>
                   ) : (
                     topics.map((topic) => (
                       <label key={topic.id} className="flex items-center space-x-2 cursor-pointer">
@@ -407,10 +409,10 @@ export default function MaterialForm() {
 
         {/* Content */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Content</h2>
+          <h2 className="text-lg font-semibold">{t("materials.content")}</h2>
           
           <div>
-            <label className="block text-sm font-medium mb-1">File (PDF, DOCX, PPTX, etc.)</label>
+            <label className="block text-sm font-medium mb-1">{t("materials.fileLabel")}</label>
             <input
               type="file"
               onChange={handleFileChange}
@@ -419,23 +421,23 @@ export default function MaterialForm() {
             />
             {fileUrl && !file && (
               <p className="mt-2 text-sm text-muted-foreground">
-                Current file: <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{fileUrl}</a>
+                {t("materials.currentFile")} <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{fileUrl}</a>
               </p>
             )}
             {file && (
               <p className="mt-2 text-sm text-muted-foreground">
-                Selected file: {file.name}
+                {t("materials.selectedFile")} {file.name}
               </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Rich Text Content (HTML or Markdown)</label>
+            <label className="block text-sm font-medium mb-1">{t("materials.richTextContent")}</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="w-full rounded-md border px-3 py-2 min-h-[200px] font-mono text-sm"
-              placeholder="Enter HTML or Markdown content..."
+              placeholder={t("materials.richTextPlaceholder")}
             />
           </div>
         </div>

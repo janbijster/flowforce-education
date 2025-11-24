@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate, useParams, useBlocker } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +33,7 @@ import { QuestionTypeBadge } from "@/components/QuestionTypeBadge";
 import { getLastCourse, setLastCourse, getLastModule, setLastModule } from "@/lib/utils";
 
 export default function QuizEditor() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -156,7 +158,7 @@ export default function QuizEditor() {
           };
         }
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load quiz data");
+        setError(e instanceof Error ? e.message : t("questions.failedToLoadQuizData"));
       }
     };
     init();
@@ -181,7 +183,7 @@ export default function QuizEditor() {
             setLastCourse(selectedCourse);
           }
         } catch (e) {
-          setError(e instanceof Error ? e.message : "Failed to load modules");
+          setError(e instanceof Error ? e.message : t("errors.failedToLoadModules"));
         }
       } else {
         setModules([]);
@@ -330,18 +332,18 @@ export default function QuizEditor() {
   );
 
   useEffect(() => {
-    if (blocker.state === "blocked") {
-      if (window.confirm("You have unsaved changes. Are you sure you want to leave?")) {
+      if (blocker.state === "blocked") {
+      if (window.confirm(t("questions.unsavedChanges"))) {
         blocker.proceed();
       } else {
         blocker.reset();
       }
     }
-  }, [blocker]);
+  }, [blocker, t]);
 
   // Handle Back button click with unsaved changes warning
   const handleBack = () => {
-    if (hasUnsavedChanges && !window.confirm("You have unsaved changes. Are you sure you want to leave?")) {
+    if (hasUnsavedChanges && !window.confirm(t("questions.unsavedChanges"))) {
       return;
     }
     navigate("/quizzes");
@@ -353,18 +355,18 @@ export default function QuizEditor() {
     setError(null);
     try {
       if (!user) {
-        throw new Error("User not authenticated");
+        throw new Error(t("errors.userNotAuthenticated"));
       }
 
       // Validate required fields
       if (!name.trim()) {
-        setError("Name is required");
+        setError(t("questions.nameRequired"));
         setSaving(false);
         isSavingRef.current = false;
         return;
       }
       if (!description.trim()) {
-        setError("Description is required");
+        setError(t("questions.descriptionRequired"));
         setSaving(false);
         isSavingRef.current = false;
         return;
@@ -463,7 +465,7 @@ export default function QuizEditor() {
         navigate(`/quizzes/${quizId}/edit`);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save quiz");
+      setError(e instanceof Error ? e.message : t("questions.failedToSaveQuiz"));
     } finally {
       setSaving(false);
       // Reset the saving ref after a small delay to allow navigation to complete
@@ -476,15 +478,15 @@ export default function QuizEditor() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>{isCreate ? "Create Quiz" : "Edit Quiz"}</PageHeaderHeading>
+        <PageHeaderHeading>{isCreate ? t("questions.createQuiz") : t("questions.editQuiz")}</PageHeaderHeading>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleBack}>Back</Button>
+          <Button variant="outline" onClick={handleBack}>{t("common.back")}</Button>
           <Button 
             onClick={handleSave} 
             disabled={saving || (!hasUnsavedChanges && !isCreate)}
             variant={!hasUnsavedChanges && !isCreate ? "secondary" : "default"}
           >
-            {saving ? "Saving..." : (hasUnsavedChanges ? "Save" : (isCreate ? "Save" : "Changes saved"))}
+            {saving ? t("common.saving") : (hasUnsavedChanges ? t("common.save") : (isCreate ? t("common.save") : t("questions.changesSaved")))}
           </Button>
         </div>
       </PageHeader>
@@ -496,30 +498,30 @@ export default function QuizEditor() {
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
           <label className="block text-sm font-medium">
-            Name <span className="text-destructive">*</span>
+            {t("common.name")} <span className="text-destructive">*</span>
           </label>
           <input
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Quiz name"
+            placeholder={t("questions.quizName")}
             required
           />
         </div>
         <div>
           <label className="block text-sm font-medium">
-            Description <span className="text-destructive">*</span>
+            {t("materials.description")} <span className="text-destructive">*</span>
           </label>
           <input
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Quiz description"
+            placeholder={t("questions.quizDescription")}
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Course</label>
+          <label className="block text-sm font-medium">{t("quizzes.course")}</label>
           <select
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm"
             value={selectedCourse ?? ""}
@@ -532,7 +534,7 @@ export default function QuizEditor() {
               }
             }}
           >
-            <option value="">— Select Course —</option>
+            <option value="">{t("questions.selectCourse")}</option>
             {courses.map((course) => (
               <option key={course.id} value={course.id}>
                 {course.name}
@@ -541,7 +543,7 @@ export default function QuizEditor() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium">Module</label>
+          <label className="block text-sm font-medium">{t("quizzes.module")}</label>
           <select
             className="mt-1 w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
             value={selectedModule ?? ""}
@@ -555,7 +557,7 @@ export default function QuizEditor() {
             }}
             disabled={!selectedCourse || modules.length === 0}
           >
-            <option value="">— Select Module —</option>
+            <option value="">{t("questions.selectModule")}</option>
             {modules.map((module) => (
               <option key={module.id} value={module.id}>
                 {module.name}
@@ -569,10 +571,10 @@ export default function QuizEditor() {
         {/* Left: All questions with search and Add */}
         <div className="rounded-md border">
           <div className="flex items-center justify-between border-b p-3">
-            <div className="text-sm font-medium">All Questions</div>
+            <div className="text-sm font-medium">{t("questions.allQuestions")}</div>
             <input
               className="w-1/2 rounded-md border px-3 py-2 text-sm"
-              placeholder="Search questions..."
+              placeholder={t("questions.searchQuestions")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -581,9 +583,9 @@ export default function QuizEditor() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Question</TableHead>
-                  <TableHead>Topic</TableHead>
-                  <TableHead className="w-32">Action</TableHead>
+                  <TableHead>{t("questions.question")}</TableHead>
+                  <TableHead>{t("quizzes.topic")}</TableHead>
+                  <TableHead className="w-32">{t("common.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -598,7 +600,7 @@ export default function QuizEditor() {
                       <TableCell>{q.topic_name}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
-                          <Button size="sm" variant="outline" onClick={() => handleAdd(q)} disabled={!quiz}>Add</Button>
+                          <Button size="sm" variant="outline" onClick={() => handleAdd(q)} disabled={!quiz}>{t("questions.add")}</Button>
                           <Button size="sm" variant="outline" onClick={(e) => { 
                             e.stopPropagation(); 
                             const typePath = q.question_type === 'multiple_choice' 
@@ -609,7 +611,7 @@ export default function QuizEditor() {
                               ? 'connect'
                               : 'number';
                             navigate(`/questions/${typePath}/${q.id}/edit`); 
-                          }}>Edit</Button>
+                          }}>{t("common.edit")}</Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -621,15 +623,15 @@ export default function QuizEditor() {
 
         {/* Right: Questions in quiz with remove and drag handle */}
         <div className="rounded-md border">
-          <div className="border-b p-3 text-sm font-medium">Questions in Quiz</div>
+          <div className="border-b p-3 text-sm font-medium">{t("questions.questionsInQuiz")}</div>
           <div className="max-h-[60vh] overflow-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10">#</TableHead>
-                  <TableHead>Question</TableHead>
-                  <TableHead>Topic</TableHead>
-                  <TableHead className="w-32">Action</TableHead>
+                  <TableHead>{t("questions.question")}</TableHead>
+                  <TableHead>{t("quizzes.topic")}</TableHead>
+                  <TableHead className="w-32">{t("common.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -664,8 +666,8 @@ export default function QuizEditor() {
                               ? 'connect'
                               : 'number';
                             navigate(`/questions/${typePath}/${q.id}/edit`); 
-                          }}>Edit</Button>
-                          <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleRemove(q); }}>Remove</Button>
+                          }}>{t("common.edit")}</Button>
+                          <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleRemove(q); }}>{t("questions.remove")}</Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -675,7 +677,7 @@ export default function QuizEditor() {
             </Table>
           </div>
           <div className="p-3 text-xs text-muted-foreground">
-            Drag rows to change order. Order persistence requires backend support.
+            {t("questions.dragToReorder")}
           </div>
         </div>
       </div>

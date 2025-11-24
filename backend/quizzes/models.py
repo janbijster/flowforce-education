@@ -185,6 +185,10 @@ class ConnectOption(OrganizationModel):
     
     text = models.TextField()
     image = models.ImageField(upload_to='connect_options/', blank=True, null=True)
+    connectable = models.BooleanField(
+        default=True,
+        help_text="If True, connections can be made to and from this option"
+    )
     hide_text = models.BooleanField(
         default=False,
         help_text="If True, hide the text and use it as alt-text for the image (for accessibility)"

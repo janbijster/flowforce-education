@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +14,7 @@ import {
 import { fetchStudentGroups, fetchCourses, StudentGroup, Course } from "@/lib/api";
 
 export default function StudentGroups() {
+  const { t } = useTranslation();
   const [studentGroups, setStudentGroups] = useState<StudentGroup[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +32,7 @@ export default function StudentGroups() {
         setStudentGroups(groups);
         setCourses(cs);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load student groups");
+        setError(err instanceof Error ? err.message : t("errors.failedToLoadStudentGroups"));
       } finally {
         setLoading(false);
       }
@@ -45,7 +47,7 @@ export default function StudentGroups() {
         const groups = await fetchStudentGroups(selectedCourse || undefined);
         setStudentGroups(groups);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load student groups");
+        setError(err instanceof Error ? err.message : t("errors.failedToLoadStudentGroups"));
       }
     };
     loadGroups();
@@ -59,10 +61,10 @@ export default function StudentGroups() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>Student Groups</PageHeaderHeading>
+          <PageHeaderHeading>{t("studentGroups.studentGroups")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -84,18 +86,18 @@ export default function StudentGroups() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>Student Groups</PageHeaderHeading>
-        <Button onClick={() => navigate("/student-groups/new")}>New Student Group</Button>
+        <PageHeaderHeading>{t("studentGroups.studentGroups")}</PageHeaderHeading>
+        <Button onClick={() => navigate("/student-groups/new")}>{t("studentGroups.newStudentGroup")}</Button>
       </PageHeader>
 
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Filter by Course</label>
+        <label className="block text-sm font-medium mb-1">{t("studentGroups.filterByCourse")}</label>
         <select
           className="w-full max-w-xs rounded-md border px-3 py-2 text-sm"
           value={selectedCourse ?? ""}
           onChange={(e) => setSelectedCourse(e.target.value ? Number(e.target.value) : null)}
         >
-          <option value="">All Courses</option>
+          <option value="">{t("studentGroups.allCourses")}</option>
           {courses.map((course) => (
             <option key={course.id} value={course.id}>
               {course.name}
@@ -108,11 +110,11 @@ export default function StudentGroups() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Course</TableHead>
-              <TableHead>Modules</TableHead>
-              <TableHead>Year</TableHead>
-              <TableHead>Students</TableHead>
+              <TableHead>{t("common.name")}</TableHead>
+              <TableHead>{t("quizzes.course")}</TableHead>
+              <TableHead>{t("materials.modules")}</TableHead>
+              <TableHead>{t("common.year")}</TableHead>
+              <TableHead>{t("studentGroups.students")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

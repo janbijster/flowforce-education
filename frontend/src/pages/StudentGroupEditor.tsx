@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +16,7 @@ import {
 } from "@/lib/api";
 
 export default function StudentGroupEditor() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -44,7 +46,7 @@ export default function StudentGroupEditor() {
           setSelectedModules(group.modules || []);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load data");
+        setError(err instanceof Error ? err.message : t("errors.failedToLoadData"));
       } finally {
         setLoading(false);
       }
@@ -62,7 +64,7 @@ export default function StudentGroupEditor() {
             return current.filter(id => mods.some(m => m.id === id));
           });
         } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to load modules");
+          setError(err instanceof Error ? err.message : t("errors.failedToLoadModules"));
         }
       } else {
         setModules([]);
@@ -80,13 +82,13 @@ export default function StudentGroupEditor() {
 
     try {
       if (!name.trim()) {
-        setError("Name is required");
+        setError(t("studentGroups.nameRequired"));
         setSaving(false);
         return;
       }
 
       if (!course) {
-        setError("Course is required");
+        setError(t("errors.courseRequired"));
         setSaving(false);
         return;
       }
@@ -107,7 +109,7 @@ export default function StudentGroupEditor() {
         navigate(`/student-groups/${id}`);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save student group");
+      setError(err instanceof Error ? err.message : t("studentGroups.failedToSaveStudentGroup"));
     } finally {
       setSaving(false);
     }
@@ -117,10 +119,10 @@ export default function StudentGroupEditor() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>{isCreate ? "Create Student Group" : "Edit Student Group"}</PageHeaderHeading>
+          <PageHeaderHeading>{isCreate ? t("studentGroups.createStudentGroup") : t("studentGroups.editStudentGroup")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -129,13 +131,13 @@ export default function StudentGroupEditor() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>{isCreate ? "Create Student Group" : "Edit Student Group"}</PageHeaderHeading>
+        <PageHeaderHeading>{isCreate ? t("studentGroups.createStudentGroup") : t("studentGroups.editStudentGroup")}</PageHeaderHeading>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => navigate(isCreate ? "/student-groups" : `/student-groups/${id}`)}>
-            Back
+            {t("common.back")}
           </Button>
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save"}
+            {saving ? t("common.saving") : t("common.save")}
           </Button>
         </div>
       </PageHeader>
@@ -145,20 +147,20 @@ export default function StudentGroupEditor() {
       <div className="rounded-md border p-4 space-y-4 max-w-2xl">
         <div>
           <label className="block text-sm font-medium mb-1">
-            Name <span className="text-destructive">*</span>
+            {t("common.name")} <span className="text-destructive">*</span>
           </label>
           <input
             className="w-full rounded-md border px-3 py-2 text-sm"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Enter group name"
+            placeholder={t("studentGroups.enterGroupName")}
             required
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium mb-1">
-            Year <span className="text-destructive">*</span>
+            {t("common.year")} <span className="text-destructive">*</span>
           </label>
           <input
             type="number"
@@ -171,7 +173,7 @@ export default function StudentGroupEditor() {
 
         <div>
           <label className="block text-sm font-medium mb-1">
-            Course <span className="text-destructive">*</span>
+            {t("quizzes.course")} <span className="text-destructive">*</span>
           </label>
           <select
             className="w-full rounded-md border px-3 py-2 text-sm"
@@ -179,7 +181,7 @@ export default function StudentGroupEditor() {
             onChange={(e) => setCourse(e.target.value ? Number(e.target.value) : null)}
             required
           >
-            <option value="">— Select Course —</option>
+            <option value="">{t("studentGroups.selectCoursePlaceholder")}</option>
             {courses.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -189,7 +191,7 @@ export default function StudentGroupEditor() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Modules</label>
+          <label className="block text-sm font-medium mb-1">{t("materials.modules")}</label>
           <select
             className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50 min-h-[100px]"
             multiple
@@ -208,11 +210,11 @@ export default function StudentGroupEditor() {
             ))}
           </select>
           <p className="text-xs text-muted-foreground mt-1">
-            Hold Ctrl/Cmd to select multiple modules
+            {t("studentGroups.holdToSelectModules")}
           </p>
           {selectedModules.length > 0 && (
             <p className="text-xs text-muted-foreground mt-1">
-              Selected: {selectedModules.length} module{selectedModules.length !== 1 ? 's' : ''}
+              {t("studentGroups.selectedModules")} {selectedModules.length} {selectedModules.length !== 1 ? t("studentGroups.modules") : t("studentGroups.module")}
             </p>
           )}
         </div>

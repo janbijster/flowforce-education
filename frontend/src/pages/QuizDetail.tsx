@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +14,7 @@ import {
 import { fetchQuiz, QuizDetail as QuizDetailType, combineQuestions, Question } from "@/lib/api";
 
 export default function QuizDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState<QuizDetailType | null>(null);
@@ -40,10 +42,10 @@ export default function QuizDetail() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>Quiz Detail</PageHeaderHeading>
+          <PageHeaderHeading>{t("quizzes.quizDetail")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -56,7 +58,7 @@ export default function QuizDetail() {
           <PageHeaderHeading>Quiz Detail</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error || "Quiz not found"}</p>
+          <p className="text-destructive">{error || t("quizzes.quizNotFound")}</p>
         </div>
       </>
     );
@@ -65,16 +67,16 @@ export default function QuizDetail() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>Quiz Detail</PageHeaderHeading>
+        <PageHeaderHeading>{t("quizzes.quizDetail")}</PageHeaderHeading>
         <div className="flex gap-2">
           <Button onClick={() => navigate(`/quizzes/${quiz.id}/preview`)} variant="outline">
-            Preview
+            {t("quizzes.preview")}
           </Button>
           <Button onClick={() => navigate(`/quizzes/${quiz.id}/edit`)} variant="outline">
-            Edit
+            {t("common.edit")}
           </Button>
           <Button onClick={() => navigate("/quizzes")} variant="outline">
-            Back
+            {t("common.back")}
           </Button>
         </div>
       </PageHeader>
@@ -87,13 +89,13 @@ export default function QuizDetail() {
           ) : null}
           <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Course:</span> {quiz.course_name ?? "—"}
+              <span className="font-medium">{t("quizzes.course")}:</span> {quiz.course_name ?? "—"}
             </p>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Module:</span> {quiz.module_name ?? "—"}
+              <span className="font-medium">{t("quizzes.module")}:</span> {quiz.module_name ?? "—"}
             </p>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium">Questions:</span> {quiz.questions_count}
+              <span className="font-medium">{t("quizzes.questions")}:</span> {quiz.questions_count}
             </p>
           </div>
         </div>
@@ -102,11 +104,11 @@ export default function QuizDetail() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Question</TableHead>
-                <TableHead>Topic</TableHead>
-                <TableHead>Lesson</TableHead>
-                <TableHead>Module</TableHead>
-                <TableHead>Options</TableHead>
+                <TableHead>{t("questions.question")}</TableHead>
+                <TableHead>{t("quizzes.topic")}</TableHead>
+                <TableHead>{t("quizzes.lesson")}</TableHead>
+                <TableHead>{t("quizzes.module")}</TableHead>
+                <TableHead>{t("questions.options")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

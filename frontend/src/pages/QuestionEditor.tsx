@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useParams, useBlocker } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,6 +67,7 @@ interface EditableConnectOption extends Omit<ConnectOption, 'id' | 'created_at' 
 }
 
 export default function QuestionEditor() {
+  const { t } = useTranslation();
   const { id, type } = useParams<{ id: string; type?: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -290,7 +292,7 @@ export default function QuestionEditor() {
           }
         }
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load question");
+        setError(e instanceof Error ? e.message : t("questions.failedToLoadQuestion"));
       }
     };
     init();
@@ -312,7 +314,7 @@ export default function QuestionEditor() {
           });
           // Don't save to localStorage here - only save when question is saved
         } catch (e) {
-          setError(e instanceof Error ? e.message : "Failed to load modules");
+          setError(e instanceof Error ? e.message : t("errors.failedToLoadModules"));
         }
       } else {
         setModules([]);
@@ -339,7 +341,7 @@ export default function QuestionEditor() {
           });
           // Don't save to localStorage here - only save when question is saved
         } catch (e) {
-          setError(e instanceof Error ? e.message : "Failed to load lessons");
+          setError(e instanceof Error ? e.message : t("errors.failedToLoadLessons"));
         }
       } else {
         setLessons([]);
@@ -366,7 +368,7 @@ export default function QuestionEditor() {
           });
           // Don't save to localStorage here - only save when question is saved
         } catch (e) {
-          setError(e instanceof Error ? e.message : "Failed to load topics");
+          setError(e instanceof Error ? e.message : t("errors.failedToLoadTopics"));
         }
       } else {
         setTopics([]);
@@ -517,16 +519,16 @@ export default function QuestionEditor() {
 
   useEffect(() => {
     if (blocker.state === "blocked") {
-      if (window.confirm("You have unsaved changes. Are you sure you want to leave?")) {
+      if (window.confirm(t("questions.unsavedChanges"))) {
         blocker.proceed();
       } else {
         blocker.reset();
       }
     }
-  }, [blocker]);
+  }, [blocker, t]);
 
   const handleBack = () => {
-    if (hasUnsavedChanges && !window.confirm("You have unsaved changes. Are you sure you want to leave?")) {
+    if (hasUnsavedChanges && !window.confirm(t("questions.unsavedChanges"))) {
       return;
     }
     if (question) {
@@ -669,14 +671,14 @@ export default function QuestionEditor() {
     try {
       // Validate required fields
       if (!text.trim()) {
-        setError("Question text is required");
+        setError(t("questions.questionTextRequired"));
         setSaving(false);
         isSavingRef.current = false;
         return;
       }
 
       if (!selectedTopic) {
-        setError("Topic is required");
+        setError(t("questions.topicRequired"));
         setSaving(false);
         isSavingRef.current = false;
         return;
@@ -685,28 +687,28 @@ export default function QuestionEditor() {
       // Validate based on question type
       if (questionType === 'multiple_choice') {
         if (options.length === 0) {
-          setError("At least one option is required");
+          setError(t("questions.atLeastOneOption"));
           setSaving(false);
           isSavingRef.current = false;
           return;
         }
         const hasCorrect = options.some(opt => opt.is_correct);
         if (!hasCorrect) {
-          setError("At least one option must be marked as correct");
+          setError(t("questions.atLeastOneCorrect"));
           setSaving(false);
           isSavingRef.current = false;
           return;
         }
       } else if (questionType === 'order') {
         if (orderOptions.length === 0) {
-          setError("At least one order option is required");
+          setError(t("questions.atLeastOneOrderOption"));
           setSaving(false);
           isSavingRef.current = false;
           return;
         }
       } else if (questionType === 'connect') {
         if (connectOptions.length === 0) {
-          setError("At least one connect option is required");
+          setError(t("questions.atLeastOneConnectOption"));
           setSaving(false);
           isSavingRef.current = false;
           return;
@@ -1293,7 +1295,7 @@ export default function QuestionEditor() {
         navigate(`/questions/${typePath}/${question.id}/edit`, { replace: true });
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save question");
+      setError(e instanceof Error ? e.message : t("questions.failedToSaveQuestion"));
     } finally {
       setSaving(false);
       setTimeout(() => {
@@ -1511,15 +1513,15 @@ export default function QuestionEditor() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>{isCreate ? "Create Question" : "Edit Question"}</PageHeaderHeading>
+        <PageHeaderHeading>{isCreate ? t("questions.createQuestion") : t("questions.editQuestion")}</PageHeaderHeading>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleBack}>Back</Button>
+          <Button variant="outline" onClick={handleBack}>{t("common.back")}</Button>
           <Button
             onClick={handleSave}
             disabled={saving || (!hasUnsavedChanges && !isCreate)}
             variant={!hasUnsavedChanges && !isCreate ? "secondary" : "default"}
           >
-            {saving ? "Saving..." : (hasUnsavedChanges ? "Save" : (isCreate ? "Save" : "Changes saved"))}
+            {saving ? t("common.saving") : (hasUnsavedChanges ? t("common.save") : (isCreate ? t("common.save") : t("questions.changesSaved")))}
           </Button>
         </div>
       </PageHeader>
@@ -1534,7 +1536,7 @@ export default function QuestionEditor() {
             {isCreate && (
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Question Type <span className="text-destructive">*</span>
+                  {t("questions.questionType")} <span className="text-destructive">*</span>
                 </label>
                 <select
                   className="w-full rounded-md border px-3 py-2 text-sm"
@@ -1544,19 +1546,19 @@ export default function QuestionEditor() {
                     setQuestionType(newType);
                     // Pre-fill text for order questions
                     if (newType === 'order' && isCreate && !text.trim()) {
-                      setText("Put the following items in the correct order:");
+                      setText(t("questions.putInOrder"));
                     }
                   }}
                   disabled={!isCreate}
                 >
-                  <option value="multiple_choice">Multiple Choice</option>
-                  <option value="order">Order</option>
-                  <option value="connect">Connect</option>
-                  <option value="number">Number</option>
+                  <option value="multiple_choice">{t("questions.multipleChoice")}</option>
+                  <option value="order">{t("questions.order")}</option>
+                  <option value="connect">{t("questions.connect")}</option>
+                  <option value="number">{t("questions.number")}</option>
                 </select>
                 {!isCreate && (
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">Type:</span>
+                    <span className="text-sm text-muted-foreground">{t("questions.type")}</span>
                     <QuestionTypeBadge questionType={questionType} />
                   </div>
                 )}
@@ -1564,12 +1566,12 @@ export default function QuestionEditor() {
             )}
             {!isCreate && question && (
               <div>
-                <label className="block text-sm font-medium mb-1">Question Type</label>
+                <label className="block text-sm font-medium mb-1">{t("questions.questionType")}</label>
                 <QuestionTypeBadge questionType={question.question_type} />
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium mb-1">Course</label>
+              <label className="block text-sm font-medium mb-1">{t("quizzes.course")}</label>
               <select
                 className="w-full rounded-md border px-3 py-2 text-sm"
                 value={selectedCourse ?? ""}
@@ -1579,7 +1581,7 @@ export default function QuestionEditor() {
                   // Don't save to localStorage here - only save when question is saved
                 }}
               >
-                <option value="">— Select Course —</option>
+                <option value="">{t("questions.selectCourse")}</option>
                 {courses.map((course) => (
                   <option key={course.id} value={course.id}>
                     {course.name}
@@ -1588,7 +1590,7 @@ export default function QuestionEditor() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Module</label>
+              <label className="block text-sm font-medium mb-1">{t("quizzes.module")}</label>
               <select
                 className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
                 value={selectedModule ?? ""}
@@ -1599,7 +1601,7 @@ export default function QuestionEditor() {
                 }}
                 disabled={!selectedCourse || modules.length === 0}
               >
-                <option value="">— Select Module —</option>
+                <option value="">{t("questions.selectModule")}</option>
                 {modules.map((module) => (
                   <option key={module.id} value={module.id}>
                     {module.name}
@@ -1608,7 +1610,7 @@ export default function QuestionEditor() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Lesson</label>
+              <label className="block text-sm font-medium mb-1">{t("quizzes.lesson")}</label>
               <select
                 className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
                 value={selectedLesson ?? ""}
@@ -1619,7 +1621,7 @@ export default function QuestionEditor() {
                 }}
                 disabled={!selectedModule || lessons.length === 0}
               >
-                <option value="">— Select Lesson —</option>
+                <option value="">{t("questions.selectLesson")}</option>
                 {lessons.map((lesson) => (
                   <option key={lesson.id} value={lesson.id}>
                     {lesson.name}
@@ -1629,7 +1631,7 @@ export default function QuestionEditor() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">
-                Topic <span className="text-destructive">*</span>
+                {t("quizzes.topic")} <span className="text-destructive">*</span>
               </label>
               <select
                 className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
@@ -1642,7 +1644,7 @@ export default function QuestionEditor() {
                 disabled={!selectedLesson || topics.length === 0}
                 required
               >
-                <option value="">— Select Topic —</option>
+                <option value="">{t("questions.selectTopic")}</option>
                 {topics.map((topic) => (
                   <option key={topic.id} value={topic.id}>
                     {topic.name}
@@ -1654,13 +1656,13 @@ export default function QuestionEditor() {
 
           <div className="rounded-md border p-4">
             <label className="block text-sm font-medium mb-2">
-              Question Text <span className="text-destructive">*</span>
+              {t("questions.questionText")} <span className="text-destructive">*</span>
             </label>
             <textarea
               className="w-full rounded-md border px-3 py-2 text-sm min-h-[100px]"
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Enter question text"
+              placeholder={t("questions.enterQuestionText")}
               required
             />
             <div className="mt-3">
@@ -1670,7 +1672,7 @@ export default function QuestionEditor() {
                   setQuestionImage(url);
                   setQuestionImageFile(file || null);
                 }}
-                label="Question Image"
+                label={t("questions.questionImage")}
               />
               {questionImage && (
                 <div className="mt-2">
@@ -1681,7 +1683,7 @@ export default function QuestionEditor() {
                       onChange={(e) => setQuestionHideText(e.target.checked)}
                       className="rounded"
                     />
-                    <span>Hide text</span>
+                    <span>{t("questions.hideText")}</span>
                   </label>
                 </div>
               )}
@@ -1691,18 +1693,18 @@ export default function QuestionEditor() {
           {questionType === 'multiple_choice' && (
             <div className="rounded-md border">
               <div className="flex items-center justify-between border-b p-3">
-                <div className="text-sm font-medium">Options</div>
+                <div className="text-sm font-medium">{t("questions.options")}</div>
                 <Button size="sm" onClick={handleAddOption}>
-                  Add Option
+                  {t("questions.addOption")}
                 </Button>
               </div>
               <div className="max-h-[60vh] overflow-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Option Text</TableHead>
-                      <TableHead className="w-24">Correct</TableHead>
-                      <TableHead className="w-24">Action</TableHead>
+                      <TableHead>{t("questions.optionText")}</TableHead>
+                      <TableHead className="w-24">{t("questions.correct")}</TableHead>
+                      <TableHead className="w-24">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1716,7 +1718,7 @@ export default function QuestionEditor() {
                                 className="w-full rounded-md border px-2 py-1 text-sm"
                                 value={option.text}
                                 onChange={(e) => handleUpdateOption(option.id, 'text', e.target.value)}
-                                placeholder="Enter option text"
+                                placeholder={t("questions.enterOptionText")}
                               />
                               <div className="mt-2">
                                 <ImageUpload
@@ -1744,7 +1746,7 @@ export default function QuestionEditor() {
                                         onChange={(e) => handleUpdateOption(option.id, 'hide_text', e.target.checked)}
                                         className="rounded"
                                       />
-                                      <span>Hide text (use as alt-text)</span>
+                                      <span>{t("questions.hideTextAlt")}</span>
                                     </label>
                                   </div>
                                 )}
@@ -1763,7 +1765,7 @@ export default function QuestionEditor() {
                                 variant="outline"
                                 onClick={() => handleRemoveOption(option.id)}
                               >
-                                Remove
+                                {t("questions.remove")}
                               </Button>
                             </TableCell>
                           </TableRow>
@@ -1772,7 +1774,7 @@ export default function QuestionEditor() {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={3} className="text-center text-muted-foreground">
-                          No options. Click "Add Option" to add one.
+                          {t("questions.noOptionsClickAdd")}
                         </TableCell>
                       </TableRow>
                     )}
@@ -1785,18 +1787,18 @@ export default function QuestionEditor() {
           {questionType === 'order' && (
             <div className="rounded-md border">
               <div className="flex items-center justify-between border-b p-3">
-                <div className="text-sm font-medium">Order Options</div>
+                <div className="text-sm font-medium">{t("questions.orderOptions")}</div>
                 <Button size="sm" onClick={handleAddOrderOption}>
-                  Add Option
+                  {t("questions.addOrderOption")}
                 </Button>
               </div>
               <div className="max-h-[60vh] overflow-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">Order</TableHead>
-                      <TableHead>Option Text</TableHead>
-                      <TableHead className="w-32">Actions</TableHead>
+                      <TableHead className="w-12">{t("common.order")}</TableHead>
+                      <TableHead>{t("questions.orderOptionText")}</TableHead>
+                      <TableHead className="w-32">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1813,7 +1815,7 @@ export default function QuestionEditor() {
                                 className="w-full rounded-md border px-2 py-1 text-sm"
                                 value={option.text}
                                 onChange={(e) => handleUpdateOrderOption(option.id, 'text', e.target.value)}
-                                placeholder="Enter option text"
+                                placeholder={t("questions.enterOptionText")}
                               />
                               <div className="mt-2">
                                 <ImageUpload
@@ -1841,7 +1843,7 @@ export default function QuestionEditor() {
                                         onChange={(e) => handleUpdateOrderOption(option.id, 'hide_text', e.target.checked)}
                                         className="rounded"
                                       />
-                                      <span>Hide text (use as alt-text)</span>
+                                      <span>{t("questions.hideTextAlt")}</span>
                                     </label>
                                   </div>
                                 )}
@@ -1872,7 +1874,7 @@ export default function QuestionEditor() {
                                   variant="outline"
                                   onClick={() => handleRemoveOrderOption(option.id)}
                                 >
-                                  Remove
+                                  {t("questions.remove")}
                                 </Button>
                               </div>
                             </TableCell>
@@ -1881,7 +1883,7 @@ export default function QuestionEditor() {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={3} className="text-center text-muted-foreground">
-                          No options. Click "Add Option" to add one.
+                          {t("questions.noOptionsClickAdd")}
                         </TableCell>
                       </TableRow>
                     )}
@@ -1895,7 +1897,7 @@ export default function QuestionEditor() {
             <div className="rounded-md border p-4 space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Correct Answer <span className="text-destructive">*</span>
+                  {t("questions.correctAnswer")} <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="number"
@@ -1903,13 +1905,13 @@ export default function QuestionEditor() {
                   className="w-full rounded-md border px-3 py-2 text-sm"
                   value={correctAnswer}
                   onChange={(e) => setCorrectAnswer(parseFloat(e.target.value) || 0)}
-                  placeholder="Enter the correct numeric answer"
+                  placeholder={t("questions.enterCorrectAnswer")}
                   required
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Tolerance
+                  {t("questions.tolerance")}
                 </label>
                 <input
                   type="number"
@@ -1918,10 +1920,10 @@ export default function QuestionEditor() {
                   className="w-full rounded-md border px-3 py-2 text-sm"
                   value={tolerance}
                   onChange={(e) => setTolerance(parseFloat(e.target.value) || 0)}
-                  placeholder="Tolerance (e.g., 0.1 for ±0.1)"
+                  placeholder={t("questions.enterTolerance")}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  The answer is correct if within ±tolerance of the correct answer. Leave 0 for exact match.
+                  {t("questions.toleranceHint")}
                 </p>
               </div>
             </div>
@@ -1930,10 +1932,10 @@ export default function QuestionEditor() {
           {questionType === 'connect' && (
             <div className="rounded-md border">
               <div className="flex items-center justify-between border-b p-3">
-                <div className="text-sm font-medium">Connect Options</div>
+                <div className="text-sm font-medium">{t("questions.connectOptions")}</div>
                 <div className="flex gap-2">
                   <Button size="sm" onClick={handleAddConnectOption}>
-                    Add Option
+                    {t("questions.addConnectOption")}
                   </Button>
                   <Button 
                     size="sm" 
@@ -1941,7 +1943,7 @@ export default function QuestionEditor() {
                     onClick={() => setLayoutEditorOpen(true)}
                     disabled={connectOptions.length === 0}
                   >
-                    Edit Layout
+                    {t("questions.editLayout")}
                   </Button>
                 </div>
               </div>
@@ -1949,9 +1951,9 @@ export default function QuestionEditor() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Option Text</TableHead>
-                      <TableHead>Position</TableHead>
-                      <TableHead className="w-24">Action</TableHead>
+                      <TableHead>{t("questions.optionText")}</TableHead>
+                      <TableHead>{t("questions.position")}</TableHead>
+                      <TableHead className="w-24">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -1963,7 +1965,7 @@ export default function QuestionEditor() {
                               className="w-full rounded-md border px-2 py-1 text-sm"
                               value={option.text}
                               onChange={(e) => handleUpdateConnectOption(option.id, 'text', e.target.value)}
-                              placeholder="Enter option text"
+                              placeholder={t("questions.enterOptionText")}
                             />
                             <div className="mt-2">
                               <ImageUpload
@@ -1991,7 +1993,7 @@ export default function QuestionEditor() {
                                       onChange={(e) => handleUpdateConnectOption(option.id, 'hide_text', e.target.checked)}
                                       className="rounded"
                                     />
-                                    <span>Hide text (use as alt-text)</span>
+                                    <span>{t("questions.hideTextAlt")}</span>
                                   </label>
                                 </div>
                               )}
@@ -2006,7 +2008,7 @@ export default function QuestionEditor() {
                               variant="outline"
                               onClick={() => handleRemoveConnectOption(option.id)}
                             >
-                              Remove
+                              {t("questions.remove")}
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -2014,7 +2016,7 @@ export default function QuestionEditor() {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={3} className="text-center text-muted-foreground">
-                          No options. Click "Add Option" to add one, then use "Edit Layout" to position them and create connections.
+                          {t("questions.noOptionsClickAddConnect")}
                         </TableCell>
                       </TableRow>
                     )}
@@ -2023,7 +2025,7 @@ export default function QuestionEditor() {
               </div>
               {connectConnections.length > 0 && (
                 <div className="border-t p-3 text-xs text-muted-foreground">
-                  {connectConnections.length} connection(s) defined. Use "Edit Layout" to modify.
+                  {connectConnections.length} {t("questions.connectionsDefined")}
                 </div>
               )}
             </div>

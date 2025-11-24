@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import { fetchStudent, StudentDetail as StudentDetailType } from "@/lib/api";
 import { ProgressBar } from "@/components/ProgressBar";
 
 export default function StudentDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [student, setStudent] = useState<StudentDetailType | null>(null);
@@ -41,10 +43,10 @@ export default function StudentDetail() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>Student Detail</PageHeaderHeading>
+          <PageHeaderHeading>{t("students.studentDetail")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -57,7 +59,7 @@ export default function StudentDetail() {
           <PageHeaderHeading>Student Detail</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error || "Student not found"}</p>
+          <p className="text-destructive">{error || t("students.studentNotFound")}</p>
         </div>
       </>
     );
@@ -66,50 +68,50 @@ export default function StudentDetail() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>Student Detail</PageHeaderHeading>
+        <PageHeaderHeading>{t("students.studentDetail")}</PageHeaderHeading>
         <div className="flex gap-2">
           <Button onClick={() => navigate(`/students/${student.id}/edit`)} variant="outline">
-            Edit
+            {t("common.edit")}
           </Button>
           <Button onClick={() => navigate("/students")} variant="outline">
-            Back
+            {t("common.back")}
           </Button>
         </div>
       </PageHeader>
 
       <div className="space-y-6">
         <div className="rounded-md border p-4 max-w-2xl">
-          <h2 className="text-lg font-semibold mb-4">Student Information</h2>
+          <h2 className="text-lg font-semibold mb-4">{t("students.studentInformation")}</h2>
           <div className="space-y-3">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">First Name</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("students.firstName")}</p>
               <p className="mt-1">{student.first_name}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Last Name</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("students.lastName")}</p>
               <p className="mt-1">{student.last_name}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Email</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("common.email")}</p>
               <p className="mt-1">{student.email || "—"}</p>
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Question Answers</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("students.questionAnswers")}</p>
               <p className="mt-1">{student.question_answers_count}</p>
             </div>
           </div>
         </div>
 
         <div className="rounded-md border">
-          <div className="border-b p-3 text-sm font-medium">Student Groups</div>
+          <div className="border-b p-3 text-sm font-medium">{t("students.studentGroups")}</div>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Group Name</TableHead>
-                <TableHead>Course</TableHead>
-                <TableHead>Year</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead className="w-24">Action</TableHead>
+                <TableHead>{t("students.groupName")}</TableHead>
+                <TableHead>{t("quizzes.course")}</TableHead>
+                <TableHead>{t("common.year")}</TableHead>
+                <TableHead>{t("students.progress")}</TableHead>
+                <TableHead className="w-24">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -123,7 +125,7 @@ export default function StudentDetail() {
                       <ProgressBar
                         mastered={group.progress.mastered_topics}
                         total={group.progress.total_topics}
-                        label={`${group.progress.mastered_topics}/${group.progress.total_topics} topics mastered`}
+                        label={`${group.progress.mastered_topics}/${group.progress.total_topics} ${t("students.topicsMastered")}`}
                       />
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
@@ -132,7 +134,7 @@ export default function StudentDetail() {
                         variant="outline"
                         onClick={() => navigate(`/students/${student.id}/groups/${group.id}`)}
                       >
-                        View
+                        {t("common.view")}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -140,7 +142,7 @@ export default function StudentDetail() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground">
-                    No student groups
+                    {t("students.noStudentGroups")}
                   </TableCell>
                 </TableRow>
               )}

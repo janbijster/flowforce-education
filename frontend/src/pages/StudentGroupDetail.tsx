@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import { fetchStudentGroup, StudentGroupDetail as StudentGroupDetailType } from 
 import { Progress } from "@/components/ui/progress";
 
 export default function StudentGroupDetail() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [group, setGroup] = useState<StudentGroupDetailType | null>(null);
@@ -41,10 +43,10 @@ export default function StudentGroupDetail() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>Student Group Detail</PageHeaderHeading>
+          <PageHeaderHeading>{t("studentGroups.studentGroupDetail")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -57,7 +59,7 @@ export default function StudentGroupDetail() {
           <PageHeaderHeading>Student Group Detail</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error || "Student group not found"}</p>
+          <p className="text-destructive">{error || t("studentGroups.studentGroupNotFound")}</p>
         </div>
       </>
     );
@@ -66,32 +68,32 @@ export default function StudentGroupDetail() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>Student Group Detail</PageHeaderHeading>
+        <PageHeaderHeading>{t("studentGroups.studentGroupDetail")}</PageHeaderHeading>
         <div className="flex gap-2">
           <Button onClick={() => navigate(`/student-groups/${group.id}/edit`)} variant="outline">
-            Edit
+            {t("common.edit")}
           </Button>
           <Button onClick={() => navigate("/student-groups")} variant="outline">
-            Back
+            {t("common.back")}
           </Button>
         </div>
       </PageHeader>
 
       <div className="space-y-6">
         <div className="rounded-md border p-4">
-          <h2 className="text-lg font-semibold mb-4">Group Information</h2>
+          <h2 className="text-lg font-semibold mb-4">{t("studentGroups.groupInformation")}</h2>
           <div className="space-y-3">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Name</p>
+              <p className="text-sm font-medium text-muted-foreground">{t("common.name")}</p>
               <p className="mt-1">{group.name}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Course</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("quizzes.course")}</p>
                 <p className="mt-1">{group.course_name}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Modules</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("materials.modules")}</p>
                 <p className="mt-1">
                   {group.modules_names && group.modules_names.length > 0
                     ? group.modules_names.join(", ")
@@ -99,11 +101,11 @@ export default function StudentGroupDetail() {
                 </p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Year</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("common.year")}</p>
                 <p className="mt-1">{group.year}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Students</p>
+                <p className="text-sm font-medium text-muted-foreground">{t("studentGroups.students")}</p>
                 <p className="mt-1">{group.students_count}</p>
               </div>
             </div>
@@ -111,14 +113,14 @@ export default function StudentGroupDetail() {
         </div>
 
         <div className="rounded-md border">
-          <div className="border-b p-3 text-sm font-medium">Students</div>
+          <div className="border-b p-3 text-sm font-medium">{t("studentGroups.students")}</div>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead className="w-24">Action</TableHead>
+                <TableHead>{t("common.name")}</TableHead>
+                <TableHead>{t("common.email")}</TableHead>
+                <TableHead>{t("students.progress")}</TableHead>
+                <TableHead className="w-24">{t("common.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -132,7 +134,7 @@ export default function StudentGroupDetail() {
                         <div className="space-y-1">
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-muted-foreground">
-                              {student.progress.mastered_topics}/{student.progress.total_topics} topics mastered
+                              {student.progress.mastered_topics}/{student.progress.total_topics} {t("students.topicsMastered")}
                             </span>
                             <span className="text-muted-foreground">
                               {Math.round(student.progress.percentage)}%
@@ -150,7 +152,7 @@ export default function StudentGroupDetail() {
                         variant="outline"
                         onClick={() => navigate(`/students/${student.id}/groups/${group.id}`)}
                       >
-                        View
+                        {t("common.view")}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -158,7 +160,7 @@ export default function StudentGroupDetail() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    No students in this group
+                    {t("studentGroups.noStudentsInGroup")}
                   </TableCell>
                 </TableRow>
               )}

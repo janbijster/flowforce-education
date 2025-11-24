@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import { fetchStudentGroupProgress, TopicProgress, fetchStudent, StudentDetail }
 import { ProgressBar } from "@/components/ProgressBar";
 
 export default function StudentGroupProgress() {
+  const { t } = useTranslation();
   const { studentId, groupId } = useParams<{ studentId: string; groupId: string }>();
   const navigate = useNavigate();
   const [topics, setTopics] = useState<TopicProgress[]>([]);
@@ -33,7 +35,7 @@ export default function StudentGroupProgress() {
         setTopics(topicsData);
         setStudent(studentData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load data");
+        setError(err instanceof Error ? err.message : t("errors.failedToLoadData"));
       } finally {
         setLoading(false);
       }
@@ -46,10 +48,10 @@ export default function StudentGroupProgress() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>Student Group Progress</PageHeaderHeading>
+          <PageHeaderHeading>{t("students.studentGroupProgress")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -62,7 +64,7 @@ export default function StudentGroupProgress() {
           <PageHeaderHeading>Student Group Progress</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error || "Data not found"}</p>
+          <p className="text-destructive">{error || t("students.dataNotFound")}</p>
         </div>
       </>
     );
@@ -74,11 +76,11 @@ export default function StudentGroupProgress() {
     <>
       <PageHeader>
         <PageHeaderHeading>
-          {student.full_name} - {group?.name || "Group Progress"}
+          {student.full_name} - {group?.name || t("students.groupProgress")}
         </PageHeaderHeading>
         <div className="flex gap-2">
           <Button onClick={() => navigate(`/students/${studentId}`)} variant="outline">
-            Back to Student
+            {t("students.backToStudent")}
           </Button>
         </div>
       </PageHeader>
@@ -87,11 +89,11 @@ export default function StudentGroupProgress() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Topic</TableHead>
-              <TableHead>Course</TableHead>
-              <TableHead>Module</TableHead>
-              <TableHead>Lesson</TableHead>
-              <TableHead>Progress</TableHead>
+              <TableHead>{t("quizzes.topic")}</TableHead>
+              <TableHead>{t("quizzes.course")}</TableHead>
+              <TableHead>{t("quizzes.module")}</TableHead>
+              <TableHead>{t("quizzes.lesson")}</TableHead>
+              <TableHead>{t("students.progress")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -106,11 +108,11 @@ export default function StudentGroupProgress() {
                     <ProgressBar
                       mastered={topic.questions_correct}
                       total={topic.questions_answered || topic.total_questions}
-                      label={`${topic.questions_correct}/${topic.questions_answered || topic.total_questions} questions correct`}
+                      label={`${topic.questions_correct}/${topic.questions_answered || topic.total_questions} ${t("students.questionsCorrect")}`}
                     />
                     {topic.questions_answered < topic.total_questions && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        {topic.total_questions - topic.questions_answered} questions not yet answered
+                        {topic.total_questions - topic.questions_answered} {t("students.questionsNotAnswered")}
                       </p>
                     )}
                   </TableCell>
@@ -119,7 +121,7 @@ export default function StudentGroupProgress() {
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  No topics found for this group
+                  {t("students.noTopicsForGroup")}
                 </TableCell>
               </TableRow>
             )}

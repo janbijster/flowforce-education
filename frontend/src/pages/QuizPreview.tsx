@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { fetchQuiz, QuizDetail, fetchQuestion, QuestionDetail, combineQuestions, OrderQuestionDetail } from "@/lib/api";
@@ -16,6 +17,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export default function QuizPreview() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState<QuizDetail | null>(null);
@@ -58,7 +60,7 @@ export default function QuizPreview() {
         });
         setSelectedOrders(initialOrders);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load quiz");
+        setError(err instanceof Error ? err.message : t("questions.failedToLoadQuiz"));
       } finally {
         setLoading(false);
       }
@@ -118,10 +120,10 @@ export default function QuizPreview() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>Quiz Preview</PageHeaderHeading>
+          <PageHeaderHeading>{t("questions.quizPreview")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -131,10 +133,10 @@ export default function QuizPreview() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>Quiz Preview</PageHeaderHeading>
+          <PageHeaderHeading>{t("questions.quizPreview")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error || "Quiz not found"}</p>
+          <p className="text-destructive">{error || t("quizzes.quizNotFound")}</p>
         </div>
       </>
     );
@@ -143,16 +145,16 @@ export default function QuizPreview() {
   return (
     <>
       <PageHeader>
-        <PageHeaderHeading>Quiz Preview: {quiz.name}</PageHeaderHeading>
+        <PageHeaderHeading>{t("questions.quizPreview")}: {quiz.name}</PageHeaderHeading>
         <div className="flex gap-2">
           <Button
             variant="outline"
             onClick={() => setShowAnswers(!showAnswers)}
           >
-            {showAnswers ? "Hide Answers" : "Show Answers"}
+            {showAnswers ? t("questions.hideAnswers") : t("questions.showAnswers")}
           </Button>
           <Button variant="outline" onClick={() => navigate(`/quizzes/${quiz.id}`)}>
-            Back to Quiz Detail
+            {t("questions.backToQuizDetail")}
           </Button>
         </div>
       </PageHeader>
@@ -171,7 +173,7 @@ export default function QuizPreview() {
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg font-semibold">
-                      Question {index + 1} of {questions.length}
+                      {t("questions.questionOf")} {index + 1} {t("questions.of")} {questions.length}
                     </h3>
                     {quiz.course_name && (
                       <span className="text-sm text-muted-foreground">
@@ -208,7 +210,7 @@ export default function QuizPreview() {
             ))
           ) : (
             <div className="rounded-md border p-8 text-center text-muted-foreground">
-              No questions in this quiz
+              {t("questions.noQuestionsInQuiz")}
             </div>
           )}
         </div>

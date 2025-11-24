@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +14,7 @@ import {
 import { fetchMaterial, MaterialDetail } from "@/lib/api";
 
 export default function MaterialView() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [material, setMaterial] = useState<MaterialDetail | null>(null);
@@ -27,7 +29,7 @@ export default function MaterialView() {
         const data = await fetchMaterial(Number(id));
         setMaterial(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load material");
+        setError(err instanceof Error ? err.message : t("errors.failedToLoadMaterial"));
       } finally {
         setLoading(false);
       }
@@ -46,10 +48,10 @@ export default function MaterialView() {
     return (
       <>
         <PageHeader>
-          <PageHeaderHeading>Material Details</PageHeaderHeading>
+          <PageHeaderHeading>{t("materials.materialDetails")}</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("common.loading")}</p>
         </div>
       </>
     );
@@ -62,7 +64,7 @@ export default function MaterialView() {
           <PageHeaderHeading>Material Details</PageHeaderHeading>
         </PageHeader>
         <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error || "Material not found"}</p>
+          <p className="text-destructive">{error || t("errors.materialNotFound")}</p>
         </div>
       </>
     );
@@ -74,14 +76,14 @@ export default function MaterialView() {
         <PageHeaderHeading>{material.title}</PageHeaderHeading>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => navigate("/materials/overview")}>
-            Back to Overview
+            {t("materials.backToOverview")}
           </Button>
           <Button variant="outline" onClick={() => navigate(`/materials/${material.id}/edit`)}>
-            Edit
+            {t("common.edit")}
           </Button>
           {material.file_url && (
             <Button onClick={handleDownload}>
-              Download
+              {t("common.download")}
             </Button>
           )}
         </div>
@@ -93,33 +95,33 @@ export default function MaterialView() {
           <Table>
             <TableBody>
               <TableRow>
-                <TableHead className="w-48">Title</TableHead>
+                <TableHead className="w-48">{t("materials.title")}</TableHead>
                 <TableCell className="font-medium">{material.title}</TableCell>
               </TableRow>
               <TableRow>
-                <TableHead>Type</TableHead>
+                <TableHead>{t("materials.type")}</TableHead>
                 <TableCell className="capitalize">{material.material_type}</TableCell>
               </TableRow>
               <TableRow>
-                <TableHead>Description</TableHead>
+                <TableHead>{t("materials.description")}</TableHead>
                 <TableCell>{material.description || "-"}</TableCell>
               </TableRow>
               <TableRow>
-                <TableHead>Order</TableHead>
+                <TableHead>{t("common.order")}</TableHead>
                 <TableCell>{material.order}</TableCell>
               </TableRow>
               {material.material_type === 'presentation' && material.slide_count && (
                 <TableRow>
-                  <TableHead>Slide Count</TableHead>
+                  <TableHead>{t("materials.slideCount")}</TableHead>
                   <TableCell>{material.slide_count}</TableCell>
                 </TableRow>
               )}
               <TableRow>
-                <TableHead>Created</TableHead>
+                <TableHead>{t("common.created")}</TableHead>
                 <TableCell>{new Date(material.created_at).toLocaleString()}</TableCell>
               </TableRow>
               <TableRow>
-                <TableHead>Last Updated</TableHead>
+                <TableHead>{t("common.lastUpdated")}</TableHead>
                 <TableCell>{new Date(material.updated_at).toLocaleString()}</TableCell>
               </TableRow>
             </TableBody>
@@ -132,25 +134,25 @@ export default function MaterialView() {
             <TableBody>
               {material.course_name && (
                 <TableRow>
-                  <TableHead className="w-48">Course</TableHead>
+                  <TableHead className="w-48">{t("materials.course")}</TableHead>
                   <TableCell>{material.course_name}</TableCell>
                 </TableRow>
               )}
               {material.modules_names.length > 0 && (
                 <TableRow>
-                  <TableHead>Modules</TableHead>
+                  <TableHead>{t("materials.modules")}</TableHead>
                   <TableCell>{material.modules_names.join(", ")}</TableCell>
                 </TableRow>
               )}
               {material.lessons_names.length > 0 && (
                 <TableRow>
-                  <TableHead>Lessons</TableHead>
+                  <TableHead>{t("materials.lessons")}</TableHead>
                   <TableCell>{material.lessons_names.join(", ")}</TableCell>
                 </TableRow>
               )}
               {material.topics_names.length > 0 && (
                 <TableRow>
-                  <TableHead>Topics</TableHead>
+                  <TableHead>{t("materials.topics")}</TableHead>
                   <TableCell>{material.topics_names.join(", ")}</TableCell>
                 </TableRow>
               )}
@@ -161,7 +163,7 @@ export default function MaterialView() {
         {/* File */}
         {material.file_url && (
           <div className="rounded-md border p-4">
-            <h3 className="font-semibold mb-2">File</h3>
+            <h3 className="font-semibold mb-2">{t("materials.file")}</h3>
             <div className="flex items-center gap-4">
               <a
                 href={material.file_url}
@@ -172,7 +174,7 @@ export default function MaterialView() {
                 {material.file_url}
               </a>
               <Button size="sm" onClick={handleDownload}>
-                Download
+                {t("common.download")}
               </Button>
             </div>
           </div>
@@ -181,7 +183,7 @@ export default function MaterialView() {
         {/* Rich Text Content */}
         {material.content && (
           <div className="rounded-md border p-4">
-            <h3 className="font-semibold mb-2">Content</h3>
+            <h3 className="font-semibold mb-2">{t("materials.content")}</h3>
             <div
               className="prose max-w-none"
               dangerouslySetInnerHTML={{ __html: material.content }}
