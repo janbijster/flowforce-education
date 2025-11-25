@@ -114,6 +114,14 @@ export default function MaterialsBase() {
         </div>
 
         {selectedCourse && (
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={() => navigate(`/materials/course/${selectedCourse}`)}>
+              {t("materials.viewCoursePage")}
+            </Button>
+          </div>
+        )}
+
+        {selectedCourse && (
           <>
             {loading ? (
               <div className="flex items-center justify-center p-8">

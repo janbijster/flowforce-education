@@ -592,6 +592,16 @@ export async function fetchCourses(): Promise<Course[]> {
   return data.results || data;
 }
 
+export async function fetchCourse(id: number): Promise<Course> {
+  const response = await fetch(`${API_BASE_URL}/courses/courses/${id}/`, {
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch course');
+  }
+  return await response.json();
+}
+
 export async function fetchModules(courseId?: number): Promise<Module[]> {
   const qs = new URLSearchParams();
   if (courseId) qs.set('course', String(courseId));

@@ -74,7 +74,17 @@
     "allCourses": "Alle cursussen",
     "allModules": "Alle modules",
     "allLessons": "Alle lessen",
-    "allTopics": "Alle onderwerpen"
+    "allTopics": "Alle onderwerpen",
+    "viewCoursePage": "Open cursusmateriaalpagina",
+    "backToCourses": "Terug naar cursussen",
+    "open": "Openen",
+    "courseMaterials": "Cursusmaterialen",
+    "noCourseDescription": "Geen cursusbeschrijving beschikbaar.",
+    "noDescription": "Geen beschrijving opgegeven.",
+    "noMaterialsForCourse": "Nog geen materialen beschikbaar voor deze cursus.",
+    "noModulesForMaterial": "Geen modules gekoppeld aan dit materiaal.",
+    "noModuleDescription": "Geen modulebeschrijving.",
+    "noLessonDescription": "Geen lesbeschrijving."
   },
   "quizzes": {
     "quizzes": "Toetsen",
@@ -269,7 +279,8 @@
     "failedToLoadModules": "Modules laden mislukt",
     "failedToLoadLessons": "Lessen laden mislukt",
     "failedToLoadTopics": "Onderwerpen laden mislukt",
-    "userNotAuthenticated": "Gebruiker niet geauthenticeerd"
+    "userNotAuthenticated": "Gebruiker niet geauthenticeerd",
+    "courseNotFound": "Cursus niet gevonden"
   },
   "footer": {
     "demoEnvironment": "Flowforce Education demo omgeving"

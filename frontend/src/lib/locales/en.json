@@ -49,6 +49,7 @@
     "newMaterial": "New Material",
     "editMaterial": "Edit Material",
     "materialDetails": "Material Details",
+    "courseMaterials": "Course Materials",
     "selectCourse": "Select Course",
     "selectCoursePlaceholder": "-- Select a course --",
     "loadingMaterials": "Loading materials...",
@@ -74,7 +75,16 @@
     "allCourses": "All Courses",
     "allModules": "All Modules",
     "allLessons": "All Lessons",
-    "allTopics": "All Topics"
+    "allTopics": "All Topics",
+    "viewCoursePage": "Open course materials page",
+    "backToCourses": "Back to course selection",
+    "open": "Open",
+    "noCourseDescription": "No course description provided.",
+    "noDescription": "No description provided.",
+    "noMaterialsForCourse": "No materials available for this course yet.",
+    "noModulesForMaterial": "No modules linked to this material.",
+    "noModuleDescription": "No module description.",
+    "noLessonDescription": "No lesson description."
   },
   "quizzes": {
     "quizzes": "Quizzes",
@@ -267,7 +277,8 @@
     "failedToLoadStudentGroups": "Failed to load student groups",
     "failedToLoadLessons": "Failed to load lessons",
     "failedToLoadTopics": "Failed to load topics",
-    "userNotAuthenticated": "User not authenticated"
+    "userNotAuthenticated": "User not authenticated",
+    "courseNotFound": "Course not found"
   },
   "footer": {
     "demoEnvironment": "Flowforce Education demo omgeving"

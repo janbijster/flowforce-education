@@ -24,6 +24,7 @@ import MaterialsBase from "./pages/MaterialsBase";
 import MaterialsOverview from "./pages/MaterialsOverview";
 import MaterialForm from "./pages/MaterialForm";
 import MaterialView from "./pages/MaterialView";
+import MaterialsCourse from "./pages/MaterialsCourse";
 
 export const router = createBrowserRouter([
     {
@@ -133,6 +134,10 @@ export const router = createBrowserRouter([
             {
                 path: "materials/:id/edit",
                 element: <MaterialForm />,
+            },
+            {
+                path: "materials/course/:courseId",
+                element: <MaterialsCourse />,
             },
         ],
     },
