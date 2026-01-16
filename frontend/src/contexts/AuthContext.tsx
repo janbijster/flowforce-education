@@ -28,10 +28,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: "demo_user",
     email: "demo@example.com",
     organization: {
-      id: 2,
-      name: "BHV instituut",
-      slug: "bhv-instituut",
-      description: "Gespecialiseerd instituut voor Bedrijfshulpverlening (BHV) trainingen en certificeringen.",
+      id: 1,
+      name: "Installatiebranche opleider",
+      slug: "installatiebranche-opleider",
+      description: "Specialist in praktijkgerichte trainingen voor installateurs in de koel- en aircotechniek.",
     },
   };
 
