@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
@@ -12,29 +11,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { LoadingError } from "@/components/LoadingError";
+import { useListData } from "@/hooks/useListData";
 import { fetchQuizzes, Quiz } from "@/lib/api";
 
 export default function Quizzes() {
   const { t } = useTranslation();
-  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const loadQuizzes = async () => {
-      try {
-        const data = await fetchQuizzes();
-        setQuizzes(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : t("errors.failedToLoadQuizzes"));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadQuizzes();
-  }, []);
+  const { data: quizzes, loading, error } = useListData<Quiz>({
+    fetchFn: fetchQuizzes,
+    errorMessage: t("errors.failedToLoadQuizzes"),
+  });
 
   const handleRowClick = (id: number) => {
     navigate(`/quizzes/${id}`);

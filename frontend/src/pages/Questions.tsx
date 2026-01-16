@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { LoadingError } from "@/components/LoadingError";
 import { FilterSelect } from "@/components/FilterSelect";
+import { useCascadingSelect } from "@/hooks/useCascadingSelect";
 import { fetchQuestions, fetchCourses, fetchModules, Question, Course, Module } from "@/lib/api";
 import { QuestionTypeBadge } from "@/components/QuestionTypeBadge";
 
@@ -20,12 +21,20 @@ export default function Questions() {
   const { t } = useTranslation();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
-  const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<number | null>(null);
-  const [selectedModule, setSelectedModule] = useState<number | null>(null);
   const navigate = useNavigate();
+
+  const handleError = useCallback((err: Error) => {
+    setError(err.message);
+  }, []);
+
+  const {
+    value: selectedModule,
+    setValue: setSelectedModule,
+    options: modules,
+  } = useCascadingSelect<Module>(selectedCourse, fetchModules, handleError);
 
   useEffect(() => {
     const loadData = async () => {
@@ -45,29 +54,6 @@ export default function Questions() {
 
     loadData();
   }, []);
-
-  useEffect(() => {
-    const loadModules = async () => {
-      if (selectedCourse) {
-        try {
-          const mods = await fetchModules(selectedCourse);
-          setModules(mods);
-          setSelectedModule((current) => {
-            if (current && !mods.some(m => m.id === current)) {
-              return null;
-            }
-            return current;
-          });
-        } catch (e) {
-          setError(e instanceof Error ? e.message : t("errors.failedToLoadModules"));
-        }
-      } else {
-        setModules([]);
-        setSelectedModule(null);
-      }
-    };
-    loadModules();
-  }, [selectedCourse]);
 
   const filteredQuestions = useMemo(() => {
     return questions.filter((q) => {
