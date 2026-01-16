@@ -11,6 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { LoadingError } from "@/components/LoadingError";
+import { FilterSelect } from "@/components/FilterSelect";
 import { fetchQuestions, fetchCourses, fetchModules, Question, Course, Module } from "@/lib/api";
 import { QuestionTypeBadge } from "@/components/QuestionTypeBadge";
 
@@ -82,8 +84,8 @@ export default function Questions() {
   }, [questions, selectedCourse, selectedModule, courses, modules]);
 
   const handleRowClick = (question: Question) => {
-    const typePath = question.question_type === 'multiple_choice' 
-      ? 'multiple-choice' 
+    const typePath = question.question_type === 'multiple_choice'
+      ? 'multiple-choice'
       : question.question_type === 'order'
       ? 'order'
       : question.question_type === 'connect'
@@ -92,71 +94,31 @@ export default function Questions() {
     navigate(`/questions/${typePath}/${question.id}`);
   };
 
-  if (loading) {
-    return (
-      <>
-        <PageHeader>
-          <PageHeaderHeading>{t("questions.questions")}</PageHeaderHeading>
-        </PageHeader>
-        <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">{t("common.loading")}</p>
-        </div>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <PageHeader>
-          <PageHeaderHeading>Questions</PageHeaderHeading>
-        </PageHeader>
-        <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error}</p>
-        </div>
-      </>
-    );
-  }
-
   return (
-    <>
+    <LoadingError loading={loading} error={error} title={t("questions.questions")}>
       <PageHeader>
         <PageHeaderHeading>{t("questions.questions")}</PageHeaderHeading>
         <Button onClick={() => navigate("/questions/new")}>{t("questions.newQuestion")}</Button>
       </PageHeader>
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("questions.filterByCourse")}</label>
-          <select
-            className="w-full rounded-md border px-3 py-2 text-sm"
-            value={selectedCourse ?? ""}
-            onChange={(e) => setSelectedCourse(e.target.value ? Number(e.target.value) : null)}
-          >
-            <option value="">{t("questions.allCourses")}</option>
-            {courses.map((course) => (
-              <option key={course.id} value={course.id}>
-                {course.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("questions.filterByModule")}</label>
-          <select
-            className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
-            value={selectedModule ?? ""}
-            onChange={(e) => setSelectedModule(e.target.value ? Number(e.target.value) : null)}
-            disabled={!selectedCourse || modules.length === 0}
-          >
-            <option value="">{t("questions.allModules")}</option>
-            {modules.map((module) => (
-              <option key={module.id} value={module.id}>
-                {module.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <FilterSelect
+          label={t("questions.filterByCourse")}
+          value={selectedCourse}
+          options={courses}
+          onChange={setSelectedCourse}
+          allLabel={t("questions.allCourses")}
+          fullWidth
+        />
+        <FilterSelect
+          label={t("questions.filterByModule")}
+          value={selectedModule}
+          options={modules}
+          onChange={setSelectedModule}
+          allLabel={t("questions.allModules")}
+          disabled={!selectedCourse || modules.length === 0}
+          fullWidth
+        />
       </div>
 
       <div className="rounded-md border">
@@ -187,7 +149,7 @@ export default function Questions() {
                 <TableCell>{question.module_name ?? "—"}</TableCell>
                 <TableCell>{question.topic_name ?? "—"}</TableCell>
                 <TableCell>
-                  {question.question_type === 'multiple_choice' 
+                  {question.question_type === 'multiple_choice'
                     ? (question as any).options_count || 0
                     : question.question_type === 'order'
                     ? (question as any).order_options_count || 0
@@ -200,8 +162,8 @@ export default function Questions() {
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      const typePath = question.question_type === 'multiple_choice' 
-                        ? 'multiple-choice' 
+                      const typePath = question.question_type === 'multiple_choice'
+                        ? 'multiple-choice'
                         : question.question_type === 'order'
                         ? 'order'
                         : question.question_type === 'connect'
@@ -218,6 +180,6 @@ export default function Questions() {
           </TableBody>
         </Table>
       </div>
-    </>
+    </LoadingError>
   );
 }

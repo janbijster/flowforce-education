@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { LoadingError } from "@/components/LoadingError";
 import { fetchQuizzes, Quiz } from "@/lib/api";
 
 export default function Quizzes() {
@@ -39,34 +40,8 @@ export default function Quizzes() {
     navigate(`/quizzes/${id}`);
   };
 
-  if (loading) {
-    return (
-      <>
-        <PageHeader>
-          <PageHeaderHeading>{t("quizzes.quizzes")}</PageHeaderHeading>
-        </PageHeader>
-        <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">{t("common.loading")}</p>
-        </div>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <PageHeader>
-          <PageHeaderHeading>Quizzes</PageHeaderHeading>
-        </PageHeader>
-        <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error}</p>
-        </div>
-      </>
-    );
-  }
-
   return (
-    <>
+    <LoadingError loading={loading} error={error} title={t("quizzes.quizzes")}>
       <PageHeader>
         <PageHeaderHeading>{t("quizzes.quizzes")}</PageHeaderHeading>
         <Button onClick={() => navigate("/quizzes/new")}>{t("quizzes.newQuiz")}</Button>
@@ -97,7 +72,6 @@ export default function Quizzes() {
           </TableBody>
         </Table>
       </div>
-    </>
+    </LoadingError>
   );
 }
-

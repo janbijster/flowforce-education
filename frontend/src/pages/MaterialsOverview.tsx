@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { PageHeader, PageHeaderHeading } from "@/components/page-header";
@@ -11,6 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { LoadingError } from "@/components/LoadingError";
+import { FilterSelect } from "@/components/FilterSelect";
 import {
   fetchMaterials,
   fetchCourses,
@@ -138,12 +140,12 @@ export default function MaterialsOverview() {
           lessons?: number[];
           topics?: number[];
         } = {};
-        
+
         if (selectedCourse) params.course = selectedCourse;
         if (selectedModule) params.modules = [selectedModule];
         if (selectedLesson) params.lessons = [selectedLesson];
         if (selectedTopic) params.topics = [selectedTopic];
-        
+
         const mats = await fetchMaterials(params);
         setMaterials(mats);
       } catch (err) {
@@ -173,103 +175,49 @@ export default function MaterialsOverview() {
     navigate(`/materials/${id}`);
   };
 
-  if (loading && materials.length === 0) {
-    return (
-      <>
-        <PageHeader>
-          <PageHeaderHeading>{t("materials.materialsOverview")}</PageHeaderHeading>
-        </PageHeader>
-        <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">{t("common.loading")}</p>
-        </div>
-      </>
-    );
-  }
-
-  if (error && materials.length === 0) {
-    return (
-      <>
-        <PageHeader>
-          <PageHeaderHeading>Materials Overview</PageHeaderHeading>
-        </PageHeader>
-        <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error}</p>
-        </div>
-      </>
-    );
-  }
-
   return (
-    <>
+    <LoadingError loading={loading && materials.length === 0} error={error && materials.length === 0 ? error : null} title={t("materials.materialsOverview")}>
       <PageHeader>
         <PageHeaderHeading>{t("materials.materialsOverview")}</PageHeaderHeading>
         <Button onClick={() => navigate("/materials/new")}>{t("materials.newMaterial")}</Button>
       </PageHeader>
 
       <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("materials.filterByCourse")}</label>
-          <select
-            className="w-full rounded-md border px-3 py-2 text-sm"
-            value={selectedCourse ?? ""}
-            onChange={(e) => setSelectedCourse(e.target.value ? Number(e.target.value) : null)}
-          >
-            <option value="">{t("materials.allCourses")}</option>
-            {courses.map((course) => (
-              <option key={course.id} value={course.id}>
-                {course.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("materials.filterByModule")}</label>
-          <select
-            className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
-            value={selectedModule ?? ""}
-            onChange={(e) => setSelectedModule(e.target.value ? Number(e.target.value) : null)}
-            disabled={!selectedCourse || modules.length === 0}
-          >
-            <option value="">{t("materials.allModules")}</option>
-            {modules.map((module) => (
-              <option key={module.id} value={module.id}>
-                {module.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("materials.filterByLesson")}</label>
-          <select
-            className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
-            value={selectedLesson ?? ""}
-            onChange={(e) => setSelectedLesson(e.target.value ? Number(e.target.value) : null)}
-            disabled={!selectedModule || lessons.length === 0}
-          >
-            <option value="">{t("materials.allLessons")}</option>
-            {lessons.map((lesson) => (
-              <option key={lesson.id} value={lesson.id}>
-                {lesson.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">{t("materials.filterByTopic")}</label>
-          <select
-            className="w-full rounded-md border px-3 py-2 text-sm disabled:opacity-50"
-            value={selectedTopic ?? ""}
-            onChange={(e) => setSelectedTopic(e.target.value ? Number(e.target.value) : null)}
-            disabled={!selectedLesson || topics.length === 0}
-          >
-            <option value="">{t("materials.allTopics")}</option>
-            {topics.map((topic) => (
-              <option key={topic.id} value={topic.id}>
-                {topic.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <FilterSelect
+          label={t("materials.filterByCourse")}
+          value={selectedCourse}
+          options={courses}
+          onChange={setSelectedCourse}
+          allLabel={t("materials.allCourses")}
+          fullWidth
+        />
+        <FilterSelect
+          label={t("materials.filterByModule")}
+          value={selectedModule}
+          options={modules}
+          onChange={setSelectedModule}
+          allLabel={t("materials.allModules")}
+          disabled={!selectedCourse || modules.length === 0}
+          fullWidth
+        />
+        <FilterSelect
+          label={t("materials.filterByLesson")}
+          value={selectedLesson}
+          options={lessons}
+          onChange={setSelectedLesson}
+          allLabel={t("materials.allLessons")}
+          disabled={!selectedModule || lessons.length === 0}
+          fullWidth
+        />
+        <FilterSelect
+          label={t("materials.filterByTopic")}
+          value={selectedTopic}
+          options={topics}
+          onChange={setSelectedTopic}
+          allLabel={t("materials.allTopics")}
+          disabled={!selectedLesson || topics.length === 0}
+          fullWidth
+        />
       </div>
 
       {loading ? (
@@ -345,7 +293,6 @@ export default function MaterialsOverview() {
           </Table>
         </div>
       )}
-    </>
+    </LoadingError>
   );
 }
-

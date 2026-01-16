@@ -11,6 +11,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { LoadingError } from "@/components/LoadingError";
+import { FilterSelect } from "@/components/FilterSelect";
 import { fetchStudents, fetchStudentGroups, Student, StudentGroup } from "@/lib/api";
 
 export default function Students() {
@@ -57,54 +59,21 @@ export default function Students() {
     navigate(`/students/${id}`);
   };
 
-  if (loading) {
-    return (
-      <>
-        <PageHeader>
-          <PageHeaderHeading>{t("students.students")}</PageHeaderHeading>
-        </PageHeader>
-        <div className="flex items-center justify-center p-8">
-          <p className="text-muted-foreground">{t("common.loading")}</p>
-        </div>
-      </>
-    );
-  }
-
-  if (error) {
-    return (
-      <>
-        <PageHeader>
-          <PageHeaderHeading>Students</PageHeaderHeading>
-        </PageHeader>
-        <div className="flex items-center justify-center p-8">
-          <p className="text-destructive">{error}</p>
-        </div>
-      </>
-    );
-  }
-
   return (
-    <>
+    <LoadingError loading={loading} error={error} title={t("students.students")}>
       <PageHeader>
         <PageHeaderHeading>{t("students.students")}</PageHeaderHeading>
         <Button onClick={() => navigate("/students/new")}>{t("students.newStudent")}</Button>
       </PageHeader>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">{t("students.filterByStudentGroup")}</label>
-        <select
-          className="w-full max-w-xs rounded-md border px-3 py-2 text-sm"
-          value={selectedGroup ?? ""}
-          onChange={(e) => setSelectedGroup(e.target.value ? Number(e.target.value) : null)}
-        >
-          <option value="">{t("students.allGroups")}</option>
-          {studentGroups.map((group) => (
-            <option key={group.id} value={group.id}>
-              {group.name} ({group.course_name})
-            </option>
-          ))}
-        </select>
-      </div>
+      <FilterSelect
+        label={t("students.filterByStudentGroup")}
+        value={selectedGroup}
+        options={studentGroups}
+        onChange={setSelectedGroup}
+        allLabel={t("students.allGroups")}
+        displayFn={(group) => `${group.name} (${group.course_name})`}
+      />
 
       <div className="rounded-md border">
         <Table>
@@ -134,7 +103,6 @@ export default function Students() {
           </TableBody>
         </Table>
       </div>
-    </>
+    </LoadingError>
   );
 }
-
