@@ -167,15 +167,33 @@ This command requires that BHV content has already been created using `create_bh
 
 Once the server is running, you can access:
 
-- **Organizations**: http://localhost:8000/api/organizations/organizations/
-- **Courses**: http://localhost:8000/api/courses/courses/
-- **Modules**: http://localhost:8000/api/courses/modules/
-- **Lessons**: http://localhost:8000/api/courses/lessons/
-- **Topics**: http://localhost:8000/api/courses/topics/
-- **Learning Objectives**: http://localhost:8000/api/courses/learning-objectives/
-- **Quizzes**: http://localhost:8000/api/quizzes/quizzes/
-- **Questions**: http://localhost:8000/api/quizzes/questions/
-- **Options**: http://localhost:8000/api/quizzes/options/
+**Organizations:**
+- http://localhost:8000/api/organizations/organizations/
+- http://localhost:8000/api/organizations/users/
+
+**Courses (content hierarchy):**
+- http://localhost:8000/api/courses/courses/
+- http://localhost:8000/api/courses/modules/
+- http://localhost:8000/api/courses/lessons/
+- http://localhost:8000/api/courses/topics/ (learning objectives)
+- http://localhost:8000/api/courses/materials/
+
+**Quizzes:**
+- http://localhost:8000/api/quizzes/quizzes/
+- http://localhost:8000/api/quizzes/questions/ (alias for multiple-choice-questions)
+- http://localhost:8000/api/quizzes/multiple-choice-questions/
+- http://localhost:8000/api/quizzes/order-questions/
+- http://localhost:8000/api/quizzes/connect-questions/
+- http://localhost:8000/api/quizzes/number-questions/
+- http://localhost:8000/api/quizzes/options/
+- http://localhost:8000/api/quizzes/order-options/
+- http://localhost:8000/api/quizzes/connect-options/
+- http://localhost:8000/api/quizzes/connect-option-connections/
+
+**Students:**
+- http://localhost:8000/api/students/students/
+- http://localhost:8000/api/students/student-groups/
+- http://localhost:8000/api/students/question-answers/
 
 All endpoints support filtering, search, and pagination.
 
@@ -265,16 +283,18 @@ Render will automatically:
 ## Project Structure
 
 ```
-.
-├── .env.example           # Example environment variables
-├── .gitignore            # Git ignore file
-├── build.sh              # Build script for Render
-├── config/               # Django project configuration
+backend/
+├── config/               # Django project configuration (settings, urls, wsgi)
+├── organizations/        # Multi-tenant architecture (Organization, User models)
+├── courses/              # Content hierarchy (Course, Module, Lesson, Topic, Material)
+├── quizzes/              # Assessment engine (Quiz, question types, options)
+├── students/             # Progress tracking (Student, StudentGroup, answers)
 ├── manage.py             # Django management script
-├── poetry.lock          # Poetry lock file
-├── pyproject.toml       # Project dependencies
-├── README.md            # This file
-└── render.yaml          # Render.com configuration
+├── pyproject.toml        # Poetry dependencies (Python 3.12)
+├── poetry.lock           # Poetry lock file
+├── .env.example          # Example environment variables
+├── build.sh              # Build script for Render
+└── render.yaml           # Render.com configuration
 ```
 
 ## Additional Resources

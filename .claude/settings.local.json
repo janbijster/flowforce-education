@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(npm install:*)",
+      "Bash(nvm use:*)",
+      "Bash(npx playwright:*)",
+      "Bash(poetry run python:*)",
+      "Bash(curl:*)",
+      "Bash(npm run test:update:*)",
+      "Bash(npm test)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(npm test:*)"
+    ]
+  }
+}
