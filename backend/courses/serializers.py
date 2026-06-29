@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Course, Module, Lesson, Topic, Material
+from .models import Course, Module, Lesson, Topic, Material, TopicMaterial
 
 
 class TopicSerializer(serializers.ModelSerializer):
@@ -107,6 +107,20 @@ class CourseDetailSerializer(CourseSerializer):
     
     class Meta(CourseSerializer.Meta):
         fields = CourseSerializer.Meta.fields + ['modules']
+
+
+class TopicMaterialSerializer(serializers.ModelSerializer):
+    """Serializer for TopicMaterial model."""
+
+    topic_name = serializers.CharField(source='topic.name', read_only=True)
+
+    class Meta:
+        model = TopicMaterial
+        fields = [
+            'id', 'text', 'image', 'video', 'organization', 'topic',
+            'topic_name', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 # Learning Materials Serializers

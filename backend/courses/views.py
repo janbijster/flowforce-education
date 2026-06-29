@@ -2,13 +2,14 @@ from rest_framework import viewsets, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Course, Module, Lesson, Topic, Material
+from .models import Course, Module, Lesson, Topic, Material, TopicMaterial
 from .serializers import (
     CourseSerializer, CourseDetailSerializer,
     ModuleSerializer, ModuleDetailSerializer,
     LessonSerializer, LessonDetailSerializer,
     TopicSerializer, TopicDetailSerializer,
-    MaterialSerializer, MaterialDetailSerializer
+    MaterialSerializer, MaterialDetailSerializer,
+    TopicMaterialSerializer
 )
 
 
@@ -103,6 +104,19 @@ class TopicViewSet(viewsets.ModelViewSet):
             return TopicDetailSerializer
         return TopicSerializer
     
+class TopicMaterialViewSet(viewsets.ModelViewSet):
+    """ViewSet for TopicMaterial model."""
+
+    queryset = TopicMaterial.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['text']
+    ordering_fields = ['created_at']
+    ordering = ['created_at']
+    filterset_fields = ['organization', 'topic']
+    serializer_class = TopicMaterialSerializer
+
+
 class MaterialViewSet(viewsets.ModelViewSet):
     """ViewSet for Material model."""
     

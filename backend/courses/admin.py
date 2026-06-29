@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Course, Module, Lesson, Topic, Material
+from .models import Course, Module, Lesson, Topic, Material, TopicMaterial
 
 
 @admin.register(Course)
@@ -28,6 +28,13 @@ class TopicAdmin(admin.ModelAdmin):
     list_display = ['name', 'lesson', 'organization', 'created_at']
     list_filter = ['organization', 'lesson__module__course', 'created_at']
     search_fields = ['name', 'description']
+
+
+@admin.register(TopicMaterial)
+class TopicMaterialAdmin(admin.ModelAdmin):
+    list_display = ['topic', 'organization', 'created_at']
+    list_filter = ['organization', 'topic__lesson__module__course', 'created_at']
+    search_fields = ['text']
 
 
 @admin.register(Material)

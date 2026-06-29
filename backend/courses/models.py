@@ -76,6 +76,25 @@ class Topic(OrganizationModel):
         return f"{self.lesson.module.course.name} - {self.lesson.module.name} - {self.lesson.name} - {self.name}"
 
 
+class TopicMaterial(OrganizationModel):
+    """Learning material linked to a topic, used to give feedback when a student answers a question wrong."""
+
+    text = models.TextField(blank=True)
+    image = models.ImageField(upload_to='topic_materials/', blank=True, null=True)
+    video = models.FileField(upload_to='topic_materials/videos/', blank=True, null=True)
+    topic = models.ForeignKey(
+        Topic,
+        on_delete=models.CASCADE,
+        related_name='topic_materials'
+    )
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.topic.name} - {self.text[:50]}"
+
+
 class Material(OrganizationModel):
     """Material model for learning materials (readers, presentations, etc.)."""
     
